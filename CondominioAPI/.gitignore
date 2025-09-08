@@ -1,0 +1,52 @@
+# .NET Core / .NET 5+ / .NET 8
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+
+# Npm packages
+node_modules/
+
+# Logs
+*.log
+
+# Test results
+TestResults/
+
+# Others
+*.dbmdl
+*.jfm
+*.pdb
+*.cache
+*.ide
+*.sdf
+*.sln.ide
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Rider
+.idea/
+*.sln.iml
+
+# Azure Pipelines
+.vsts/
+
+# Local history for Visual Studio
+.localhistory/
+
+# Backup & VS Code
+*.bak
+.vscode/
