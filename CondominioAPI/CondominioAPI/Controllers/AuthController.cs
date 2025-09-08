@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
+using dto = CondominioAPI.DTOs;
 namespace CondominioAPI.Controllers
 {
     [ApiController]
@@ -14,15 +14,16 @@ namespace CondominioAPI.Controllers
     {
         [HttpPost("login")]
         [AllowAnonymous]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public IActionResult Login([FromBody] dto.LoginRequest request)
         {
+            //TODO: Update the following code to validate against a user store
             // Usuario demo
             if (request.Username == "usuario" && request.Password == "1234")
             {
                 var claims = new[]
                 {
-                new Claim(ClaimTypes.Name, request.Username)
-            };
+                    new Claim(ClaimTypes.Name, request.Username)
+                };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("clave_super_secreta_para_jwt_1234567890"));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -37,10 +38,4 @@ namespace CondominioAPI.Controllers
             return Unauthorized();
         }
     }
-
-    public class LoginRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
-}
+}   
