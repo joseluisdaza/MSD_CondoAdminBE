@@ -1,0 +1,76 @@
+pipeline {
+    agent any
+
+    options {
+        // Timeout after 10 minutes
+        timeout(time: 10, unit: 'MINUTES')
+        // Disable concurrent builds
+        disableConcurrentBuilds()
+        // Adding color to console output
+        ansiColor('xterm')
+    }
+
+    environment {
+        SOLUTION_DIR = 'src/CondominioAPI/CondominioAPI'
+        OUTPUT_DIR = "\\\\localhost\\Cursos\\Maestria Fullstack\\Builds\\CondoBE\\${BUILD_NUMBER}\\"
+        DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+    }
+
+    triggers {
+        // Polls for changes every 5 minutes (for demonstration; use webhooks for real PR detection)
+        pollSCM('H/5 * * * *')
+    }
+
+    stages {
+        
+        stage('Restore nuget packages') {
+            steps {
+                echo "\u001B[34m=== Starting Restore nuget packages ===\u001B[0m"
+                dir("${env.SOLUTION_DIR}") {
+                    bat 'dotnet restore'
+                }
+                echo "\u001B[34m=== Finishing Restore nuget packages ===\u001B[0m"
+            }
+        }
+
+        stage('Clean') {
+            steps {
+                echo "\u001B[34m=== Starting Clean Solution ===\u001B[0m"
+                dir("${env.SOLUTION_DIR}") {
+                    bat 'dotnet clean'
+                }
+                echo "\u001B[34m=== Finishing Clean Solution ===\u001B[0m"
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "\u001B[34m=== Starting Build Solution ===\u001B[0m"
+                dir("${env.SOLUTION_DIR}") {
+                    bat "dotnet build"
+                }
+                echo "\u001B[34m=== Finishing Build Solution ===\u001B[0m"
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo "\u001B[34m=== Starting Test Solution ===\u001B[0m"
+                dir("${env.SOLUTION_DIR}") {
+                    bat 'dotnet test --no-build --verbosity normal'
+                }
+                echo "\u001B[34m=== Finishing Test Solution ===\u001B[0m"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "\u001B[34m=== Starting Deploy Backend===\u001B[0m"
+                dir("${env.SOLUTION_DIR}") {
+                    bat "dotnet publish -c Release -o \"${env.OUTPUT_DIR}\""
+                }
+                echo "\u001B[34m=== Finishing Deploy Backend ===\u001B[0m"
+            }
+        }
+    }
+}
