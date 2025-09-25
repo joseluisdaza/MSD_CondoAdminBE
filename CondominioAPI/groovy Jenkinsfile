@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    environment {
+        DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+    }
+
+    triggers {
+        // Polls for changes every 5 minutes (for demonstration; use webhooks for real PR detection)
+        pollSCM('H/5 * * * *')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Restore') {
+            steps {
+                sh 'dotnet restore'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'dotnet build --configuration Release --no-restore'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'dotnet test --no-build --verbosity normal'
+            }
+        }
+    }
+
+    post {
+        always {
+            junit '**/TestResults/*.xml'
+        }
+    }
+}
