@@ -11,7 +11,7 @@ pipeline {
     }
 
     environment {
-        SOLUTION_DIR = 'src/CondominioAPI/CondominioAPI'
+        SOLUTION_DIR = 'CondominioAPI'
         OUTPUT_DIR = "\\\\localhost\\Cursos\\Maestria Fullstack\\Builds\\CondoBE\\${BUILD_NUMBER}\\"
         DOTNET_CLI_TELEMETRY_OPTOUT = '1'
     }
