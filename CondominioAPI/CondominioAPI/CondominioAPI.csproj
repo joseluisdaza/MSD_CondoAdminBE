@@ -11,4 +11,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Condominio.Data.MySql\Condominio.Data.Mysql.csproj" />
+    <ProjectReference Include="..\Condominio.Repository\Condominio.Repository.csproj" />
+  </ItemGroup>
+
 </Project>
