@@ -1,7 +1,5 @@
 using Condominio.Data.MySql.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Condominio.Repository.Repositories
 {

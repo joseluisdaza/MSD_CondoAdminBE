@@ -1,4 +1,5 @@
 ﻿using Condominio.Data.MySql.Models;
+using Condominio.Models;
 using CondominioAPI.DTOs;
 
 namespace CondominioAPI.Utils

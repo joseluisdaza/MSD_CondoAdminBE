@@ -1,4 +1,5 @@
 using Condominio.Data.MySql.Models;
+using Condominio.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;

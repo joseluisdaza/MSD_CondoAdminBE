@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Condominio.Data.MySql.Models;
+﻿namespace Condominio.Models;
 
 public partial class PropertyType
 {

@@ -1,4 +1,5 @@
 using Condominio.Data.MySql.Models;
+using Condominio.Models;
 using Condominio.Repository.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

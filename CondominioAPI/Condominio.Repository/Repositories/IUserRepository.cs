@@ -1,6 +1,4 @@
-using Condominio.Data.MySql.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Condominio.Models;
 
 namespace Condominio.Repository.Repositories
 {

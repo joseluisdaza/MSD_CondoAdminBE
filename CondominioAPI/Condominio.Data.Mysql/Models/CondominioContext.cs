@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Condominio.Models;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
