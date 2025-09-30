@@ -5,18 +5,19 @@ namespace CondominioAPI.Utils
 {
     public static class DTOConverter
     {
-        public static UserRequest ToUserRequest(this User user)
+        public static UserRequest ToUserRequest(this User user, bool includeId = false, bool includePassword = false)
         {
             if (user == null) return null;
 
             return new UserRequest
             {
+                Id = includeId ? user.Id : 0,
                 UserName = user.UserName,
                 LastName = user.LastName,
                 LegalId = user.LegalId,
                 StartDate = user.StartDate,
                 EndDate = user.EndDate ?? default,
-                Password = user.Password
+                Password = includePassword ? user.Password : null
             };
         }
 
@@ -29,7 +30,7 @@ namespace CondominioAPI.Utils
                 LastName = userRequest.LastName,
                 LegalId = userRequest.LegalId,
                 StartDate = userRequest.StartDate,
-                EndDate = userRequest.EndDate == default ? null : userRequest.EndDate,
+                EndDate = userRequest.EndDate.HasValue ? userRequest.EndDate.Value : null,
                 Password = userRequest.Password
             };
         }

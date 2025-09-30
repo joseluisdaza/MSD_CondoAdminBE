@@ -2,6 +2,7 @@ using Condominio.Data.MySql.Models;
 using Condominio.Repository.Repositories;
 using CondominioAPI.DTOs;
 using CondominioAPI.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -20,41 +21,62 @@ namespace CondominioAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetAll()
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<UserRequest>>> GetAll()
         {
             var users = await _userRepository.GetAllAsync();
+            var userRequests = users.Select(u => u.ToUserRequest()).ToList();
             return Ok(users);
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<User>> GetById(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
+
             if (user == null)
                 return NotFound();
-            return Ok(user);
+
+
+            return Ok(user.ToUserRequest());
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> Create(UserRequest user)
+        [Authorize]
+        public async Task<ActionResult<UserRequest>> Create(UserRequest user)
         {
-            await _userRepository.AddAsync(user.ToUser());
-            return Ok();// CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            user.EndDate = null;
+            var userEntity = user.ToUser();
+            await _userRepository.AddAsync(userEntity);
+            
+            var createdUserRequest = userEntity.ToUserRequest(includeId: true);
+            return CreatedAtAction(nameof(GetById), new { id = userEntity.Id }, createdUserRequest);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, User user)
+        [Authorize]
+        public async Task<IActionResult> Update(int id, UserRequest user)
         {
-            if (id != user.Id)
-                return BadRequest();
-            await _userRepository.UpdateAsync(user);
+            var userFound = await _userRepository.GetByIdAsync(id);
+            if (userFound == null)
+                return NotFound();
+
+            user.EndDate = userFound.EndDate;
+            await _userRepository.UpdateAsync(user.ToUser());
             return NoContent();
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            await _userRepository.DeleteAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            user.EndDate = DateTime.Now;
+            await _userRepository.UpdateAsync(user);
             return NoContent();
         }
     }
