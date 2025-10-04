@@ -241,6 +241,9 @@ public partial class CondominioContext : DbContext
             entity.Property(e => e.UserName)
                 .HasMaxLength(100)
                 .HasColumnName("User_Name");
+            entity.Property(e => e.Login)
+                .HasMaxLength(30)
+                .HasColumnName("Login");
         });
 
         modelBuilder.Entity<UserRole>(entity =>

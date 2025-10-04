@@ -14,5 +14,10 @@ namespace Condominio.Repository.Repositories
         {
             return await _dbSet.FirstOrDefaultAsync(u => u.UserName == userName);
         }
+
+        public async Task<User?> GetByLoginAsync(string login)
+        {
+            return await _dbSet.FirstOrDefaultAsync(u => u.Login == login);
+        }
     }
 }

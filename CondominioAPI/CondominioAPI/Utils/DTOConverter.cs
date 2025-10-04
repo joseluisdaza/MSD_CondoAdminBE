@@ -1,11 +1,25 @@
-﻿using Condominio.Data.MySql.Models;
-using Condominio.Models;
+﻿using Condominio.Models;
 using CondominioAPI.DTOs;
 
 namespace CondominioAPI.Utils
 {
     public static class DTOConverter
     {
+
+        public static UserBaseRequest ToUserBaseRequest(this User user)
+        {
+            if (user == null) return null;
+
+            return new UserBaseRequest
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                LastName = user.LastName,
+                LegalId = user.LegalId,
+                Login = user.Login
+            };
+        }
+
         public static UserRequest ToUserRequest(this User user, bool includeId = false, bool includePassword = false)
         {
             if (user == null) return null;
@@ -18,7 +32,8 @@ namespace CondominioAPI.Utils
                 LegalId = user.LegalId,
                 StartDate = user.StartDate,
                 EndDate = user.EndDate ?? default,
-                Password = includePassword ? user.Password : null
+                Password = includePassword ? user.Password : null,
+                Login = user.Login
             };
         }
 
@@ -32,7 +47,8 @@ namespace CondominioAPI.Utils
                 LegalId = userRequest.LegalId,
                 StartDate = userRequest.StartDate,
                 EndDate = userRequest.EndDate.HasValue ? userRequest.EndDate.Value : null,
-                Password = userRequest.Password
+                Password = null,
+                Login = userRequest.Login
             };
         }
     }

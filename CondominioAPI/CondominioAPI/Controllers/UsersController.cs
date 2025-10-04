@@ -23,24 +23,22 @@ namespace CondominioAPI.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<UserRequest>>> GetAll()
+        public async Task<ActionResult<IEnumerable<UserBaseRequest>>> GetAll()
         {
             var users = await _userRepository.GetAllAsync();
-            var userRequests = users.Select(u => u.ToUserRequest()).ToList();
-            return Ok(users);
+            return Ok(users.Select(u => u.ToUserBaseRequest()).ToList());
         }
 
         [HttpGet("{id}")]
         [Authorize]
-        public async Task<ActionResult<User>> GetById(int id)
+        public async Task<ActionResult<UserBaseRequest>> GetById(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null)
                 return NotFound();
 
-
-            return Ok(user.ToUserRequest());
+            return Ok(user.ToUserBaseRequest());
         }
 
         [HttpPost]

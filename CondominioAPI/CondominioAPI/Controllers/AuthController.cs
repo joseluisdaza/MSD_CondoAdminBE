@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Condominio.Repository.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using dto = CondominioAPI.DTOs;
 namespace CondominioAPI.Controllers
 {
@@ -12,17 +14,25 @@ namespace CondominioAPI.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        private readonly IUserRepository _userRepository;
+
+        public AuthController(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
         [HttpPost("login")]
         [AllowAnonymous]
-        public IActionResult Login([FromBody] dto.LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] dto.LoginRequest request)
         {
-            //TODO: Update the following code to validate against a user store
-            // Usuario demo
-            if (request.Username == "usuario" && request.Password == "1234")
+
+            var user = await _userRepository.GetByLoginAsync(request.Login);
+
+            if(user != null && user.Password == request.Password)
             {
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.Name, request.Username)
+                    new Claim(ClaimTypes.Name, user.Login)
                 };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("clave_super_secreta_para_jwt_1234567890"));
@@ -35,6 +45,7 @@ namespace CondominioAPI.Controllers
 
                 return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
             }
+
             return Unauthorized();
         }
     }

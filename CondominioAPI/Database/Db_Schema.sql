@@ -1,13 +1,14 @@
 -- Database Schema for Condominio Management System
 -- This script creates the necessary tables and relationships for managing users, roles, properties, expenses, and payments.
 -- It ensures that the database and tables are created only if they do not already exist.
---v1.0
+-- v1.2
 CREATE DATABASE
 IF NOT EXISTS Condominio;
 USE Condominio;
 
 CREATE TABLE IF NOT EXISTS Users (
     Id INT AUTO_INCREMENT PRIMARY KEY,
+    Login VARCHAR(30) NOT NULL UNIQUE,
     User_Name VARCHAR(100) NOT NULL,
     Last_Name VARCHAR(100) NOT NULL,
     Legal_Id VARCHAR(1000) NULL,
@@ -22,8 +23,6 @@ CREATE TABLE IF NOT EXISTS Roles
   Rol_Name VARCHAR(50) NOT NULL,
   Description VARCHAR(1000)
 );
-
-
 
 CREATE TABLE IF NOT EXISTS User_Roles
 (

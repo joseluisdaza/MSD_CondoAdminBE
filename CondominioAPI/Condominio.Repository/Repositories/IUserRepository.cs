@@ -6,5 +6,7 @@ namespace Condominio.Repository.Repositories
     {
         // Add user-specific methods here if needed
         Task<User?> GetByUserNameAsync(string userName);
+
+        Task<User?> GetByLoginAsync(string login);
     }
 }
