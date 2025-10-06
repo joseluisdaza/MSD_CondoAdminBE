@@ -51,5 +51,26 @@ namespace CondominioAPI.Utils
                 Login = userRequest.Login
             };
         }
+
+        public static RoleRequest ToRoleRequest(this Role role)
+        {
+            if (role == null) return null;
+            
+            return new RoleRequest
+            {
+                Id = role.Id,
+                Name = role.RolName
+            };
+        }
+
+        public static UserRole ToUserRole(this UserRoleRequest userRoleRequest)
+        {
+            if (userRoleRequest == null) return null;
+            return new UserRole
+            {
+                UserId = userRoleRequest.UserId,
+                RoleId = userRoleRequest.RoleId,
+            };
+        }
     }
 }

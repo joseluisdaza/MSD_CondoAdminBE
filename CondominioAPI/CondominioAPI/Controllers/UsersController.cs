@@ -1,5 +1,3 @@
-using Condominio.Data.MySql.Models;
-using Condominio.Models;
 using Condominio.Repository.Repositories;
 using CondominioAPI.DTOs;
 using CondominioAPI.Utils;

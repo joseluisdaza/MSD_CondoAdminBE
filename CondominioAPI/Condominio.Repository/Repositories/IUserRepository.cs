@@ -8,5 +8,7 @@ namespace Condominio.Repository.Repositories
         Task<User?> GetByUserNameAsync(string userName);
 
         Task<User?> GetByLoginAsync(string login);
+        
+        Task<User?> GetByIdWithRolesAsync(object id);
     }
 }

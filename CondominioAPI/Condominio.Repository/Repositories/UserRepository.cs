@@ -10,6 +10,15 @@ namespace Condominio.Repository.Repositories
     {
         public UserRepository(CondominioContext context) : base(context) { }
 
+
+        public async Task<User?> GetByIdWithRolesAsync(object id)
+        {
+            return await _dbSet
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Id == (int)id);
+        }
+
         public async Task<User?> GetByUserNameAsync(string userName)
         {
             return await _dbSet.FirstOrDefaultAsync(u => u.UserName == userName);
