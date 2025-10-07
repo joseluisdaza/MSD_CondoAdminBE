@@ -1,4 +1,4 @@
-﻿namespace CondominioAPI.DTOs
+﻿namespace Condominio.DTOs
 {
     public class LoginRequest
     {

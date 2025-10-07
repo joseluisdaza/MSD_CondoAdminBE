@@ -1,13 +1,12 @@
 ﻿using Condominio.Repository.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using dto = CondominioAPI.DTOs;
+using dto = Condominio.DTOs;
+
 namespace CondominioAPI.Controllers
 {
     [ApiController]

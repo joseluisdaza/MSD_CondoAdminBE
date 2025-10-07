@@ -1,7 +1,7 @@
 ﻿using Condominio.Models;
-using CondominioAPI.DTOs;
+using Condominio.DTOs;
 
-namespace CondominioAPI.Utils
+namespace Condominio.Utils
 {
     public static class DTOConverter
     {

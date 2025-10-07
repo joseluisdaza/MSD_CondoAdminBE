@@ -1,6 +1,6 @@
-﻿using Condominio.Repository.Repositories;
-using CondominioAPI.DTOs;
-using CondominioAPI.Utils;
+﻿using Condominio.DTOs;
+using Condominio.Repository.Repositories;
+using Condominio.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

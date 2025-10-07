@@ -12,8 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Condominio.Data.MySql\Condominio.Data.Mysql.csproj" />
+    <ProjectReference Include="..\Condominio.DTOs\Condominio.DTOs.csproj" />
     <ProjectReference Include="..\Condominio.Repository\Condominio.Repository.csproj" />
+    <ProjectReference Include="..\Condominio.Utils\Condominio.Utils.csproj" />
   </ItemGroup>
 
 </Project>
