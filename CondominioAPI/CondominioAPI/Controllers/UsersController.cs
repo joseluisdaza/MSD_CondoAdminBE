@@ -59,7 +59,7 @@ namespace CondominioAPI.Controllers
 
             user.EndDate = userFound.EndDate;
             await _userRepository.UpdateAsync(user.ToUser());
-            return NoContent();
+            return Ok();
         }
 
         [HttpDelete("{id}")]
@@ -72,7 +72,7 @@ namespace CondominioAPI.Controllers
 
             user.EndDate = DateTime.Now;
             await _userRepository.UpdateAsync(user);
-            return NoContent();
+            return Ok();
         }
     }
 }

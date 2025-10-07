@@ -55,7 +55,7 @@ namespace Condominio.Utils
         public static RoleRequest ToRoleRequest(this Role role)
         {
             if (role == null) return null;
-            
+
             return new RoleRequest
             {
                 Id = role.Id,
@@ -70,6 +70,67 @@ namespace Condominio.Utils
             {
                 UserId = userRoleRequest.UserId,
                 RoleId = userRoleRequest.RoleId,
+            };
+        }
+
+        public static PropertyTypeRequest ToPropertyTypeRequest(this PropertyType propertyType)
+        {
+            if (propertyType == null) return null;
+            return new PropertyTypeRequest
+            {
+                Id = propertyType.Id,
+                Type = propertyType.Type,
+                Description = propertyType.Description,
+                Rooms = propertyType.Rooms,
+                Bathrooms = propertyType.Bathrooms,
+                WaterService = propertyType.WaterService,
+                StartDate = propertyType.StartDate,
+            };
+        }
+
+        public static PropertyType ToPropertyType(this PropertyTypeRequest propertyTypeRequest)
+        {
+            if (propertyTypeRequest == null) return null;
+            return new PropertyType
+            {
+                Type = propertyTypeRequest.Type,
+                Description = propertyTypeRequest.Description,
+                Rooms = propertyTypeRequest.Rooms,
+                Bathrooms = propertyTypeRequest.Bathrooms,
+                WaterService = propertyTypeRequest.WaterService,
+                StartDate = propertyTypeRequest.StartDate,
+                EndDate = null
+            };
+        }
+
+        public static Property ToProperty(this PropertyRequest propertyRequest)
+        {
+            if (propertyRequest == null) return null;
+            return new Property
+            {
+                Id = propertyRequest.Id,
+                LegalId = propertyRequest.LegalId,
+                Tower = propertyRequest.Tower,
+                Floor = propertyRequest.Floor,
+                Code = propertyRequest.Code,
+                PropertyType = propertyRequest.PropertyType,
+                StartDate = propertyRequest.StartDate,
+                EndDate = null
+            };
+        }
+
+        public static PropertyRequest ToPropertyRequest(this Property property)
+        {
+            if (property == null) return null;
+            return new PropertyRequest
+            {
+                Id = property.Id,
+                LegalId = property.LegalId,
+                Tower = property.Tower,
+                Floor = property.Floor,
+                Code = property.Code,
+                PropertyType = property.PropertyType,
+                StartDate = property.StartDate,
             };
         }
     }
