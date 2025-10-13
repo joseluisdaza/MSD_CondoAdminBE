@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Condominio.DTOs", "Condomin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Condominio.Utils", "Condominio.Utils\Condominio.Utils.csproj", "{B48D725F-B0C0-4ED6-AADC-EFCC0FDAEC7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Condominio.Tests", "Condominio.Tests\Condominio.Tests.csproj", "{3A9E95DD-D9EB-4DB4-8E76-4D4F8909679D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{B48D725F-B0C0-4ED6-AADC-EFCC0FDAEC7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B48D725F-B0C0-4ED6-AADC-EFCC0FDAEC7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B48D725F-B0C0-4ED6-AADC-EFCC0FDAEC7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A9E95DD-D9EB-4DB4-8E76-4D4F8909679D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A9E95DD-D9EB-4DB4-8E76-4D4F8909679D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A9E95DD-D9EB-4DB4-8E76-4D4F8909679D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9E95DD-D9EB-4DB4-8E76-4D4F8909679D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
