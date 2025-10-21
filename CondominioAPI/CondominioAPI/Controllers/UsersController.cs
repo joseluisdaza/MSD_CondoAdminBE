@@ -41,6 +41,12 @@ namespace CondominioAPI.Controllers
         [Authorize]
         public async Task<ActionResult<UserRequest>> Create(UserRequest user)
         {
+            // Validar modelo automáticamente (incluyendo StrongPassword)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             user.EndDate = null;
             var userEntity = user.ToUser();
             await _userRepository.AddAsync(userEntity);
