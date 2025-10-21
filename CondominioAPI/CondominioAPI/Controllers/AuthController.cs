@@ -28,16 +28,33 @@ namespace CondominioAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] dto.LoginRequest request)
         {
+            // Obtener usuario con sus roles
             var user = await _userRepository.GetByLoginAsync(request.Login);
 
             // Verificar que el usuario existe y que la contraseña coincide con el hash
             if(user != null && PasswordHasher.VerifyPassword(request.Password, user.Password))
             {
-                var claims = new[]
+                // Cargar roles del usuario
+                var userWithRoles = await _userRepository.GetByIdWithRolesAsync(user.Id);
+                
+                var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Login),
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
                 };
+
+                // Agregar roles activos al token
+                if (userWithRoles?.UserRoles != null)
+                {
+                    var activeRoles = userWithRoles.UserRoles
+                        .Where(ur => ur.EndDate == null)
+                        .Select(ur => ur.Role.RolName);
+
+                    foreach (var role in activeRoles)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, role));
+                    }
+                }
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecretKey));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -47,7 +64,17 @@ namespace CondominioAPI.Controllers
                     expires: DateTime.Now.AddHours(1),
                     signingCredentials: creds);
 
-                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+                return Ok(new 
+                { 
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    user = new
+                    {
+                        id = user.Id,
+                        login = user.Login,
+                        userName = user.UserName,
+                        roles = claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList()
+                    }
+                });
             }
 
             return Unauthorized();

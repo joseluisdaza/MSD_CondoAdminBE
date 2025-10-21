@@ -1,6 +1,7 @@
 using Condominio.DTOs;
 using Condominio.Repository.Repositories;
 using Condominio.Utils;
+using Condominio.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,16 +18,22 @@ namespace CondominioAPI.Controllers
             _propertyTypeRepository = propertyTypeRepository;
         }
 
+        /// <summary>
+        /// Obtiene todos los tipos de propiedad (Administrador y Habitante pueden ver)
+        /// </summary>
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante}")]
         public async Task<ActionResult<IEnumerable<PropertyTypeRequest>>> GetAll()
         {
             var propertyTypes = await _propertyTypeRepository.GetAllAsync();
             return Ok(propertyTypes.Select(x => x.ToPropertyTypeRequest()));
         }
 
+        /// <summary>
+        /// Obtiene un tipo de propiedad por ID (Administrador y Habitante pueden ver)
+        /// </summary>
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante}")]
         public async Task<ActionResult<PropertyTypeRequest>> GetById(int id)
         {
             var propertyType = await _propertyTypeRepository.GetByIdAsync(id);
@@ -35,16 +42,23 @@ namespace CondominioAPI.Controllers
             return Ok(propertyType.ToPropertyTypeRequest());
         }
 
+        /// <summary>
+        /// Crea un nuevo tipo de propiedad (Solo Administradores)
+        /// </summary>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = AppRoles.Administrador)]
         public async Task<ActionResult<PropertyTypeRequest>> Create(PropertyTypeRequest propertyType)
         {
-            await _propertyTypeRepository.AddAsync(propertyType.ToPropertyType());
-            return CreatedAtAction(nameof(GetById), new { id = propertyType.Id }, propertyType);
+            var propertyTypeEntity = propertyType.ToPropertyType();
+            await _propertyTypeRepository.AddAsync(propertyTypeEntity);
+            return CreatedAtAction(nameof(GetById), new { id = propertyTypeEntity.Id }, propertyTypeEntity.ToPropertyTypeRequest());
         }
 
+        /// <summary>
+        /// Actualiza un tipo de propiedad existente (Solo Administradores)
+        /// </summary>
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> Update(int id, PropertyTypeRequest propertyType)
         {
             if (id != propertyType.Id)
@@ -54,8 +68,11 @@ namespace CondominioAPI.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Elimina un tipo de propiedad (Soft Delete) (Solo Administradores)
+        /// </summary>
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> Delete(int id)
         {
             var propertyType = await _propertyTypeRepository.GetByIdAsync(id);
