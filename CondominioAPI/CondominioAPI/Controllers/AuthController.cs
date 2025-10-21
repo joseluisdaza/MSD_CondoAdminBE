@@ -1,4 +1,5 @@
 ﻿using Condominio.Repository.Repositories;
+using Condominio.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -27,14 +28,15 @@ namespace CondominioAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] dto.LoginRequest request)
         {
-
             var user = await _userRepository.GetByLoginAsync(request.Login);
 
-            if(user != null && user.Password == request.Password)
+            // Verificar que el usuario existe y que la contraseña coincide con el hash
+            if(user != null && PasswordHasher.VerifyPassword(request.Password, user.Password))
             {
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.Name, user.Login)
+                    new Claim(ClaimTypes.Name, user.Login),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
                 };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecretKey));

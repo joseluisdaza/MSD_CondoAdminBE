@@ -47,7 +47,10 @@ namespace Condominio.Utils
                 LegalId = userRequest.LegalId,
                 StartDate = userRequest.StartDate,
                 EndDate = userRequest.EndDate.HasValue ? userRequest.EndDate.Value : null,
-                Password = null,
+                // Hash the password before storing it
+                Password = !string.IsNullOrEmpty(userRequest.Password) 
+                    ? PasswordHasher.HashPassword(userRequest.Password) 
+                    : null,
                 Login = userRequest.Login
             };
         }
