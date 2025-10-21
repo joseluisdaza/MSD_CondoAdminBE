@@ -5,13 +5,28 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DotNetEnv;
+
+// Load environment variables from .env file
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Get configuration from environment variables
+var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+var corsOrigin = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN");
+
+// Build connection string
+var connectionString = $"server={dbServer};database={dbName};user={dbUser};password={dbPassword}";
+
 // Add services to the container.
 builder.Services.AddDbContext<CondominioContext>( options => 
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")))
+    options.UseMySql(connectionString,
+    ServerVersion.AutoDetect(connectionString))
 );
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
@@ -52,7 +67,6 @@ builder.Services.AddSwaggerGen( c =>
         }
     });
 });
-var key = "clave_super_secreta_para_jwt_1234567890"; // Usa una clave segura en producción
 
 builder.Services.AddAuthentication(options =>
 {
@@ -67,7 +81,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
     };
 });
 
@@ -82,7 +96,7 @@ if (app.Environment.IsDevelopment())
 
 // Place CORS middleware here, before authentication/authorization
 app.UseCors(builder =>
-        builder.WithOrigins("http://localhost:5173")
+        builder.WithOrigins(corsOrigin)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
 );

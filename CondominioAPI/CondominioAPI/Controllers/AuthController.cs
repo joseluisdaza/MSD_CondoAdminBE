@@ -14,10 +14,13 @@ namespace CondominioAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly string _jwtSecretKey;
 
-        public AuthController(IUserRepository userRepository)
+        public AuthController(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
+                ?? throw new InvalidOperationException("JWT_SECRET_KEY not configured");
         }
 
         [HttpPost("login")]
@@ -34,7 +37,7 @@ namespace CondominioAPI.Controllers
                     new Claim(ClaimTypes.Name, user.Login)
                 };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("clave_super_secreta_para_jwt_1234567890"));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecretKey));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(

@@ -2,6 +2,11 @@
 bin/
 obj/
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+
 # User-specific files
 *.user
 *.suo
