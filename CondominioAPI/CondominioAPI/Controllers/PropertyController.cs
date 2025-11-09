@@ -4,6 +4,7 @@ using Condominio.Utils;
 using Condominio.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System.Security.Claims;
 
 namespace CondominioAPI.Controllers
@@ -28,6 +29,7 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = AppRoles.Administrador)]
         public async Task<ActionResult<IEnumerable<PropertyRequest>>> GetAll()
         {
+            Log.Information("GET > Property > GetAll. User: {0}", this.User.Identity.Name);
             var properties = await _propertyRepository.GetAllAsync();
             return Ok(properties.Select(x => x.ToPropertyRequest()));
         }
@@ -40,6 +42,7 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = $"{AppRoles.Habitante},{AppRoles.Administrador}")]
         public async Task<ActionResult<IEnumerable<PropertyRequest>>> GetMyProperties()
         {
+            Log.Information("GET > Property > ByUser > User: {0}", this.User.Identity.Name);
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var isAdmin = User.IsInRole(AppRoles.Administrador);
 
@@ -69,6 +72,8 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante}")]
         public async Task<ActionResult<PropertyRequest>> GetById(int id)
         {
+            Log.Information("GET > Property > Byid > User: {0}, Id: {1}", this.User.Identity.Name, id);
+
             var property = await _propertyRepository.GetByIdAsync(id);
             if (property == null)
                 return NotFound();
@@ -93,6 +98,7 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = AppRoles.Administrador)]
         public async Task<ActionResult<PropertyRequest>> Create(PropertyRequest property)
         {
+            Log.Information("POST > Property > User: {0}", this.User.Identity.Name);
             var propertyEntity = property.ToProperty();
             await _propertyRepository.AddAsync(propertyEntity);
             return CreatedAtAction(nameof(GetById), new { id = propertyEntity.Id }, propertyEntity.ToPropertyRequest());
@@ -105,6 +111,7 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> Update(int id, PropertyRequest property)
         {
+            Log.Information("PUT > Property > User: {0}", this.User.Identity.Name);
             if (id != property.Id)
                 return BadRequest();
 
@@ -119,6 +126,7 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> Delete(int id)
         {
+            Log.Information("DELETE > Property > User: {0}", this.User.Identity.Name);
             var property = await _propertyRepository.GetByIdAsync(id);
             if (property == null)
                 return NotFound();

@@ -47,14 +47,18 @@ namespace Condominio.Utils
                 LegalId = userRequest.LegalId,
                 StartDate = userRequest.StartDate,
                 EndDate = userRequest.EndDate.HasValue ? userRequest.EndDate.Value : null,
-                // Hash the password before storing it
-                Password = !string.IsNullOrEmpty(userRequest.Password) 
-                    ? PasswordHasher.HashPassword(userRequest.Password) 
-                    : null,
+                Password = HashPassword(userRequest.Password),
                 Login = userRequest.Login
             };
         }
         
+        private static string HashPassword(string password)
+        {
+            return !string.IsNullOrEmpty(password)
+                    ? PasswordHasher.HashPassword(password)
+                    : null;
+        }
+
 
         public static User ToUser(this NewUserRequest userRequest)
         {
@@ -66,10 +70,7 @@ namespace Condominio.Utils
                 LegalId = userRequest.LegalId.Trim(),
                 StartDate = DateTime.Now,
                 EndDate = null,
-                // Hash the password before storing it
-                Password = !string.IsNullOrEmpty(userRequest.Password)
-                    ? PasswordHasher.HashPassword(userRequest.Password)
-                    : null,
+                Password = HashPassword(userRequest.Password),
                 Login = userRequest.Login.Trim()
             };
         }
@@ -81,9 +82,7 @@ namespace Condominio.Utils
             old.UserName = request.UserName.Trim();
             old.LastName = request.LastName.Trim();
             old.LegalId = request.LegalId;
-            old.Password = !string.IsNullOrEmpty(request.Password)
-                    ? PasswordHasher.HashPassword(request.Password)
-                    : null;
+            old.Password = HashPassword(request.Password);
         }
 
         public static RoleRequest ToRoleRequest(this Role role)

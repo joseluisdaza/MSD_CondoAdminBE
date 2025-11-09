@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace CondominioAPI.Controllers
 {
@@ -11,6 +12,10 @@ namespace CondominioAPI.Controllers
     {
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Get() => Ok(new { status = "Running", timestamp = DateTime.UtcNow });
+        public IActionResult Get()
+        {
+            Log.Information("GET > Health");
+            return Ok(new { status = "Running", timestamp = DateTime.UtcNow });
+        }
     }
 }

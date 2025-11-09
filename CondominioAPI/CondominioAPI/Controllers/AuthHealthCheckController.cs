@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace CondominioAPI.Controllers
 {
@@ -11,6 +12,7 @@ namespace CondominioAPI.Controllers
         [Authorize]
         public IActionResult Get()
         {
+            Log.Information("GET > AuthHealthCheck");
             var username = User.Identity?.Name ?? "desconocido";
             return Ok(new { mensaje = $"Hello, {username}!" });
         }

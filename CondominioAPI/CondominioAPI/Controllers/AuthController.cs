@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using dto = Condominio.DTOs;
-
+using Serilog;
 namespace CondominioAPI.Controllers
 {
     [ApiController]
@@ -28,6 +28,11 @@ namespace CondominioAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] dto.LoginRequest request)
         {
+            // Log del intento de login
+            Log.Information("GET > Login > User: {0} from ip: {1}", 
+                request.Login, 
+                HttpContext.Connection.RemoteIpAddress?.ToString());
+
             // Obtener usuario con sus roles
             var user = await _userRepository.GetByLoginAsync(request.Login);
 
@@ -75,6 +80,9 @@ namespace CondominioAPI.Controllers
                     }
                 });
             }
+
+            // Log de login fallido
+            Log.Warning("GET > Login > User: {request.Login}. Failed login", request.Login);
 
             return Unauthorized();
         }

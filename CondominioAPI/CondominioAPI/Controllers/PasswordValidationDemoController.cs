@@ -1,5 +1,6 @@
 using Condominio.DTOs.Validation;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace CondominioAPI.Controllers
 {
@@ -15,6 +16,8 @@ namespace CondominioAPI.Controllers
         [HttpPost("validate")]
         public IActionResult ValidatePassword([FromBody] PasswordTestRequest request)
         {
+            Log.Information("GET > PasswordValidation > ValidatePassword");
+
             var result = StrongPasswordAttribute.ValidatePasswordStrength(request.Password);
 
             return Ok(new
@@ -40,6 +43,7 @@ namespace CondominioAPI.Controllers
         [HttpGet("requirements")]
         public IActionResult GetPasswordRequirements()
         {
+            Log.Information("GET > PasswordValidation > Requirements");
             return Ok(new
             {
                 title = "Requisitos de Contraseña Segura",

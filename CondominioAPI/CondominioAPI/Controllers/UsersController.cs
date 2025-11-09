@@ -4,6 +4,7 @@ using Condominio.Utils;
 using Condominio.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System.Security.Claims;
 
 namespace CondominioAPI.Controllers
@@ -26,6 +27,7 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
         public async Task<ActionResult<IEnumerable<UserBaseRequest>>> GetAll()
         {
+            Log.Information("GET > User > GetAll. User: {0}", this.User.Identity.Name);
             var users = await _userRepository.GetAllAsync();
             return Ok(users.Select(u => u.ToUserBaseRequest()).ToList());
         }
@@ -39,6 +41,8 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante},{AppRoles.Super}")]
         public async Task<ActionResult<UserBaseRequest>> GetById(int id)
         {
+            Log.Information("GET > User > ById. User: {0}, Id: {1}", this.User.Identity.Name, id);
+
             // Obtener el ID del usuario autenticado
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var isAdmin = User.IsInRole(AppRoles.Administrador);
@@ -64,6 +68,8 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> Create(NewUserRequest user)
         {
+            Log.Information("POST > User > User: {0}", this.User.Identity.Name);
+
             if (user == null)
                 return BadRequest("El usuario no puede ser nulo.");
 
@@ -86,6 +92,8 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> Update(int id, NewUserRequest user)
         {
+            Log.Information("PUT > User > User: {0}, Id: {1}", this.User.Identity.Name, id);
+
             var userFound = await _userRepository.GetByIdAsync(id);
             if (userFound == null)
                 return NotFound();
@@ -102,6 +110,8 @@ namespace CondominioAPI.Controllers
         [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> Delete(int id)
         {
+            Log.Information("DELETE > User >  User: {0}, Id: {1}", this.User.Identity.Name, id);
+
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null)
                 return NotFound();

@@ -4,13 +4,12 @@ using Condominio.Repository.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.Text;
 using DotNetEnv;
 
 // Load environment variables from .env file
 Env.Load();
-
-var builder = WebApplication.CreateBuilder(args);
 
 // Get configuration from environment variables
 var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
@@ -19,9 +18,23 @@ var dbUser = Environment.GetEnvironmentVariable("DB_USER");
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 var corsOrigin = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN");
+var logPath = Environment.GetEnvironmentVariable("LOG_PATH") ?? "Logs/log-.txt";
 
 // Build connection string
 var connectionString = $"server={dbServer};database={dbName};user={dbUser};password={dbPassword}";
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File(
+        path: logPath,
+        rollingInterval: RollingInterval.Day,
+        fileSizeLimitBytes: 10 * 1024 * 1024, // 10 MB
+        rollOnFileSizeLimit: true,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+    )
+    .CreateLogger();
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<CondominioContext>( options => 
