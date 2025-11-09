@@ -70,7 +70,6 @@ namespace CondominioAPI.Controllers
                     user = new
                     {
                         id = user.Id,
-                        login = user.Login,
                         userName = user.UserName,
                         roles = claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList()
                     }

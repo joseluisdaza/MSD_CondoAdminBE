@@ -54,6 +54,37 @@ namespace Condominio.Utils
                 Login = userRequest.Login
             };
         }
+        
+
+        public static User ToUser(this NewUserRequest userRequest)
+        {
+            if (userRequest == null) return null;
+            return new User
+            {
+                UserName = userRequest.UserName.Trim(),
+                LastName = userRequest.LastName.Trim(),
+                LegalId = userRequest.LegalId.Trim(),
+                StartDate = DateTime.Now,
+                EndDate = null,
+                // Hash the password before storing it
+                Password = !string.IsNullOrEmpty(userRequest.Password)
+                    ? PasswordHasher.HashPassword(userRequest.Password)
+                    : null,
+                Login = userRequest.Login.Trim()
+            };
+        }
+
+        public static void UpdateData(this User old, NewUserRequest request)
+        {
+            if (old == null || request == null) throw new Exception("Users cannot be null.");
+
+            old.UserName = request.UserName.Trim();
+            old.LastName = request.LastName.Trim();
+            old.LegalId = request.LegalId;
+            old.Password = !string.IsNullOrEmpty(request.Password)
+                    ? PasswordHasher.HashPassword(request.Password)
+                    : null;
+        }
 
         public static RoleRequest ToRoleRequest(this Role role)
         {

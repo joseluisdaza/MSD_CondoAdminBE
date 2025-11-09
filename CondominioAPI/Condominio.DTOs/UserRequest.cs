@@ -10,4 +10,10 @@ namespace Condominio.DTOs
         [StrongPassword]
         public string Password { get; set; }
     }
+
+    public class NewUserRequest : NewUserBaseRequest
+    {
+        [StrongPassword]
+        public string Password { get; set; }
+    }
 }

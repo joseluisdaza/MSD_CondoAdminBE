@@ -62,20 +62,21 @@ namespace CondominioAPI.Controllers
         /// </summary>
         [HttpPost]
         [Authorize(Roles = AppRoles.Administrador)]
-        public async Task<ActionResult<UserRequest>> Create(UserRequest user)
+        public async Task<IActionResult> Create(NewUserRequest user)
         {
+            if (user == null)
+                return BadRequest("El usuario no puede ser nulo.");
+
             // Validar modelo automáticamente (incluyendo StrongPassword)
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            user.EndDate = null;
-            var userEntity = user.ToUser();
-            await _userRepository.AddAsync(userEntity);
             
-            var createdUserRequest = userEntity.ToUserRequest(includeId: true);
-            return CreatedAtAction(nameof(GetById), new { id = userEntity.Id }, createdUserRequest);
+            Condominio.Models.User userEntity = user.ToUser();
+            await _userRepository.AddAsync(userEntity);
+            var createdUser = await _userRepository.GetByLoginAsync(user.Login);
+            return Ok(createdUser.ToUserRequest(includeId: true));
         }
 
         /// <summary>
@@ -83,14 +84,14 @@ namespace CondominioAPI.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = AppRoles.Administrador)]
-        public async Task<IActionResult> Update(int id, UserRequest user)
+        public async Task<IActionResult> Update(int id, NewUserRequest user)
         {
             var userFound = await _userRepository.GetByIdAsync(id);
             if (userFound == null)
                 return NotFound();
 
-            user.EndDate = userFound.EndDate;
-            await _userRepository.UpdateAsync(user.ToUser());
+            userFound.UpdateData(user);
+            await _userRepository.UpdateAsync(userFound);
             return Ok();
         }
 
