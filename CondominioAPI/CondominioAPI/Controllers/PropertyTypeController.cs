@@ -22,7 +22,7 @@ namespace CondominioAPI.Controllers
         /// Obtiene todos los tipos de propiedad (Administrador y Habitante pueden ver)
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante}")]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante},{AppRoles.Super}")]
         public async Task<ActionResult<IEnumerable<PropertyTypeRequest>>> GetAll()
         {
             var propertyTypes = await _propertyTypeRepository.GetAllAsync();
@@ -33,7 +33,7 @@ namespace CondominioAPI.Controllers
         /// Obtiene un tipo de propiedad por ID (Administrador y Habitante pueden ver)
         /// </summary>
         [HttpGet("{id}")]
-        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante}")]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante},{AppRoles.Super}")]
         public async Task<ActionResult<PropertyTypeRequest>> GetById(int id)
         {
             var propertyType = await _propertyTypeRepository.GetByIdAsync(id);

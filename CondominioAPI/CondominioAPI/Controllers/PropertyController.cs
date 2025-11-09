@@ -36,7 +36,7 @@ namespace CondominioAPI.Controllers
         /// Obtiene propiedades asignadas al usuario actual (Habitantes)
         /// o todas si es Administrador
         /// </summary>
-        [HttpGet("my-properties")]
+        [HttpGet("ByUser")]
         [Authorize(Roles = $"{AppRoles.Habitante},{AppRoles.Administrador}")]
         public async Task<ActionResult<IEnumerable<PropertyRequest>>> GetMyProperties()
         {

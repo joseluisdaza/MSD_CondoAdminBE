@@ -26,7 +26,7 @@ namespace CondominioAPI.Controllers
         /// Obtiene los roles de un usuario (RoleAdmin y Administrador)
         /// </summary>
         [HttpGet("{id}")]
-        [Authorize(Roles = $"{AppRoles.RoleAdmin},{AppRoles.Administrador}")]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
         public async Task<ActionResult<IEnumerable<RoleRequest>>> GetRolesForUser(int id)
         {
             var user = await _userRepository.GetByIdWithRolesAsync(id);
@@ -43,7 +43,7 @@ namespace CondominioAPI.Controllers
         /// Asigna un rol a un usuario (Solo RoleAdmin)
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = AppRoles.RoleAdmin)]
+        [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> AssignRoleToUser(UserRoleRequest userRoleRequest)
         {
             var user = await _userRepository.GetByIdWithRolesAsync(userRoleRequest.UserId);
@@ -83,7 +83,7 @@ namespace CondominioAPI.Controllers
         /// Remueve un rol de un usuario (Solo RoleAdmin)
         /// </summary>
         [HttpDelete]
-        [Authorize(Roles = AppRoles.RoleAdmin)]
+        [Authorize(Roles = AppRoles.Administrador)]
         public async Task<IActionResult> RemoveRoleFromUser(UserRoleRequest userRoleRequest)
         {
             var user = await _userRepository.GetByIdWithRolesAsync(userRoleRequest.UserId);
@@ -109,7 +109,7 @@ namespace CondominioAPI.Controllers
         /// Obtiene todos los roles disponibles en el sistema (RoleAdmin y Administrador)
         /// </summary>
         [HttpGet("available")]
-        [Authorize(Roles = $"{AppRoles.RoleAdmin},{AppRoles.Administrador}")]
+        [Authorize(Roles = $"{AppRoles.Super},{AppRoles.Administrador}")]
         public async Task<ActionResult<IEnumerable<RoleRequest>>> GetAllRoles()
         {
             var roles = await _roleRepository.GetAllAsync();

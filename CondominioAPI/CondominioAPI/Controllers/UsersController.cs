@@ -23,7 +23,7 @@ namespace CondominioAPI.Controllers
         /// Obtiene todos los usuarios (Solo Administradores)
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = AppRoles.Administrador)]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
         public async Task<ActionResult<IEnumerable<UserBaseRequest>>> GetAll()
         {
             var users = await _userRepository.GetAllAsync();
@@ -36,7 +36,7 @@ namespace CondominioAPI.Controllers
         /// - Habitantes: solo pueden ver su propia información
         /// </summary>
         [HttpGet("{id}")]
-        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante}")]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante},{AppRoles.Super}")]
         public async Task<ActionResult<UserBaseRequest>> GetById(int id)
         {
             // Obtener el ID del usuario autenticado
