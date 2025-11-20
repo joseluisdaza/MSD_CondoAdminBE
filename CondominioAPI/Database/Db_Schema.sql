@@ -3,9 +3,9 @@
 -- It ensures that the database and tables are created only if they do not already exist.
 -- v0.1
 
-CREATE DATABASE
-IF NOT EXISTS Condominio;
-USE Condominio;
+ CREATE DATABASE
+ IF NOT EXISTS Condominio2;
+ USE Condominio2;
 
 CREATE TABLE IF NOT EXISTS Users (
     Id INT AUTO_INCREMENT PRIMARY KEY,
@@ -75,9 +75,15 @@ CREATE TABLE IF NOT EXISTS Property_Owners
   FOREIGN KEY (User_Id) REFERENCES Users (Id)
 );
 
+CREATE TABLE IF NOT EXISTS Payment_Status
+(
+  Id INT PRIMARY KEY,-- 1: Pending, 2: Paid, 3: Overdue, 4: Cancelled, 0: Undefined
+  Status_Description VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS Expense_Categories
 (
-  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Id INT AUTO_INCREMENT PRIMARY KEY, 
   Category VARCHAR(100) NOT NULL,
   Description VARCHAR(500) NOT NULL
 );
@@ -85,7 +91,6 @@ CREATE TABLE IF NOT EXISTS Expense_Categories
 CREATE TABLE IF NOT EXISTS Expenses
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
-  Receive_Number VARCHAR(100) NOT NULL,
   Category_Id INT NOT NULL,
   Property_Id INT,
   Start_Date DATETIME NOT NULL,
@@ -94,23 +99,77 @@ CREATE TABLE IF NOT EXISTS Expenses
   Interest_Amount DECIMAL(10,2) DEFAULT 0,
   Interest_Rate DECIMAL(5,2) DEFAULT 0,
   Description VARCHAR(500) NOT NULL,
-  Status INT NOT NULL DEFAULT 1,  -- 1: Pending, 2: Paid, 3: Overdue, 4: Cancelled
-  Expense_Date DATETIME NOT NULL,
+  Status_Id INT NOT NULL DEFAULT 0, 
   
   FOREIGN KEY (Category_Id) REFERENCES Expense_Categories (Id),
-  FOREIGN KEY (Property_Id) REFERENCES Property (Id)
+  FOREIGN KEY (Property_Id) REFERENCES Property (Id),
+  FOREIGN KEY (Status_Id) REFERENCES Payment_Status (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Payments
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
-  Expense_Id INT NOT NULL,
+  Receive_Number VARCHAR(100) NOT NULL,
   Payment_Date DATETIME NOT NULL,
+  Amount DECIMAL(10,2) NOT NULL,	
+  Description VARCHAR(500) NULL,
+  Receive_Photo VARCHAR(1000) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Expense_Payments
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Expense_Id INT NOT NULL,
+  Payment_Id INT NOT NULL,
+  FOREIGN KEY (Expense_Id) REFERENCES Expenses(Id),
+  FOREIGN KEY (Payment_Id) REFERENCES Payments(Id)
+);
+
+CREATE TABLE IF NOT EXISTS Service_Types
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Service_Name VARCHAR(100) NOT NULL,
+  Description VARCHAR(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Service_Expenses
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Service_Type_Id INT NOT NULL,
+  Description VARCHAR(500) NOT NULL,
   Amount DECIMAL(10,2) NOT NULL,
+  Start_Date DATETIME NOT NULL,
+  Payment_Limit_Date DATETIME NOT NULL,
+  Interest_Amount DECIMAL(10,2) DEFAULT 0,
+  Total_Amount DECIMAL(10,2) NOT NULL,
+  Status INT NOT NULL DEFAULT 1,  -- 1: Pending, 2: Paid, 3: Overdue, 4: Cancelled
+  Expense_Date DATETIME NOT NULL,
+  Status_Id INT NOT NULL DEFAULT 0, 
+  
+  FOREIGN KEY (Service_Type_Id) REFERENCES Service_Types(Id),
+  FOREIGN KEY (Status_Id) REFERENCES Payment_Status (Id)
+);
+
+CREATE TABLE IF NOT EXISTS Service_Payments
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Receive_Number VARCHAR(100) NOT NULL,
+  Payment_Date DATETIME NOT NULL,
+  Amount DECIMAL(10,2) NOT NULL,	
   Description VARCHAR(500) NULL,
   Receive_Photo VARCHAR(1000) NOT NULL,
+  Status_Id INT NOT NULL DEFAULT 0,
+  FOREIGN KEY (Status_Id) REFERENCES Payment_Status (Id)
+);
 
-  FOREIGN KEY (Expense_Id) REFERENCES Expenses (Id)
+CREATE TABLE IF NOT EXISTS Service_Expense_Payments
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Service_Expense_Id INT NOT NULL,
+  Payment_Id INT NOT NULL,
+
+  FOREIGN KEY (Service_Expense_Id) REFERENCES Service_Expenses(Id),
+  FOREIGN KEY (Payment_Id) REFERENCES Service_Payments(Id)
 );
 
 
