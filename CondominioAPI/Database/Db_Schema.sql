@@ -3,9 +3,10 @@
 -- It ensures that the database and tables are created only if they do not already exist.
 -- v0.1
 
- CREATE DATABASE
- IF NOT EXISTS Condominio2;
+ CREATE DATABASE IF NOT EXISTS Condominio2;
  USE Condominio2;
+-- Users and roles
+SELECT 'Creating Users and Roles Tables';
 
 CREATE TABLE IF NOT EXISTS Users (
     Id INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,6 +38,8 @@ CREATE TABLE IF NOT EXISTS User_Roles
   FOREIGN KEY (User_Id) REFERENCES Users(Id)
 );
 
+-- Properties
+SELECT 'Creating Property Tables';
 CREATE TABLE IF NOT EXISTS Property_Type
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
@@ -75,6 +78,8 @@ CREATE TABLE IF NOT EXISTS Property_Owners
   FOREIGN KEY (User_Id) REFERENCES Users (Id)
 );
 
+-- Expenses and Payments
+SELECT 'Creating Expenses and Payments Tables';
 CREATE TABLE IF NOT EXISTS Payment_Status
 (
   Id INT PRIMARY KEY,-- 1: Pending, 2: Paid, 3: Overdue, 4: Cancelled, 0: Undefined
@@ -125,6 +130,8 @@ CREATE TABLE IF NOT EXISTS Expense_Payments
   FOREIGN KEY (Payment_Id) REFERENCES Payments(Id)
 );
 
+-- Service Expenses and Payments
+SELECT 'Creating Service Expenses and Payments Tables';
 CREATE TABLE IF NOT EXISTS Service_Types
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
@@ -174,10 +181,70 @@ CREATE TABLE IF NOT EXISTS Service_Expense_Payments
 
 
 -- Version 1.3 2024.10.24
+SELECT 'Creating Versions Table';
 CREATE TABLE IF NOT EXISTS Versions
 (
   Version VARCHAR(20) NOT NULL PRIMARY KEY,
   Last_Updated DATETIME NOT NULL
 );
 
-INSERT INTO Versions (Version, Last_Updated) VALUES ('0.1', '2024-10-23 00:00:00');
+INSERT INTO Versions (Version, Last_Updated) VALUES ('0.1', NOW());
+
+-- Insertar roles si no existen
+-- INSERT INTO roles (Rol_Name, Description)
+-- SELECT 'Defecto', 'Rol por defecto para operaciones b�sicas (health check, login)'
+-- WHERE NOT EXISTS (SELECT 1 FROM roles WHERE Rol_Name = 'Defecto');
+
+-- INSERT INTO roles (Rol_Name, Description)
+-- SELECT 'Habitante', 'Residente que puede ver su informaci�n personal y propiedades asignadas'
+-- WHERE NOT EXISTS (SELECT 1 FROM roles WHERE Rol_Name = 'Habitante');
+
+-- INSERT INTO roles (Rol_Name, Description)
+-- SELECT 'Administrador', 'Administrador del sistema con permisos completos de CRUD en Usuarios y Propiedades'
+-- WHERE NOT EXISTS (SELECT 1 FROM roles WHERE Rol_Name = 'Administrador');
+
+-- INSERT INTO roles (Rol_Name, Description)
+-- SELECT 'RoleAdmin', 'Administrador de roles con permisos para gestionar roles de usuarios'
+-- WHERE NOT EXISTS (SELECT 1 FROM roles WHERE Rol_Name = 'RoleAdmin');
+
+--
+-- Insert Default users
+
+SELECT 'Inserting Default Users and Roles for version 0.3.2';
+INSERT INTO users(Login, User_Name, Last_Name, Legal_Id, Start_Date, Password)
+VALUES 
+('usa', 'sa', 'sa', '-1', NOW(), '$2a$11$GUefHVMEvy8hXQHvnuVRcu3ZsTSWJTSypz6Ml2enRrkQVhNHDn3aG'),-- sa
+('uadmin', 'admin', 'admin', '-1', NOW(), '$2a$11$frjA/I.pkPTZrUEQXeHdWeXjebMRBhgF4v3XeFGCfccuHyGKdwpzK'), -- admin
+('udirector', 'director', 'director', '-1', NOW(), '$2a$11$TVPKa..EYzCIksqHx321IOYLO1qzhTCVGHii71706W5iOZC7N9esa'),-- director
+('uhabitante', 'habitante', 'habitante', '-1', NOW(), '$2a$11$bXnuTxtq0wGe2C6oN8QhMubmwBFQyEEq3JfT9UvB6rWJrD6EmPmjS'),-- habitante
+('uauxiliar', 'auxiliar', 'auxiliar', '-1', NOW(), '$2a$11$OQb6S.GLFsVNlTbia56dLegk64JYiBCi4rk1P4855xJofIp/Up3Ey'),-- auxiliar
+('useguridad', 'seguridad', 'seguridad', '-1', NOW(), '$2a$11$m20UOSFeHoZ8dj6sDOATc.lecO6H58u40GadDdaetgROcUQklgq/W');-- seguridad
+-- Insert Default roles
+INSERT INTO roles(Id, Rol_Name, Description) VALUES
+(1, 'super', 'Super Administrador'),
+(2, 'admin', 'Administrador Condominio'),
+(3, 'director', 'Miembro de la directiva'),
+(4, 'habitante', 'Habitante regular'),
+(5, 'auxiliar', 'Auxiliar de Administracion'),
+(6, 'seguridad', 'Guardia de Seguridad');
+
+-- Assign Roles to default users
+INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
+SELECT 1, u.id, NOW() FROM users u WHERE u.Login = 'usa';
+
+INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
+SELECT 2, u.id, NOW() FROM users u WHERE u.Login = 'uadmin';
+
+INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
+SELECT 3, u.id, NOW() FROM users u WHERE u.Login = 'udirector';
+
+INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
+SELECT 4, u.id, NOW() FROM users u WHERE u.Login = 'uhabitante';
+
+INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
+SELECT 5, u.id, NOW() FROM users u WHERE u.Login = 'uauxiliar';
+
+INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
+SELECT 6, u.id, NOW() FROM users u WHERE u.Login = 'useguridad';
+
+INSERT INTO Versions(Version, Last_Updated) VALUES('0.3.2', NOW());
