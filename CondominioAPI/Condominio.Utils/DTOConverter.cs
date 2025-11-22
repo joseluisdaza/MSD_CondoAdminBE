@@ -1,5 +1,6 @@
 ﻿using Condominio.Models;
 using Condominio.DTOs;
+using System.Linq;
 
 namespace Condominio.Utils
 {
@@ -164,6 +165,289 @@ namespace Condominio.Utils
                 Code = property.Code,
                 PropertyType = property.PropertyType,
                 StartDate = property.StartDate,
+            };
+        }
+
+        // Expense conversions
+        public static ExpenseResponse ToExpenseResponse(this Expense expense)
+        {
+            if (expense == null) return null;
+
+            return new ExpenseResponse
+            {
+                Id = expense.Id,
+                CategoryId = expense.CategoryId,
+                PropertyId = expense.PropertyId,
+                StartDate = expense.StartDate,
+                PaymentLimitDate = expense.PaymentLimitDate,
+                Amount = expense.Amount,
+                InterestAmount = expense.InterestAmount,
+                InterestRate = expense.InterestRate,
+                Description = expense.Description,
+                StatusId = expense.StatusId,
+                CategoryName = expense.Category?.Category,
+                PropertyCode = expense.Property?.Code,
+                PropertyTower = expense.Property?.Tower,
+                StatusDescription = expense.Status?.StatusDescription,
+                Payments = expense.ExpensePayments?.Select(ep => ep.ToExpensePaymentResponse()).ToList() ?? new List<ExpensePaymentResponse>()
+            };
+        }
+
+        public static Expense ToExpense(this ExpenseRequest expenseRequest)
+        {
+            if (expenseRequest == null) return null;
+
+            return new Expense
+            {
+                CategoryId = expenseRequest.CategoryId,
+                PropertyId = expenseRequest.PropertyId,
+                StartDate = expenseRequest.StartDate,
+                PaymentLimitDate = expenseRequest.PaymentLimitDate,
+                Amount = expenseRequest.Amount,
+                InterestAmount = expenseRequest.InterestAmount,
+                InterestRate = expenseRequest.InterestRate,
+                Description = expenseRequest.Description,
+                StatusId = expenseRequest.StatusId
+            };
+        }
+
+        // Payment conversions
+        public static PaymentResponse ToPaymentResponse(this Payment payment)
+        {
+            if (payment == null) return null;
+
+            return new PaymentResponse
+            {
+                Id = payment.Id,
+                ReceiveNumber = payment.ReceiveNumber,
+                PaymentDate = payment.PaymentDate,
+                Amount = payment.Amount,
+                Description = payment.Description,
+                ReceivePhoto = payment.ReceivePhoto,
+                Expenses = payment.ExpensePayments?.Select(ep => ep.ToExpensePaymentResponse()).ToList() ?? new List<ExpensePaymentResponse>()
+            };
+        }
+
+        public static Payment ToPayment(this PaymentRequest paymentRequest)
+        {
+            if (paymentRequest == null) return null;
+
+            return new Payment
+            {
+                ReceiveNumber = paymentRequest.ReceiveNumber,
+                PaymentDate = paymentRequest.PaymentDate,
+                Amount = paymentRequest.Amount,
+                Description = paymentRequest.Description,
+                ReceivePhoto = paymentRequest.ReceivePhoto
+            };
+        }
+
+        // PaymentStatus conversions
+        public static PaymentStatusResponse ToPaymentStatusResponse(this PaymentStatus paymentStatus)
+        {
+            if (paymentStatus == null) return null;
+
+            return new PaymentStatusResponse
+            {
+                Id = paymentStatus.Id,
+                StatusDescription = paymentStatus.StatusDescription,
+                TotalExpenses = paymentStatus.Expenses?.Count ?? 0,
+                TotalServiceExpenses = paymentStatus.ServiceExpenses?.Count ?? 0,
+                TotalServicePayments = paymentStatus.ServicePayments?.Count ?? 0
+            };
+        }
+
+        public static PaymentStatus ToPaymentStatus(this PaymentStatusRequest paymentStatusRequest)
+        {
+            if (paymentStatusRequest == null) return null;
+
+            return new PaymentStatus
+            {
+                Id = paymentStatusRequest.Id,
+                StatusDescription = paymentStatusRequest.StatusDescription
+            };
+        }
+
+        // ExpensePayment conversions
+        public static ExpensePaymentResponse ToExpensePaymentResponse(this ExpensePayment expensePayment)
+        {
+            if (expensePayment == null) return null;
+
+            return new ExpensePaymentResponse
+            {
+                Id = expensePayment.Id,
+                ExpenseId = expensePayment.ExpenseId,
+                PaymentId = expensePayment.PaymentId,
+                ExpenseDescription = expensePayment.Expense?.Description,
+                ExpenseAmount = expensePayment.Expense?.Amount,
+                PaymentReceiveNumber = expensePayment.Payment?.ReceiveNumber,
+                PaymentAmount = expensePayment.Payment?.Amount,
+                PaymentDate = expensePayment.Payment?.PaymentDate
+            };
+        }
+
+        public static ExpensePayment ToExpensePayment(this ExpensePaymentRequest expensePaymentRequest)
+        {
+            if (expensePaymentRequest == null) return null;
+
+            return new ExpensePayment
+            {
+                ExpenseId = expensePaymentRequest.ExpenseId,
+                PaymentId = expensePaymentRequest.PaymentId
+            };
+        }
+
+        // ServiceType conversions
+        public static ServiceTypeResponse ToServiceTypeResponse(this ServiceType serviceType)
+        {
+            if (serviceType == null) return null;
+
+            return new ServiceTypeResponse
+            {
+                Id = serviceType.Id,
+                ServiceName = serviceType.ServiceName,
+                Description = serviceType.Description,
+                TotalServiceExpenses = serviceType.ServiceExpenses?.Count ?? 0
+            };
+        }
+
+        public static ServiceType ToServiceType(this ServiceTypeRequest serviceTypeRequest)
+        {
+            if (serviceTypeRequest == null) return null;
+
+            return new ServiceType
+            {
+                ServiceName = serviceTypeRequest.ServiceName,
+                Description = serviceTypeRequest.Description
+            };
+        }
+
+        // ServiceExpense conversions
+        public static ServiceExpenseResponse ToServiceExpenseResponse(this ServiceExpense serviceExpense)
+        {
+            if (serviceExpense == null) return null;
+
+            return new ServiceExpenseResponse
+            {
+                Id = serviceExpense.Id,
+                ServiceTypeId = serviceExpense.ServiceTypeId,
+                Description = serviceExpense.Description,
+                Amount = serviceExpense.Amount,
+                StartDate = serviceExpense.StartDate,
+                PaymentLimitDate = serviceExpense.PaymentLimitDate,
+                InterestAmount = serviceExpense.InterestAmount,
+                TotalAmount = serviceExpense.TotalAmount,
+                Status = serviceExpense.Status,
+                ExpenseDate = serviceExpense.ExpenseDate,
+                StatusId = serviceExpense.StatusId,
+                ServiceTypeName = serviceExpense.ServiceType?.ServiceName,
+                StatusDescription = serviceExpense.StatusNavigation?.StatusDescription,
+                Payments = serviceExpense.ServiceExpensePayments?.Select(sep => sep.ToServiceExpensePaymentResponse()).ToList() ?? new List<ServiceExpensePaymentResponse>()
+            };
+        }
+
+        public static ServiceExpense ToServiceExpense(this ServiceExpenseRequest serviceExpenseRequest)
+        {
+            if (serviceExpenseRequest == null) return null;
+
+            return new ServiceExpense
+            {
+                ServiceTypeId = serviceExpenseRequest.ServiceTypeId,
+                Description = serviceExpenseRequest.Description,
+                Amount = serviceExpenseRequest.Amount,
+                StartDate = serviceExpenseRequest.StartDate,
+                PaymentLimitDate = serviceExpenseRequest.PaymentLimitDate,
+                InterestAmount = serviceExpenseRequest.InterestAmount,
+                TotalAmount = serviceExpenseRequest.TotalAmount,
+                Status = serviceExpenseRequest.Status,
+                ExpenseDate = serviceExpenseRequest.ExpenseDate,
+                StatusId = serviceExpenseRequest.StatusId
+            };
+        }
+
+        // ServicePayment conversions
+        public static ServicePaymentResponse ToServicePaymentResponse(this ServicePayment servicePayment)
+        {
+            if (servicePayment == null) return null;
+
+            return new ServicePaymentResponse
+            {
+                Id = servicePayment.Id,
+                ReceiveNumber = servicePayment.ReceiveNumber,
+                PaymentDate = servicePayment.PaymentDate,
+                Amount = servicePayment.Amount,
+                Description = servicePayment.Description,
+                ReceivePhoto = servicePayment.ReceivePhoto,
+                StatusId = servicePayment.StatusId,
+                StatusDescription = servicePayment.Status?.StatusDescription,
+                ServiceExpenses = servicePayment.ServiceExpensePayments?.Select(sep => sep.ToServiceExpensePaymentResponse()).ToList() ?? new List<ServiceExpensePaymentResponse>()
+            };
+        }
+
+        public static ServicePayment ToServicePayment(this ServicePaymentRequest servicePaymentRequest)
+        {
+            if (servicePaymentRequest == null) return null;
+
+            return new ServicePayment
+            {
+                ReceiveNumber = servicePaymentRequest.ReceiveNumber,
+                PaymentDate = servicePaymentRequest.PaymentDate,
+                Amount = servicePaymentRequest.Amount,
+                Description = servicePaymentRequest.Description,
+                ReceivePhoto = servicePaymentRequest.ReceivePhoto,
+                StatusId = servicePaymentRequest.StatusId
+            };
+        }
+
+        // ServiceExpensePayment conversions
+        public static ServiceExpensePaymentResponse ToServiceExpensePaymentResponse(this ServiceExpensePayment serviceExpensePayment)
+        {
+            if (serviceExpensePayment == null) return null;
+
+            return new ServiceExpensePaymentResponse
+            {
+                Id = serviceExpensePayment.Id,
+                ServiceExpenseId = serviceExpensePayment.ServiceExpenseId,
+                PaymentId = serviceExpensePayment.PaymentId,
+                ServiceExpenseDescription = serviceExpensePayment.ServiceExpense?.Description,
+                ServiceExpenseAmount = serviceExpensePayment.ServiceExpense?.Amount,
+                PaymentReceiveNumber = serviceExpensePayment.Payment?.ReceiveNumber,
+                PaymentAmount = serviceExpensePayment.Payment?.Amount,
+                PaymentDate = serviceExpensePayment.Payment?.PaymentDate
+            };
+        }
+
+        public static ServiceExpensePayment ToServiceExpensePayment(this ServiceExpensePaymentRequest serviceExpensePaymentRequest)
+        {
+            if (serviceExpensePaymentRequest == null) return null;
+
+            return new ServiceExpensePayment
+            {
+                ServiceExpenseId = serviceExpensePaymentRequest.ServiceExpenseId,
+                PaymentId = serviceExpensePaymentRequest.PaymentId
+            };
+        }
+
+        // DatabaseVersion conversions
+        public static DatabaseVersionResponse ToDatabaseVersionResponse(this DatabaseVersion databaseVersion)
+        {
+            if (databaseVersion == null) return null;
+
+            return new DatabaseVersionResponse
+            {
+                VersionNumber = databaseVersion.VersionNumber,
+                LastUpdated = databaseVersion.LastUpdated
+            };
+        }
+
+        public static DatabaseVersion ToDatabaseVersion(this DatabaseVersionRequest databaseVersionRequest)
+        {
+            if (databaseVersionRequest == null) return null;
+
+            return new DatabaseVersion
+            {
+                VersionNumber = databaseVersionRequest.VersionNumber,
+                LastUpdated = databaseVersionRequest.LastUpdated
             };
         }
     }

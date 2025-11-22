@@ -48,6 +48,13 @@ builder.Services.AddScoped<IRepository<Role>, RoleRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IPropertyTypeRepository, PropertyTypeRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPaymentStatusRepository, PaymentStatusRepository>();
+builder.Services.AddScoped<IExpensePaymentRepository, ExpensePaymentRepository>();
+builder.Services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
+builder.Services.AddScoped<IServiceExpenseRepository, ServiceExpenseRepository>();
+builder.Services.AddScoped<IServicePaymentRepository, ServicePaymentRepository>();
+builder.Services.AddScoped<IServiceExpensePaymentRepository, ServiceExpensePaymentRepository>();
+builder.Services.AddScoped<IVersionRepository, VersionRepository>();
 
 builder.Services.AddControllers();
 

@@ -4,8 +4,6 @@ public partial class Expense
 {
     public int Id { get; set; }
 
-    public string ReceiveNumber { get; set; } = null!;
-
     public int CategoryId { get; set; }
 
     public int? PropertyId { get; set; }
@@ -22,13 +20,13 @@ public partial class Expense
 
     public string Description { get; set; } = null!;
 
-    public int Status { get; set; }
-
-    public DateTime ExpenseDate { get; set; }
+    public int StatusId { get; set; }
 
     public virtual ExpenseCategory Category { get; set; } = null!;
 
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
-
     public virtual Property? Property { get; set; }
+
+    public virtual PaymentStatus Status { get; set; } = null!;
+
+    public virtual ICollection<ExpensePayment> ExpensePayments { get; set; } = new List<ExpensePayment>();
 }

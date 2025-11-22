@@ -5,6 +5,9 @@ namespace Condominio.Repository.Repositories
 {
     public interface IPaymentRepository : IRepository<Payment>
     {
-        // Add entity-specific methods if needed
+        Task<Payment?> GetByIdWithRelationsAsync(int id);
+        Task<IEnumerable<Payment>> GetAllWithRelationsAsync();
+        Task<Payment?> GetByReceiveNumberAsync(string receiveNumber);
+        Task<IEnumerable<Payment>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
     }
 }
