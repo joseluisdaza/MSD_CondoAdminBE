@@ -1,0 +1,1277 @@
+{
+  "info": {
+    "name": "Condominio API - Complete Collection",
+    "description": "Colección completa de endpoints para la API del sistema de administración de condominios",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://localhost:7001",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usa\",\n  \"password\": \"sa\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var response = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', response.token);",
+                  "    console.log('Token saved:', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "Auth Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/authhealthcheck",
+              "host": ["{{base_url}}"],
+              "path": ["api", "authhealthcheck"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"newuser\",\n  \"userName\": \"Nuevo\",\n  \"lastName\": \"Usuario\",\n  \"legalId\": \"12345678\",\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"login\": \"updateduser\",\n  \"userName\": \"Usuario\",\n  \"lastName\": \"Actualizado\",\n  \"legalId\": \"87654321\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "role"]
+            }
+          }
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/role/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "role", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "Get All Properties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/property",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property"]
+            }
+          }
+        },
+        {
+          "name": "Get Property by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/property/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Property",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"legalId\": \"PROP-001\",\n  \"tower\": \"A\",\n  \"floor\": 5,\n  \"code\": \"01\",\n  \"propertyType\": 1,\n  \"startDate\": \"2024-01-01T00:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/property",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Property Types",
+      "item": [
+        {
+          "name": "Get All Property Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/propertytype",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype"]
+            }
+          }
+        },
+        {
+          "name": "Get Property Type by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/propertytype/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Property Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"Apartamento 3 Habitaciones\",\n  \"description\": \"Apartamento de 3 habitaciones con 2 baños\",\n  \"rooms\": 3,\n  \"bathrooms\": 2,\n  \"waterService\": true,\n  \"startDate\": \"2024-01-01T00:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/propertytype",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        {
+          "name": "Get All Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses"]
+            }
+          }
+        },
+        {
+          "name": "Get Expense by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Expenses by Property",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/property/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "property", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Expenses by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/status/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "status", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Overdue Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/overdue",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "overdue"]
+            }
+          }
+        },
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": 1,\n  \"propertyId\": 1,\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"paymentLimitDate\": \"2024-01-31T23:59:59\",\n  \"amount\": 150.00,\n  \"interestAmount\": 0,\n  \"interestRate\": 0,\n  \"description\": \"Cuota de administración enero 2024\",\n  \"statusId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses"]
+            }
+          }
+        },
+        {
+          "name": "Update Expense",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": 1,\n  \"propertyId\": 1,\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"paymentLimitDate\": \"2024-01-31T23:59:59\",\n  \"amount\": 200.00,\n  \"interestAmount\": 10.00,\n  \"interestRate\": 5.0,\n  \"description\": \"Cuota de administración enero 2024 - Actualizada\",\n  \"statusId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Expense",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get All Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment by Receive Number",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/receive-number/REC-2024-001",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "receive-number", "REC-2024-001"]
+            }
+          }
+        },
+        {
+          "name": "Get Payments by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/date-range?startDate=2024-01-01&endDate=2024-01-31",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "date-range"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-01-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiveNumber\": \"REC-2024-001\",\n  \"paymentDate\": \"2024-01-15T14:30:00\",\n  \"amount\": 150.00,\n  \"description\": \"Pago cuota administración\",\n  \"receivePhoto\": \"https://example.com/receipts/rec001.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Update Payment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiveNumber\": \"REC-2024-001-UPD\",\n  \"paymentDate\": \"2024-01-15T14:30:00\",\n  \"amount\": 200.00,\n  \"description\": \"Pago cuota administración - Actualizado\",\n  \"receivePhoto\": \"https://example.com/receipts/rec001_updated.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Payment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expense Payments",
+      "item": [
+        {
+          "name": "Get All Expense Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments"]
+            }
+          }
+        },
+        {
+          "name": "Get Expense Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Payments by Expense",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/expense/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "expense", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Expenses by Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "payment", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Specific Expense-Payment Relation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/expense/1/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "expense", "1", "payment", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Expense Payment Relation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expenseId\": 1,\n  \"paymentId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments"]
+            }
+          }
+        },
+        {
+          "name": "Update Expense Payment Relation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expenseId\": 2,\n  \"paymentId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Expense Payment Relation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Specific Expense-Payment Relation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/expense/1/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "expense", "1", "payment", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Types",
+      "item": [
+        {
+          "name": "Get All Service Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Type by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Type by Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/name/Mantenimiento%20de%20Piscina",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "name", "Mantenimiento%20de%20Piscina"]
+            }
+          }
+        },
+        {
+          "name": "Create Service Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceName\": \"Mantenimiento de Piscina\",\n  \"description\": \"Servicio de limpieza y mantenimiento mensual de la piscina\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes"]
+            }
+          }
+        },
+        {
+          "name": "Update Service Type",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceName\": \"Mantenimiento de Piscina Premium\",\n  \"description\": \"Servicio premium de limpieza y mantenimiento de piscina con productos especializados\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Service Type",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Expenses",
+      "item": [
+        {
+          "name": "Get All Service Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Expense by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Expenses by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/service-type/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "service-type", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Expenses by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/status/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "status", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Pending Service Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Get Overdue Service Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/overdue",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "overdue"]
+            }
+          }
+        },
+        {
+          "name": "Create Service Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceTypeId\": 1,\n  \"description\": \"Mantenimiento piscina enero 2024\",\n  \"amount\": 250.00,\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"paymentLimitDate\": \"2024-01-31T23:59:59\",\n  \"interestAmount\": 0,\n  \"totalAmount\": 250.00,\n  \"status\": 1,\n  \"expenseDate\": \"2024-01-01T10:00:00\",\n  \"statusId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses"]
+            }
+          }
+        },
+        {
+          "name": "Update Service Expense",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceTypeId\": 1,\n  \"description\": \"Mantenimiento piscina enero 2024 - Actualizado\",\n  \"amount\": 300.00,\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"paymentLimitDate\": \"2024-01-31T23:59:59\",\n  \"interestAmount\": 15.00,\n  \"totalAmount\": 315.00,\n  \"status\": 1,\n  \"expenseDate\": \"2024-01-01T10:00:00\",\n  \"statusId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Service Expense",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Payments",
+      "item": [
+        {
+          "name": "Get All Service Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Payment by Receive Number",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/receive-number/SRV-2024-001",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "receive-number", "SRV-2024-001"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Payments by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/status/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "status", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Payments by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/date-range?startDate=2024-01-01&endDate=2024-01-31",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "date-range"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-01-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Service Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiveNumber\": \"SRV-2024-001\",\n  \"paymentDate\": \"2024-01-15T14:30:00\",\n  \"amount\": 250.00,\n  \"description\": \"Pago mantenimiento piscina\",\n  \"receivePhoto\": \"https://example.com/receipts/srv001.jpg\",\n  \"statusId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments"]
+            }
+          }
+        },
+        {
+          "name": "Update Service Payment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiveNumber\": \"SRV-2024-001-UPD\",\n  \"paymentDate\": \"2024-01-15T14:30:00\",\n  \"amount\": 300.00,\n  \"description\": \"Pago mantenimiento piscina - Actualizado\",\n  \"receivePhoto\": \"https://example.com/receipts/srv001_updated.jpg\",\n  \"statusId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Service Payment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Expense Payments",
+      "item": [
+        {
+          "name": "Get All Service Expense Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Expense Payment by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Payments by Service Expense",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/service-expense/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "service-expense", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Expenses by Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "payment", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Specific Service Expense-Payment Relation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/service-expense/1/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "service-expense", "1", "payment", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Service Expense Payment Relation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceExpenseId\": 1,\n  \"paymentId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments"]
+            }
+          }
+        },
+        {
+          "name": "Update Service Expense Payment Relation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceExpenseId\": 2,\n  \"paymentId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Service Expense Payment Relation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Specific Service Expense-Payment Relation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/service-expense/1/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "service-expense", "1", "payment", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "Get All Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auditlogs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auditlogs"]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Log by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auditlogs/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auditlogs", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auditlogs/user/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auditlogs", "user", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs by Action",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auditlogs/action/LOGIN",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auditlogs", "action", "LOGIN"]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs by Table",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auditlogs/table/expenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auditlogs", "table", "expenses"]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auditlogs/date-range?startDate=2024-01-01&endDate=2024-01-31",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auditlogs", "date-range"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-01-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Recent Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auditlogs/recent?count=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auditlogs", "recent"],
+              "query": [
+                {
+                  "key": "count",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
