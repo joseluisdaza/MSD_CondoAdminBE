@@ -450,5 +450,37 @@ namespace Condominio.Utils
                 LastUpdated = databaseVersionRequest.LastUpdated
             };
         }
+
+        // AuditLog conversions
+        public static AuditLogResponse ToAuditLogResponse(this AuditLog auditLog)
+        {
+            if (auditLog == null) return null;
+
+            return new AuditLogResponse
+            {
+                Id = auditLog.Id,
+                UserId = auditLog.UserId,
+                Action = auditLog.Action,
+                TableName = auditLog.TableName,
+                Message = auditLog.Message,
+                Timestamp = auditLog.Timestamp,
+                UserName = auditLog.User?.UserName,
+                UserLogin = auditLog.User?.Login
+            };
+        }
+
+        public static AuditLog ToAuditLog(this AuditLogRequest auditLogRequest)
+        {
+            if (auditLogRequest == null) return null;
+
+            return new AuditLog
+            {
+                UserId = auditLogRequest.UserId,
+                Action = auditLogRequest.Action,
+                TableName = auditLogRequest.TableName,
+                Message = auditLogRequest.Message,
+                Timestamp = auditLogRequest.Timestamp ?? DateTime.Now
+            };
+        }
     }
 }

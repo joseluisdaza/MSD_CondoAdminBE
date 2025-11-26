@@ -9,10 +9,16 @@
   <ItemGroup>
     <ProjectReference Include="..\Condominio.DTOs\Condominio.DTOs.csproj" />
     <ProjectReference Include="..\Condominio.Models\Condominio.Models.csproj" />
+    <ProjectReference Include="..\Condominio.Data.MySql\Condominio.Data.Mysql.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

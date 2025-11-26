@@ -50,6 +50,8 @@ public partial class CondominioContext : DbContext
 
     public virtual DbSet<DatabaseVersion> Versions { get; set; }
 
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         //No implementation needed if using DI to provide connection string
@@ -442,6 +444,32 @@ public partial class CondominioContext : DbContext
             entity.Property(e => e.LastUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("Last_Updated");
+        });
+
+        // Audit Log
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("audit_logs");
+
+            entity.HasIndex(e => e.UserId, "idx_auditlogs_userid");
+            entity.HasIndex(e => e.Timestamp, "idx_auditlogs_timestamp");
+            entity.HasIndex(e => e.TableName, "idx_auditlogs_tablename");
+
+            entity.Property(e => e.UserId).HasColumnName("User_Id");
+            entity.Property(e => e.Action).HasMaxLength(100);
+            entity.Property(e => e.TableName)
+                .HasMaxLength(100)
+                .HasColumnName("Table_Name");
+            entity.Property(e => e.Message).HasColumnType("TEXT");
+            entity.Property(e => e.Timestamp)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("audit_logs_ibfk_1");
         });
 
         OnModelCreatingPartial(modelBuilder);

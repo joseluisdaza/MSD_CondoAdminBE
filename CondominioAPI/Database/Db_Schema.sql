@@ -5,6 +5,7 @@
 
  CREATE DATABASE IF NOT EXISTS Condominio2;
  USE Condominio2;
+ 
 -- Users and roles
 SELECT 'Creating Users and Roles Tables';
 

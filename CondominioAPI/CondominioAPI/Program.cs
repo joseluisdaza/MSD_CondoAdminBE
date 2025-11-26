@@ -60,6 +60,10 @@ builder.Services.AddScoped<IServiceExpenseRepository, ServiceExpenseRepository>(
 builder.Services.AddScoped<IServicePaymentRepository, ServicePaymentRepository>();
 builder.Services.AddScoped<IServiceExpensePaymentRepository, ServiceExpensePaymentRepository>();
 builder.Services.AddScoped<IVersionRepository, VersionRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
+// Registrar el Logger personalizado
+builder.Services.AddScoped<Condominio.Utils.Logs.Logger>();
 
 builder.Services.AddControllers();
 
