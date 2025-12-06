@@ -90,7 +90,7 @@ namespace CondominioAPI.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = AppRoles.Administrador)]
-        public async Task<IActionResult> Update(int id, NewUserRequest user)
+        public async Task<IActionResult> Update(int id, NewUserBaseRequest user)
         {
             Log.Information("PUT > User > User: {0}, Id: {1}", this.User.Identity.Name, id);
 
@@ -98,9 +98,77 @@ namespace CondominioAPI.Controllers
             if (userFound == null)
                 return NotFound();
 
-            userFound.UpdateData(user);
+            userFound.UpdateDataNewUserBaseRequest(user);
             await _userRepository.UpdateAsync(userFound);
             return Ok();
+        }
+
+        /// <summary>
+        /// Actualiza la contraseña de un usuario
+        /// - Administradores: pueden cambiar contraseña de cualquier usuario
+        /// - Habitantes: solo pueden cambiar su propia contraseña
+        /// </summary>
+        [HttpPatch("{id}/password")]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante},{AppRoles.Super}")]
+        public async Task<IActionResult> UpdatePassword(int id, [FromBody] UpdatePasswordRequest passwordRequest)
+        {
+            try
+            {
+                var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var currentUserName = User.Identity?.Name ?? "Unknown";
+                
+                Log.Information("PUT > User > UpdatePassword. User: {0}, TargetId: {1}", currentUserName, id);
+
+                if (passwordRequest == null)
+                {
+                    Log.Warning("Password change failed - Null request for user ID {0} by user {1}", id, currentUserName);
+                    return BadRequest("La solicitud de actualización de contraseña no puede ser nula.");
+                }
+
+                // Validar modelo automáticamente (incluyendo StrongPassword)
+                if (!ModelState.IsValid)
+                {
+                    Log.Warning("Password change failed - Invalid format for user ID {0} by user {1}", id, currentUserName);
+                    return BadRequest(ModelState);
+                }
+
+                // Obtener el ID del usuario autenticado
+                var isAdmin = User.IsInRole(AppRoles.Administrador) || User.IsInRole(AppRoles.Super);
+
+                // Si no es administrador, solo puede cambiar su propia contraseña
+                if (!isAdmin && currentUserId != id)
+                {
+                    Log.Warning("Access denied - User {0} (ID: {1}) attempted to change password for user ID {2}", 
+                        currentUserName, currentUserId, id);
+                    return Forbid("No tienes permisos para cambiar la contraseña de otro usuario.");
+                }
+
+                var userFound = await _userRepository.GetByIdAsync(id);
+                if (userFound == null)
+                {
+                    Log.Warning("Password change failed - User not found for ID {0}", id);
+                    return NotFound("Usuario no encontrado.");
+                }
+
+                // Actualizar la contraseña
+                userFound.Password = PasswordHasher.HashPassword(passwordRequest.NewPassword);
+                await _userRepository.UpdateAsync(userFound);
+
+                // Log de auditoría exitoso
+                var actionMessage = currentUserId == id 
+                    ? $"User changed their own password" 
+                    : $"Admin {currentUserName} changed password for user {userFound.Login} (ID: {id})";
+                    
+                Log.Information("Password updated successfully - {0}", actionMessage);
+                
+                return Ok(new { message = "Contraseña actualizada exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                var currentUserName = User.Identity?.Name ?? "Unknown";
+                Log.Error(ex, "Error updating password for user ID {0} by user {1}", id, currentUserName);
+                return StatusCode(500, "Error interno del servidor");
+            }
         }
 
         /// <summary>

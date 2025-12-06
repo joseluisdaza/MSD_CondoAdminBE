@@ -76,6 +76,15 @@ namespace Condominio.Utils
             };
         }
 
+        public static void UpdateDataNewUserBaseRequest(this User old, NewUserBaseRequest request)
+        {
+            if (old == null || request == null) throw new Exception("Users cannot be null.");
+
+            old.UserName = request.UserName.Trim();
+            old.LastName = request.LastName.Trim();
+            old.LegalId = request.LegalId;
+        }
+
         public static void UpdateData(this User old, NewUserRequest request)
         {
             if (old == null || request == null) throw new Exception("Users cannot be null.");
