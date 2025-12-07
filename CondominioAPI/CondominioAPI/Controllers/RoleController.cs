@@ -1,4 +1,5 @@
 ﻿using Condominio.DTOs;
+using Condominio.Models;
 using Condominio.Repository.Repositories;
 using Condominio.Utils;
 using Condominio.Utils.Authorization;
@@ -25,11 +26,11 @@ namespace CondominioAPI.Controllers
         /// <summary>
         /// Obtiene los roles de un usuario (RoleAdmin y Administrador)
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{userId}")]
         [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
-        public async Task<ActionResult<IEnumerable<RoleRequest>>> GetRolesForUser(int id)
+        public async Task<ActionResult<IEnumerable<RoleRequest>>> GetRolesForUser(int userId)
         {
-            var user = await _userRepository.GetByIdWithRolesAsync(id);
+            var user = await _userRepository.GetByIdWithRolesAsync(userId);
             if (user == null)
                 return NotFound();
 
@@ -39,81 +40,87 @@ namespace CondominioAPI.Controllers
             return Ok(roles);
         }
 
-        /// <summary>
-        /// Asigna un rol a un usuario (Solo RoleAdmin)
-        /// </summary>
-        [HttpPost]
+        [HttpPut("user/{userId}")]
         [Authorize(Roles = AppRoles.Administrador)]
-        public async Task<IActionResult> AssignRoleToUser(UserRoleRequest userRoleRequest)
+        public async Task<IActionResult> AssignRoleToUser(int userId, [FromBody] List<int> roleIds)
         {
-            var user = await _userRepository.GetByIdWithRolesAsync(userRoleRequest.UserId);
+            var user = await _userRepository.GetByIdWithRolesAsync(userId);
             if (user == null)
                 return NotFound("Usuario no encontrado.");
-            var role = await _roleRepository.GetByIdAsync(userRoleRequest.RoleId);
-            if (role == null)
-                return NotFound("Rol no encontrado.");
-            
-            // Check if the user already has the role assigned and it's active
-            var existingUserRole = user.UserRoles
-                .FirstOrDefault(ur => ur.RoleId == userRoleRequest.RoleId && ur.EndDate == null);
-            if (existingUserRole != null)
-                return Ok(new { message = "El usuario ya tiene este rol asignado" });
 
-            //Check if the user has the role assigned but it's inactive (EndDate is not null)
-            existingUserRole = user.UserRoles
-                .FirstOrDefault(ur => ur.RoleId == userRoleRequest.RoleId && ur.EndDate.HasValue);
-
-            if (existingUserRole != null)
+            // Validate all roles exist
+            var roles = new List<Role>();
+            foreach (var roleId in roleIds)
             {
-                //Reactivate the role by setting EndDate to null
-                existingUserRole.EndDate = null;
-                existingUserRole.StartDate = DateTime.Now;
-                await _userRoleRepository.UpdateAsync(existingUserRole);
-                return Ok(new { message = "Rol reactivado exitosamente" });
+                var role = await _roleRepository.GetByIdAsync(roleId);
+                if (role == null)
+                    return NotFound($"Rol con ID {roleId} no encontrado.");
+                roles.Add(role);
             }
 
-            // Assign the role to the user if the role is not already assigned
-            var userRole = userRoleRequest.ToUserRole();
-            userRole.StartDate = DateTime.Now;
-            await _userRoleRepository.AddAsync(userRole);
-            return Ok(new { message = "Rol asignado exitosamente" });
-        }
+            // Get currently active user roles
+            var currentActiveRoles = user.UserRoles
+                .Where(ur => ur.EndDate == null)
+                .ToList();
 
-        /// <summary>
-        /// Remueve un rol de un usuario (Solo RoleAdmin)
-        /// </summary>
-        [HttpDelete]
-        [Authorize(Roles = AppRoles.Administrador)]
-        public async Task<IActionResult> RemoveRoleFromUser(UserRoleRequest userRoleRequest)
-        {
-            var user = await _userRepository.GetByIdWithRolesAsync(userRoleRequest.UserId);
-            if (user == null)
-                return NotFound("Usuario no encontrado.");
-            
-            var role = await _roleRepository.GetByIdAsync(userRoleRequest.RoleId);
-            if (role == null)
-                return NotFound("Rol no encontrado.");
-            
-            var userRole = user.UserRoles
-                .FirstOrDefault(ur => ur.RoleId == userRoleRequest.RoleId && ur.EndDate == null);
-            if (userRole == null)
-                return NotFound("El usuario no tiene este rol asignado");
+            // Deactivate roles that are not in the new list
+            foreach (var currentRole in currentActiveRoles)
+            {
+                if (!roleIds.Contains(currentRole.RoleId))
+                {
+                    currentRole.EndDate = DateTime.Now;
+                    await _userRoleRepository.UpdateAsync(currentRole);
+                }
+            }
 
-            // Set the EndDate to mark the role as inactive
-            userRole.EndDate = DateTime.Now;
-            await _userRoleRepository.UpdateAsync(userRole);
-            return Ok(new { message = "Rol removido exitosamente" });
+            // Activate or create roles from the new list
+            foreach (var roleId in roleIds)
+            {
+                // Check if user already has this role active
+                var existingActiveRole = user.UserRoles
+                    .FirstOrDefault(ur => ur.RoleId == roleId && ur.EndDate == null);
+                
+                if (existingActiveRole != null)
+                    continue; // Role is already active
+
+                // Check if user had this role but it's inactive
+                var existingInactiveRole = user.UserRoles
+                    .FirstOrDefault(ur => ur.RoleId == roleId && ur.EndDate.HasValue);
+
+                if (existingInactiveRole != null)
+                {
+                    // Reactivate the role
+                    existingInactiveRole.EndDate = null;
+                    existingInactiveRole.StartDate = DateTime.Now;
+                    await _userRoleRepository.UpdateAsync(existingInactiveRole);
+                }
+                else
+                {
+                    // Create new role assignment
+                    var newUserRole = new UserRole
+                    {
+                        UserId = userId,
+                        RoleId = roleId,
+                        StartDate = DateTime.Now,
+                        EndDate = null
+                    };
+                    await _userRoleRepository.AddAsync(newUserRole);
+                }
+            }
+
+            return Ok(new { message = "Roles actualizados exitosamente" });
         }
 
         /// <summary>
         /// Obtiene todos los roles disponibles en el sistema (RoleAdmin y Administrador)
         /// </summary>
-        [HttpGet("available")]
+        [HttpGet()]
         [Authorize(Roles = $"{AppRoles.Super},{AppRoles.Administrador}")]
         public async Task<ActionResult<IEnumerable<RoleRequest>>> GetAllRoles()
         {
             var roles = await _roleRepository.GetAllAsync();
             return Ok(roles.Select(r => r.ToRoleRequest()));
         }
+
     }
 }
