@@ -4,6 +4,6 @@ namespace Condominio.Repository.Repositories
 {
     public interface IPropertyTypeRepository : IRepository<PropertyType>
     {
-        // Add entity-specific methods if needed
+        Task<PropertyType?> GetByTypeAsync(string type);
     }
 }
