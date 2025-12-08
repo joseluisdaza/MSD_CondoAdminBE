@@ -476,5 +476,31 @@ namespace Condominio.Utils
                 LastUpdated = databaseVersionRequest.LastUpdated
             };
         }
+
+        // ExpenseCategory conversions
+        public static ExpenseCategoryResponse ToExpenseCategoryResponse(this ExpenseCategory expenseCategory)
+        {
+            if (expenseCategory == null) return null;
+
+            return new ExpenseCategoryResponse
+            {
+                Id = expenseCategory.Id,
+                Category = expenseCategory.Category,
+                Description = expenseCategory.Description,
+                //TotalExpenses = expenseCategory.Expenses?.Count ?? 0
+            };
+        }
+
+        public static ExpenseCategory ToExpenseCategory(this ExpenseCategoryRequest expenseCategoryRequest)
+        {
+            if (expenseCategoryRequest == null) return null;
+
+            return new ExpenseCategory
+            {
+                Id = expenseCategoryRequest.Id,
+                Category = expenseCategoryRequest.Category,
+                Description = expenseCategoryRequest.Description
+            };
+        }
     }
 }

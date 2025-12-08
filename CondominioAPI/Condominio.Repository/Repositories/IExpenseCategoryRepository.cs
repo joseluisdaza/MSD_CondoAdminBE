@@ -5,6 +5,7 @@ namespace Condominio.Repository.Repositories
 {
     public interface IExpenseCategoryRepository : IRepository<ExpenseCategory>
     {
-        // Add entity-specific methods if needed
+        Task<ExpenseCategory?> GetByCategoryAsync(string category);
+        Task<IEnumerable<ExpenseCategory>> GetAllWithExpensesAsync();
     }
 }
