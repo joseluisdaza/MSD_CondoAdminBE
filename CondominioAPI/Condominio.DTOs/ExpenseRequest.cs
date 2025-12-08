@@ -39,5 +39,5 @@ public class ExpenseResponse : ExpenseRequest
     public string? PropertyCode { get; set; }
     public string? PropertyTower { get; set; }
     public string? StatusDescription { get; set; }
-    public List<ExpensePaymentResponse> Payments { get; set; } = new List<ExpensePaymentResponse>();
+    //public List<ExpensePaymentResponse> Payments { get; set; } = new List<ExpensePaymentResponse>();
 }

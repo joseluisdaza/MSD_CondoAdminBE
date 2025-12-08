@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS Property_Owners
 SELECT 'Creating Expenses and Payments Tables';
 CREATE TABLE IF NOT EXISTS Payment_Status
 (
-  Id INT PRIMARY KEY,-- 1: Pending, 2: Paid, 3: Overdue, 4: Cancelled, 0: Undefined
+  Id INT AUTO_INCREMENT PRIMARY KEY,
   Status_Description VARCHAR(100) NOT NULL
 );
 
@@ -248,3 +248,11 @@ INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
 SELECT 6, u.id, NOW() FROM users u WHERE u.Login = 'useguridad';
 
 INSERT INTO Versions(Version, Last_Updated) VALUES('0.3.2', NOW());
+
+-- Create payment status
+INSERT INTO payment_status(Status_Description)
+VALUES 
+    ('Pendiente'),
+    ('Pagado'),
+    ('Verificado'),
+    ('Anulado');

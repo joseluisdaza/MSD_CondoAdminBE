@@ -2,6 +2,7 @@ using Condominio.DTOs;
 using Condominio.Repository.Repositories;
 using Condominio.Utils;
 using Condominio.Utils.Authorization;
+using Condominio.Utils.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -40,8 +41,9 @@ namespace CondominioAPI.Controllers
             try
             {
                 Log.Information("GET > Expenses > GetAll. User: {0}", User.Identity?.Name);
-                
-                var expenses = await _expenseRepository.GetAllWithRelationsAsync();
+
+                //var expenses = await _expenseRepository.GetAllWithRelationsAsync();
+                var expenses = await _expenseRepository.GetAllAsync();
                 var expenseResponses = expenses.Select(e => e.ToExpenseResponse()).ToList();
                 
                 return Ok(expenseResponses);
@@ -63,8 +65,9 @@ namespace CondominioAPI.Controllers
             try
             {
                 Log.Information("GET > Expenses > ById. User: {0}, Id: {1}", User.Identity?.Name, id);
-                
-                var expense = await _expenseRepository.GetByIdWithRelationsAsync(id);
+
+                //var expense = await _expenseRepository.GetByIdWithRelationsAsync(id);
+                var expense = await _expenseRepository.GetByIdAsync(id);
                 if (expense == null)
                 {
                     return NotFound($"Gasto con ID {id} no encontrado");
@@ -187,8 +190,9 @@ namespace CondominioAPI.Controllers
                 {
                     return BadRequest("El estado especificado no existe");
                 }
-
+                
                 var expense = expenseRequest.ToExpense();
+                expense.StatusId = (short)PaymentStatus.Pending;
                 await _expenseRepository.AddAsync(expense);
                 
                 var createdExpense = await _expenseRepository.GetByIdWithRelationsAsync(expense.Id);

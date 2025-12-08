@@ -13,18 +13,18 @@ public class PaymentStatusRepository : Repository<PaymentStatus>, IPaymentStatus
     public async Task<PaymentStatus?> GetByIdAsync(int id)
     {
         return await _context.PaymentStatuses
-            .Include(ps => ps.Expenses)
-            .Include(ps => ps.ServiceExpenses)
-            .Include(ps => ps.ServicePayments)
+            //.Include(ps => ps.Expenses)
+            //.Include(ps => ps.ServiceExpenses)
+            //.Include(ps => ps.ServicePayments)
             .FirstOrDefaultAsync(ps => ps.Id == id);
     }
 
     public async Task<IEnumerable<PaymentStatus>> GetAllAsync()
     {
         return await _context.PaymentStatuses
-            .Include(ps => ps.Expenses)
-            .Include(ps => ps.ServiceExpenses)
-            .Include(ps => ps.ServicePayments)
+            //.Include(ps => ps.Expenses)
+            //.Include(ps => ps.ServiceExpenses)
+            //.Include(ps => ps.ServicePayments)
             .ToListAsync();
     }
 }

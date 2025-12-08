@@ -215,7 +215,7 @@ namespace Condominio.Utils
                 PropertyCode = expense.Property?.Code,
                 PropertyTower = expense.Property?.Tower,
                 StatusDescription = expense.Status?.StatusDescription,
-                Payments = expense.ExpensePayments?.Select(ep => ep.ToExpensePaymentResponse()).ToList() ?? new List<ExpensePaymentResponse>()
+                //Payments = expense.ExpensePayments?.Select(ep => ep.ToExpensePaymentResponse()).ToList() ?? new List<ExpensePaymentResponse>()
             };
         }
 
@@ -291,6 +291,18 @@ namespace Condominio.Utils
             {
                 Id = paymentStatusRequest.Id,
                 StatusDescription = paymentStatusRequest.StatusDescription
+            };
+        }
+
+        // PaymentStatus simple conversion (only Id and StatusDescription)
+        public static PaymentStatusSimpleResponse ToPaymentStatusSimpleResponse(this PaymentStatus paymentStatus)
+        {
+            if (paymentStatus == null) return null;
+
+            return new PaymentStatusSimpleResponse
+            {
+                Id = paymentStatus.Id,
+                StatusDescription = paymentStatus.StatusDescription
             };
         }
 
