@@ -122,7 +122,13 @@ namespace CondominioAPI.Controllers
                     return BadRequest($"Ya existe otro tipo de propiedad con el nombre '{propertyType.Type}'");
                 }
 
-                await _propertyTypeRepository.UpdateAsync(propertyType.ToPropertyType());
+                existingPropertyType.Type = propertyType.Type;
+                existingPropertyType.Description = propertyType.Description;
+                existingPropertyType.Rooms = propertyType.Rooms;
+                existingPropertyType.Bathrooms = propertyType.Bathrooms;
+                existingPropertyType.WaterService = propertyType.WaterService;
+
+                await _propertyTypeRepository.UpdateAsync(existingPropertyType);
                 
                 Serilog.Log.Information("PropertyType updated successfully. ID: {0}, Type: {1}", id, propertyType.Type);
                 
