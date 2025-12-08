@@ -136,6 +136,7 @@ namespace Condominio.Utils
             if (propertyTypeRequest == null) return null;
             return new PropertyType
             {
+                Id = propertyTypeRequest.Id,
                 Type = propertyTypeRequest.Type,
                 Description = propertyTypeRequest.Description,
                 Rooms = propertyTypeRequest.Rooms,
