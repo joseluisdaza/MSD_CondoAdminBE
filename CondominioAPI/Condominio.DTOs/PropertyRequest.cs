@@ -16,4 +16,9 @@
 
         public DateTime StartDate { get; set; }
     }
+
+    public class FullPropertyRequest : PropertyRequest
+    {
+        public DateTime? EndDate { get; set; }
+    }
 }

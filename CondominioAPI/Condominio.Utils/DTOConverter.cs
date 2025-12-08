@@ -178,6 +178,22 @@ namespace Condominio.Utils
             };
         }
 
+        public static FullPropertyRequest ToFullPropertyRequest(this Property property)
+        {
+            if (property == null) return null;
+            return new FullPropertyRequest
+            {
+                Id = property.Id,
+                LegalId = property.LegalId,
+                Tower = property.Tower,
+                Floor = property.Floor,
+                Code = property.Code,
+                PropertyType = property.PropertyType,
+                StartDate = property.StartDate,
+                EndDate = property.EndDate
+            };
+        }
+
         // Expense conversions
         public static ExpenseResponse ToExpenseResponse(this Expense expense)
         {

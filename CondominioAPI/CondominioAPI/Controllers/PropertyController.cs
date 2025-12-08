@@ -31,7 +31,7 @@ namespace CondominioAPI.Controllers
         {
             Log.Information("GET > Property > GetAll. User: {0}", this.User.Identity.Name);
             var properties = await _propertyRepository.GetAllAsync();
-            return Ok(properties.Select(x => x.ToPropertyRequest()));
+            return Ok(properties.Select(x => x.ToFullPropertyRequest()));
         }
 
         /// <summary>
@@ -115,7 +115,17 @@ namespace CondominioAPI.Controllers
             if (id != property.Id)
                 return BadRequest();
 
-            await _propertyRepository.UpdateAsync(property.ToProperty());
+            // Verificar que la propiedad existe
+            var existingProperty = await _propertyRepository.GetByIdAsync(id);
+            if (existingProperty == null)
+                return NotFound();
+
+            existingProperty.LegalId = property.LegalId;
+            existingProperty.Tower = property.Tower;
+            existingProperty.Floor = property.Floor;
+            existingProperty.Code = property.Code;
+
+            await _propertyRepository.UpdateAsync(existingProperty);
             return Ok();
         }
 
