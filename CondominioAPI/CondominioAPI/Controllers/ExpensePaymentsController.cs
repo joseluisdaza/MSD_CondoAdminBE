@@ -2,6 +2,7 @@ using Condominio.DTOs;
 using Condominio.Repository.Repositories;
 using Condominio.Utils;
 using Condominio.Utils.Authorization;
+using Condominio.Utils.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -150,11 +151,13 @@ namespace CondominioAPI.Controllers
         }
 
         /// <summary>
-        /// Crea una nueva relación gasto-pago (Solo Administradores)
+        /// Procesa el pago de un gasto pendiente (Solo Administradores)
+        /// Valida que el gasto esté pendiente (statusId = 1), crea un pago automáticamente,
+        /// crea la relación gasto-pago y actualiza el estado del gasto a pagado (statusId = 2)
         /// </summary>
         [HttpPost]
         [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
-        public async Task<ActionResult<ExpensePaymentResponse>> Create([FromBody] ExpensePaymentRequest expensePaymentRequest)
+        public async Task<ActionResult<ExpensePaymentResponse>> Create([FromBody] CreateExpensePaymentRequest request)
         {
             try
             {
@@ -163,41 +166,99 @@ namespace CondominioAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                Log.Information("POST > ExpensePayments > Create. User: {0}, ExpensePayment: {@ExpensePayment}", 
-                    User.Identity?.Name, expensePaymentRequest);
+                Log.Information("POST > ExpensePayments > Create. User: {0}, ExpenseId: {1}", 
+                    User.Identity?.Name, request.ExpenseId);
 
-                // Validar que el gasto existe
-                var expense = await _expenseRepository.GetByIdAsync(expensePaymentRequest.ExpenseId);
+                // 1. Validar que el gasto existe
+                var expense = await _expenseRepository.GetByIdAsync(request.ExpenseId);
                 if (expense == null)
                 {
                     return BadRequest("El gasto especificado no existe");
                 }
 
-                // Validar que el pago existe
-                var payment = await _paymentRepository.GetByIdAsync(expensePaymentRequest.PaymentId);
-                if (payment == null)
+                // 2. Validar que el gasto está pendiente (statusId = 1)
+                if (expense.StatusId != 1)
                 {
-                    return BadRequest("El pago especificado no existe");
+                    var statusMessage = expense.StatusId switch
+                    {
+                        2 => "El gasto ya está pagado.",
+                        3 => "El gasto está verificado por administración.",
+                        4 => "El gasto está cancelado",
+                        0 => "El gasto tiene estado indefinido",
+                        _ => $"El gasto tiene un estado no válido para pago (StatusId: {expense.StatusId})"
+                    };
+                    
+                    Log.Warning("Payment creation failed - Invalid status. ExpenseId: {0}, StatusId: {1}", 
+                        request.ExpenseId, expense.StatusId);
+                    return BadRequest($"No se puede procesar el pago. {statusMessage}");
                 }
 
-                // Validar que la relación no existe ya
-                var existingRelation = await _expensePaymentRepository.GetByExpenseAndPaymentIdAsync(
-                    expensePaymentRequest.ExpenseId, expensePaymentRequest.PaymentId);
-                if (existingRelation != null)
+                // 3. Verificar que no existe ya una relación de pago para este gasto
+                var existingPayments = await _expensePaymentRepository.GetByExpenseIdAsync(request.ExpenseId);
+                if (existingPayments.Any())
                 {
-                    return BadRequest("La relación entre el gasto y el pago ya existe");
+                    return BadRequest("El gasto ya tiene un pago asociado");
                 }
 
-                var expensePayment = expensePaymentRequest.ToExpensePayment();
+                // 4. Calcular el monto total del pago
+                decimal paymentAmount;
+                if (expense.InterestRate == null)
+                {
+                    // Si InterestRate es null, sumar amount + interestAmount
+                    paymentAmount = expense.Amount + (expense.InterestAmount ?? 0);
+                }
+                else
+                {
+                    // Si InterestRate tiene valor, calcular: amount * (1 + InterestRate/100)
+                    paymentAmount = expense.Amount * (1 + expense.InterestRate.Value / 100);
+                }
+
+                // 5. Crear el pago automáticamente
+                var payment = new Condominio.Models.Payment
+                {
+                    ReceiveNumber = $"Expensa-{expense.Id}",  // Texto igual al ID del gasto
+                    PaymentDate = DateTime.Now,
+                    Amount = paymentAmount,
+                    Description = $"Pago automático para gasto: {expense.Description}",
+                    ReceivePhoto = "AUTO_PAYMENT" // Valor por defecto para pago automático
+                };
+
+                await _paymentRepository.AddAsync(payment);
+                
+                Log.Information("Automatic payment created. PaymentId: {0}, Amount: {1}, ExpenseId: {2}", 
+                    payment.Id, paymentAmount, request.ExpenseId);
+
+                // 6. Crear la relación gasto-pago
+                var expensePayment = new Condominio.Models.ExpensePayment
+                {
+                    ExpenseId = request.ExpenseId,
+                    PaymentId = payment.Id
+                };
+
                 await _expensePaymentRepository.AddAsync(expensePayment);
                 
+                Log.Information("ExpensePayment relation created. Id: {0}, ExpenseId: {1}, PaymentId: {2}", 
+                    expensePayment.Id, request.ExpenseId, payment.Id);
+
+                // 7. Actualizar el estado del gasto a pagado (statusId = 2)
+                expense.StatusId = (int)PaymentStatus.Paid;
+                await _expenseRepository.UpdateAsync(expense);
+                
+                Log.Information("Expense status updated to Paid. ExpenseId: {0}, Old Status: 1, New Status: 2", 
+                    request.ExpenseId);
+
+                // 8. Devolver la relación creada con todos los datos
                 var createdExpensePayment = await _expensePaymentRepository.GetByIdAsync(expensePayment.Id);
+                
+                Log.Information("Expense payment process completed successfully. ExpenseId: {0}, PaymentId: {1}, Amount: {2}", 
+                    request.ExpenseId, payment.Id, paymentAmount);
+
                 return CreatedAtAction(nameof(GetById), new { id = expensePayment.Id }, 
                     createdExpensePayment?.ToExpensePaymentResponse());
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error creating expense payment");
+                Log.Error(ex, "Error processing expense payment for ExpenseId: {0}", request.ExpenseId);
                 return StatusCode(500, "Error interno del servidor");
             }
         }
