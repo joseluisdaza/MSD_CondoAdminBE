@@ -514,5 +514,40 @@ namespace Condominio.Utils
                 Description = expenseCategoryRequest.Description
             };
         }
+
+        // PropertyOwner conversions
+        public static PropertyOwnerResponse ToPropertyOwnerResponse(this PropertyOwner propertyOwner)
+        {
+            if (propertyOwner == null) return null;
+
+            return new PropertyOwnerResponse
+            {
+                PropertyId = propertyOwner.PropertyId,
+                UserId = propertyOwner.UserId,
+                StartDate = propertyOwner.StartDate,
+                EndDate = propertyOwner.EndDate,
+                PropertyLegalId = propertyOwner.Property?.LegalId,
+                PropertyTower = propertyOwner.Property?.Tower,
+                PropertyFloor = propertyOwner.Property?.Floor,
+                PropertyCode = propertyOwner.Property?.Code,
+                UserName = propertyOwner.User?.UserName,
+                UserLastName = propertyOwner.User?.LastName,
+                UserLogin = propertyOwner.User?.Login,
+                UserLegalId = propertyOwner.User?.LegalId
+            };
+        }
+
+        public static PropertyOwner ToPropertyOwner(this PropertyOwnerRequest propertyOwnerRequest)
+        {
+            if (propertyOwnerRequest == null) return null;
+
+            return new PropertyOwner
+            {
+                PropertyId = propertyOwnerRequest.PropertyId,
+                UserId = propertyOwnerRequest.UserId,
+                StartDate = DateTime.Now,
+                EndDate = null
+            };
+        }
     }
 }

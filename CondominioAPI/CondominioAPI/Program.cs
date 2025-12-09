@@ -48,6 +48,7 @@ builder.Services.AddScoped<IRepository<Role>, RoleRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IPropertyTypeRepository, PropertyTypeRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPropertyOwnerRepository, PropertyOwnerRepository>();
 
 // Nuevos repositorios para las entidades actualizadas
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
