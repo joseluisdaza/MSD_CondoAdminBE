@@ -18,7 +18,7 @@ public class ServicePaymentRequest
     [StringLength(500, ErrorMessage = "La descripción no puede exceder 500 caracteres")]
     public string? Description { get; set; }
 
-    [Required(ErrorMessage = "La foto del recibo es requerida")]
+    //[Required(ErrorMessage = "La foto del recibo es requerida")]
     [StringLength(1000, ErrorMessage = "La URL de la foto no puede exceder 1000 caracteres")]
     public string ReceivePhoto { get; set; } = null!;
 

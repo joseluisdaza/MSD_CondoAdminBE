@@ -380,7 +380,7 @@ namespace Condominio.Utils
                 StatusId = serviceExpense.StatusId,
                 ServiceTypeName = serviceExpense.ServiceType?.ServiceName,
                 StatusDescription = serviceExpense.StatusNavigation?.StatusDescription,
-                Payments = serviceExpense.ServiceExpensePayments?.Select(sep => sep.ToServiceExpensePaymentResponse()).ToList() ?? new List<ServiceExpensePaymentResponse>()
+                //Payments = serviceExpense.ServiceExpensePayments?.Select(sep => sep.ToServiceExpensePaymentResponse()).ToList() ?? new List<ServiceExpensePaymentResponse>()
             };
         }
 

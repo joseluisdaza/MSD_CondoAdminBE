@@ -42,5 +42,5 @@ public class ServiceExpenseResponse : ServiceExpenseRequest
     public int Id { get; set; }
     public string? ServiceTypeName { get; set; }
     public string? StatusDescription { get; set; }
-    public List<ServiceExpensePaymentResponse> Payments { get; set; } = new List<ServiceExpensePaymentResponse>();
+    //public List<ServiceExpensePaymentResponse> Payments { get; set; } = new List<ServiceExpensePaymentResponse>();
 }
