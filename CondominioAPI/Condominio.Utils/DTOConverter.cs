@@ -418,7 +418,7 @@ namespace Condominio.Utils
                 ReceivePhoto = servicePayment.ReceivePhoto,
                 StatusId = servicePayment.StatusId,
                 StatusDescription = servicePayment.Status?.StatusDescription,
-                ServiceExpenses = servicePayment.ServiceExpensePayments?.Select(sep => sep.ToServiceExpensePaymentResponse()).ToList() ?? new List<ServiceExpensePaymentResponse>()
+                //ServiceExpenses = servicePayment.ServiceExpensePayments?.Select(sep => sep.ToServiceExpensePaymentResponse()).ToList() ?? new List<ServiceExpensePaymentResponse>()
             };
         }
 
