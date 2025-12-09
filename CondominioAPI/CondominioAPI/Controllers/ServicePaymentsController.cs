@@ -15,13 +15,19 @@ namespace CondominioAPI.Controllers
     {
         private readonly IServicePaymentRepository _servicePaymentRepository;
         private readonly IPaymentStatusRepository _paymentStatusRepository;
+        private readonly IServiceExpensePaymentRepository _serviceExpensePaymentRepository;
+        private readonly IServiceExpenseRepository _serviceExpenseRepository;
 
         public ServicePaymentsController(
             IServicePaymentRepository servicePaymentRepository,
-            IPaymentStatusRepository paymentStatusRepository)
+            IPaymentStatusRepository paymentStatusRepository,
+            IServiceExpensePaymentRepository serviceExpensePaymentRepository,
+            IServiceExpenseRepository serviceExpenseRepository)
         {
             _servicePaymentRepository = servicePaymentRepository;
             _paymentStatusRepository = paymentStatusRepository;
+            _serviceExpensePaymentRepository = serviceExpensePaymentRepository;
+            _serviceExpenseRepository = serviceExpenseRepository;
         }
 
         /// <summary>
@@ -156,7 +162,7 @@ namespace CondominioAPI.Controllers
         }
 
         /// <summary>
-        /// Crea un nuevo pago de servicio (Solo Administradores)
+        /// Crea un nuevo pago de servicio y la relación con el gasto de servicio (Solo Administradores)
         /// </summary>
         [HttpPost]
         [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
@@ -186,16 +192,58 @@ namespace CondominioAPI.Controllers
                     return BadRequest("El estado especificado no existe");
                 }
 
+                // Validar que el gasto de servicio existe
+                var serviceExpense = await _serviceExpenseRepository.GetByIdAsync(servicePaymentRequest.ServiceExpenseId);
+                if (serviceExpense == null)
+                {
+                    return BadRequest("El gasto de servicio especificado no existe");
+                }
+
+                // Verificar que no existe ya una relación para este gasto de servicio
+                var existingRelations = await _serviceExpensePaymentRepository.GetByServiceExpenseIdAsync(servicePaymentRequest.ServiceExpenseId);
+                if (existingRelations.Any())
+                {
+                    return BadRequest("El gasto de servicio ya tiene un pago asociado");
+                }
+
+                // Crear el pago de servicio
                 var servicePayment = servicePaymentRequest.ToServicePayment();
                 await _servicePaymentRepository.AddAsync(servicePayment);
                 
+                Log.Information("ServicePayment created successfully. Id: {0}, ReceiveNumber: {1}", 
+                    servicePayment.Id, servicePayment.ReceiveNumber);
+
+                // Crear la relación ServiceExpensePayment
+                var serviceExpensePayment = new Condominio.Models.ServiceExpensePayment
+                {
+                    ServiceExpenseId = servicePaymentRequest.ServiceExpenseId,
+                    PaymentId = servicePayment.Id
+                };
+
+                await _serviceExpensePaymentRepository.AddAsync(serviceExpensePayment);
+                
+                Log.Information("ServiceExpensePayment relation created successfully. ServiceExpenseId: {0}, PaymentId: {1}", 
+                    servicePaymentRequest.ServiceExpenseId, servicePayment.Id);
+
+                // Actualizar el estado del ServiceExpense a pagado (StatusId = 2)
+                serviceExpense.StatusId = 2;
+                await _serviceExpenseRepository.UpdateAsync(serviceExpense);
+                
+                Log.Information("ServiceExpense status updated to Paid. ServiceExpenseId: {0}, Old Status: {1}, New Status: 2", 
+                    servicePaymentRequest.ServiceExpenseId, serviceExpense.StatusId);
+
+                // Obtener el pago creado con todas las relaciones
                 var createdServicePayment = await _servicePaymentRepository.GetByIdAsync(servicePayment.Id);
+                
+                Log.Information("Service payment process completed successfully. PaymentId: {0}, ServiceExpenseId: {1}, ServiceExpense Status updated to Paid", 
+                    servicePayment.Id, servicePaymentRequest.ServiceExpenseId);
+
                 return CreatedAtAction(nameof(GetById), new { id = servicePayment.Id }, 
                     createdServicePayment?.ToServicePaymentResponse());
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error creating service payment");
+                Log.Error(ex, "Error creating service payment and relation. ServiceExpenseId: {0}", servicePaymentRequest?.ServiceExpenseId);
                 return StatusCode(500, "Error interno del servidor");
             }
         }

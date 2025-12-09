@@ -23,6 +23,9 @@ public class ServicePaymentRequest
     public string ReceivePhoto { get; set; } = null!;
 
     public int StatusId { get; set; } = 0;
+
+    [Required(ErrorMessage = "El ID del gasto de servicio es requerido")]
+    public int ServiceExpenseId { get; set; }
 }
 
 public class ServicePaymentResponse : ServicePaymentRequest
