@@ -1,0 +1,123 @@
+<mxfile host="65bd71144e">
+    <diagram id="CondominioAPI_ClassDiagram" name="Class Diagram">
+        <mxGraphModel dx="756" dy="973" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="AuthController" value="&lt;&lt;Controller&gt;&gt;\nAuthController\n--\n+ Login(LoginRequest): Task&lt;ActionResult&gt;\n+ HealthCheck(): ActionResult" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="50" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="UsersController" value="&lt;&lt;Controller&gt;&gt;\nUsersController\n--\n+ GetAll(): Task&lt;ActionResult&gt;\n+ GetById(id): Task&lt;ActionResult&gt;\n+ Create(UserRequest): Task&lt;ActionResult&gt;\n+ Update(id, UserRequest): Task&lt;ActionResult&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+                    <mxGeometry x="270" y="50" width="220" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyController" value="&lt;&lt;Controller&gt;&gt;\nPropertyController\n--\n+ GetAll(): Task&lt;ActionResult&gt;\n+ GetById(id): Task&lt;ActionResult&gt;\n+ Create(PropertyRequest): Task&lt;ActionResult&gt;\n+ Update(id, PropertyRequest): Task&lt;ActionResult&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+                    <mxGeometry x="510" y="50" width="220" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpensesController" value="&lt;&lt;Controller&gt;&gt;\nServiceExpensesController\n--\n+ GetAll(): Task&lt;ActionResult&gt;\n+ GetById(id): Task&lt;ActionResult&gt;\n+ Create(ServiceExpenseRequest): Task&lt;ActionResult&gt;\n+ Update(id, ServiceExpenseRequest): Task&lt;ActionResult&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+                    <mxGeometry x="750" y="50" width="240" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="IUserRepository" value="&lt;&lt;Interface&gt;&gt;\nIUserRepository\n--\n+ GetAllAsync(): Task&lt;IEnumerable&lt;User&gt;&gt;\n+ GetByIdAsync(id): Task&lt;User&gt;\n+ GetByIdWithRolesAsync(id): Task&lt;User&gt;\n+ AddAsync(user): Task&lt;User&gt;\n+ UpdateAsync(user): Task&lt;User&gt;\n+ DeleteAsync(id): Task&lt;bool&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="220" width="250" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPropertyRepository" value="&lt;&lt;Interface&gt;&gt;\nIPropertyRepository\n--\n+ GetAllAsync(): Task&lt;IEnumerable&lt;Property&gt;&gt;\n+ GetByIdAsync(id): Task&lt;Property&gt;\n+ AddAsync(property): Task&lt;Property&gt;\n+ UpdateAsync(property): Task&lt;Property&gt;\n+ DeleteAsync(id): Task&lt;bool&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="220" width="250" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="IServiceExpenseRepository" value="&lt;&lt;Interface&gt;&gt;\nIServiceExpenseRepository\n--\n+ GetAllAsync(): Task&lt;IEnumerable&lt;ServiceExpense&gt;&gt;\n+ GetByIdAsync(id): Task&lt;ServiceExpense&gt;\n+ AddAsync(expense): Task&lt;ServiceExpense&gt;\n+ UpdateAsync(expense): Task&lt;ServiceExpense&gt;\n+ DeleteAsync(id): Task&lt;bool&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="590" y="220" width="280" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserRepository" value="UserRepository\n--\n+ GetAllAsync(): Task&lt;IEnumerable&lt;User&gt;&gt;\n+ GetByIdAsync(id): Task&lt;User&gt;\n+ GetByIdWithRolesAsync(id): Task&lt;User&gt;\n+ AddAsync(user): Task&lt;User&gt;\n+ UpdateAsync(user): Task&lt;User&gt;\n+ DeleteAsync(id): Task&lt;bool&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="400" width="250" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyRepository" value="PropertyRepository\n--\n+ GetAllAsync(): Task&lt;IEnumerable&lt;Property&gt;&gt;\n+ GetByIdAsync(id): Task&lt;Property&gt;\n+ AddAsync(property): Task&lt;Property&gt;\n+ UpdateAsync(property): Task&lt;Property&gt;\n+ DeleteAsync(id): Task&lt;bool&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="400" width="250" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpenseRepository" value="ServiceExpenseRepository\n--\n+ GetAllAsync(): Task&lt;IEnumerable&lt;ServiceExpense&gt;&gt;\n+ GetByIdAsync(id): Task&lt;ServiceExpense&gt;\n+ AddAsync(expense): Task&lt;ServiceExpense&gt;\n+ UpdateAsync(expense): Task&lt;ServiceExpense&gt;\n+ DeleteAsync(id): Task&lt;bool&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+                    <mxGeometry x="590" y="400" width="280" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="User" value="User\n--\n+ Id: int\n+ Login: string\n+ UserName: string\n+ LastName: string\n+ LegalId: string?\n+ StartDate: DateTime\n+ EndDate: DateTime?\n+ Password: string\n+ PropertyOwners: ICollection&lt;PropertyOwner&gt;\n+ UserRoles: ICollection&lt;UserRole&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="860" width="250" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="Property" value="Property\n--\n+ Id: int\n+ LegalId: string?\n+ Tower: string\n+ Floor: int\n+ Code: string\n+ PropertyType: int\n+ StartDate: DateTime\n+ EndDate: DateTime?\n+ Expenses: ICollection&lt;Expense&gt;\n+ PropertyOwners: ICollection&lt;PropertyOwner&gt;\n+ PropertyTypeNavigation: PropertyType" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="860" width="250" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpense" value="ServiceExpense\n--\n+ Id: int\n+ ServiceTypeId: int\n+ Amount: decimal\n+ Description: string\n+ InterestAmount: decimal\n+ PaymentLimitDate: DateTime\n+ StartDate: DateTime\n+ ExpenseDate: DateTime\n+ StatusId: int\n+ ServiceExpensePayments: ICollection&lt;ServiceExpensePayment&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+                    <mxGeometry x="590" y="860" width="280" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="Role" value="Role\n--\n+ Id: int\n+ RolName: string\n+ Description: string\n+ UserRoles: ICollection&lt;UserRole&gt;" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+                    <mxGeometry x="890" y="860" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="LoginRequest" value="&lt;&lt;DTO&gt;&gt;\nLoginRequest\n--\n+ Login: string\n+ Password: string" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="1070" width="150" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserRequest" value="&lt;&lt;DTO&gt;&gt;\nUserRequest\n--\n+ Login: string\n+ UserName: string\n+ LastName: string\n+ LegalId: string?\n+ Password: string" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="1070" width="180" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyRequest" value="&lt;&lt;DTO&gt;&gt;\nPropertyRequest\n--\n+ LegalId: string?\n+ Tower: string\n+ Floor: int\n+ Code: string\n+ PropertyType: int" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="420" y="1070" width="180" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpenseRequest" value="&lt;&lt;DTO&gt;&gt;\nServiceExpenseRequest\n--\n+ ServiceTypeId: int\n+ Amount: decimal\n+ Description: string\n+ PaymentLimitDate: DateTime\n+ ExpenseDate: DateTime" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="620" y="1070" width="200" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="CondominioContext" value="CondominioContext\n--\n+ Users: DbSet&lt;User&gt;\n+ Properties: DbSet&lt;Property&gt;\n+ ServiceExpenses: DbSet&lt;ServiceExpense&gt;\n+ Roles: DbSet&lt;Role&gt;\n+ OnModelCreating(ModelBuilder): void" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+                    <mxGeometry x="840" y="630" width="250" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="UsersController" target="IUserRepository" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="PropertyController" target="IPropertyRepository" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="ServiceExpensesController" target="IServiceExpenseRepository" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;" parent="1" source="UserRepository" target="IUserRepository" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;" parent="1" source="PropertyRepository" target="IPropertyRepository" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;" parent="1" source="ServiceExpenseRepository" target="IServiceExpenseRepository" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="UserRepository" target="User" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="PropertyRepository" target="Property" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="ServiceExpenseRepository" target="ServiceExpense" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="UserRepository" target="CondominioContext" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="175" y="570"/>
+                            <mxPoint x="965" y="570"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;" parent="1" source="PropertyRepository" target="CondominioContext" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="445" y="570"/>
+                            <mxPoint x="965" y="570"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=openThin;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" target="CondominioContext" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="734" y="480" as="sourcePoint"/>
+                        <mxPoint x="1169" y="580" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="734" y="570"/>
+                            <mxPoint x="965" y="570"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="legend" value="Legend:\nPurple = Controllers\nYellow = Repository Interfaces\nGreen = Repository Implementations\nBlue = Domain Models\nRed = DTOs\nOrange = Data Context" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="890" y="1070" width="250" height="120" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
