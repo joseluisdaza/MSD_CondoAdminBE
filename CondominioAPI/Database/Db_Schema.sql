@@ -256,3 +256,87 @@ VALUES
     ('Pagado'),
     ('Verificado'),
     ('Anulado');
+
+
+-- v2.0 - 2026.03.02
+SELECT 'Creating New Tables for Version 2.0';
+INSERT INTO Versions(Version, Last_Updated) VALUES('1.0.0', NOW());
+
+CREATE TABLE IF NOT EXISTS Resources
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Name VARCHAR(150) NOT NULL,
+  Description VARCHAR(500) NULL,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+  Photo VARCHAR(1000) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Resource_Costs
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Resource_Id INT NOT NULL,
+  Booking_Price DECIMAL(10,2) NOT NULL,
+  Booking_Warranty_Cost DECIMAL(10,2) NOT NULL,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+
+  FOREIGN KEY (Resource_Id) REFERENCES Resources(Id)
+);
+
+CREATE TABLE IF NOT EXISTS Resource_Bookings
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Resource_Id INT NOT NULL,
+  User_Id INT NOT NULL,
+  Property_Id INT NOT NULL,
+  Status_Id INT NOT NULL DEFAULT 0,
+  Booking_Date DATETIME NOT NULL,
+  Booking_Price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  Booking_Warranty_Cost DECIMAL(10,2) NOT NULL DEFAULT 0,
+  Booking_Description VARCHAR(500) NULL,
+  Booking_Photo VARCHAR(1000) NULL,
+
+  FOREIGN KEY (Resource_Id) REFERENCES Resources(Id),
+  FOREIGN KEY (User_Id) REFERENCES Users(Id),
+  FOREIGN KEY (Property_Id) REFERENCES Property(Id),
+  FOREIGN KEY (Status_Id) REFERENCES Payment_Status(Id)
+);
+
+CREATE TABLE IF NOT EXISTS INCIDENT_TYPES
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Type VARCHAR(100) NOT NULL,
+  Description VARCHAR(500) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS INCIDENT_COSTS
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Incident_Type_Id INT NOT NULL,
+  Cost DECIMAL(10,2) NOT NULL,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+  Description VARCHAR(500) NOT NULL,
+
+  FOREIGN KEY (Incident_Type_Id) REFERENCES INCIDENT_TYPES(Id)
+);
+
+CREATE TABLE IF NOT EXISTS INCIDENTS
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Incident_Type_Id INT NOT NULL,
+  User_Id INT NOT NULL,
+  Property_Id INT NOT NULL,
+  Status_Id INT NOT NULL DEFAULT 0,
+  Incident_Date DATETIME NOT NULL,
+  Incident_Description VARCHAR(500) NULL,
+  Incident_Photo VARCHAR(1000) NULL,
+
+  FOREIGN KEY (Incident_Type_Id) REFERENCES INCIDENT_TYPES(Id),
+  FOREIGN KEY (User_Id) REFERENCES Users(Id),
+  FOREIGN KEY (Property_Id) REFERENCES Property(Id),
+  FOREIGN KEY (Status_Id) REFERENCES Payment_Status(Id)
+);
+
+INSERT INTO Versions(Version, Last_Updated) VALUES('1.0.1', NOW());
