@@ -1,0 +1,249 @@
+<mxfile host="65bd71144e">
+    <diagram name="C4 Level 4 - Class Diagram" id="class-diagram">
+        <mxGraphModel dx="1741" dy="973" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1400" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="DIAGRAMA C4 NIVEL 4 - CLASES DEL SISTEMA CONDOMINIO API" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+                    <mxGeometry x="600" y="20" width="800" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="controllers-layer" value="CONTROLLERS LAYER" style="swimlane;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="390" y="90" width="1160" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="AuthController" value="AuthController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="280" y="110" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="UsersController" value="UsersController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="100" y="40" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyController" value="PropertyController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="280" y="40" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyOwnersController" value="PropertyOwnersController&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="430" y="40" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ExpensesController" value="ExpensesController&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="430" y="110" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="PaymentsController" value="PaymentsController&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="610" y="40" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpensesController" value="ServiceExpensesController&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="610" y="110" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServicePaymentsController" value="ServicePaymentsController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="780" y="40" width="160" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ExpenseCategoriesController" value="ExpenseCategoriesController&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="780" y="110" width="180" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceTypesController" value="ServiceTypesController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="990" y="40" width="140" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="RoleController" value="RoleController&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="controllers-layer" vertex="1">
+                    <mxGeometry x="990" y="110" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="dtos-layer" value="DTOs LAYER" style="swimlane;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="435" y="290" width="1070" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserRequest" value="UserRequest&#xa;UserBaseRequest&#xa;NewUserRequest&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="7" y="110" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyRequest" value="PropertyRequest&#xa;____________________&#xa;[Data Transfer Object]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="27" y="40" width="140" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="ExpenseRequest" value="ExpenseRequest&#xa;ExpenseResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="177" y="40" width="130" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="PaymentRequest" value="PaymentRequest&#xa;PaymentResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="177" y="120" width="130" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpenseRequest" value="ServiceExpenseRequest&#xa;ServiceExpenseResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="327" y="40" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServicePaymentRequest" value="ServicePaymentRequest&#xa;ServicePaymentResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="327" y="120" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyOwnerRequest" value="PropertyOwnerRequest&#xa;PropertyOwnerResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="497" y="40" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="ExpensePaymentRequest" value="ExpensePaymentRequest&#xa;ExpensePaymentResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="497" y="120" width="150" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpensePaymentRequest" value="ServiceExpensePaymentRequest&#xa;ServiceExpensePaymentResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="677" y="35" width="190" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="PaymentStatusRequest" value="PaymentStatusRequest&#xa;PaymentStatusResponse&#xa;PaymentStatusSimpleResponse&#xa;____________________&#xa;[Data Transfer Objects]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="677" y="110" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="LoginRequest" value="LoginRequest&#xa;____________________&#xa;[Data Transfer Object]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="887" y="35" width="140" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="RoleRequest" value="RoleRequest&#xa;____________________&#xa;[Data Transfer Object]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="dtos-layer" vertex="1">
+                    <mxGeometry x="887" y="125" width="140" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="models-layer" value="DOMAIN MODELS LAYER" style="swimlane;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="520" width="1900" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="User" value="&lt;&lt;entity&gt;&gt;&#xa;User&#xa;- Id: int&#xa;- Login: string&#xa;- UserName: string&#xa;- LastName: string&#xa;- LegalId: string?&#xa;- StartDate: DateTime&#xa;- EndDate: DateTime?&#xa;- Password: string&#xa;+ PropertyOwners: ICollection&lt;PropertyOwner&gt;&#xa;+ UserRoles: ICollection&lt;UserRole&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="models-layer" vertex="1">
+                    <mxGeometry x="40" y="40" width="240" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="Property" value="&lt;&lt;entity&gt;&gt;&#xa;Property&#xa;- Id: int&#xa;- LegalId: string?&#xa;- Tower: string&#xa;- Floor: int&#xa;- Code: string&#xa;- PropertyType: int&#xa;- StartDate: DateTime&#xa;- EndDate: DateTime?&#xa;+ Expenses: ICollection&lt;Expense&gt;&#xa;+ PropertyOwners: ICollection&lt;PropertyOwner&gt;&#xa;+ PropertyTypeNavigation: PropertyType" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="models-layer" vertex="1">
+                    <mxGeometry x="300" y="40" width="260" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyOwner" value="&lt;&lt;entity&gt;&gt;&#xa;PropertyOwner&#xa;- PropertyId: int&#xa;- UserId: int&#xa;- StartDate: DateTime&#xa;- EndDate: DateTime?&#xa;+ Property: Property&#xa;+ User: User" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="models-layer" vertex="1">
+                    <mxGeometry x="580" y="40" width="200" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="Expense" value="&lt;&lt;entity&gt;&gt;&#xa;Expense&#xa;- Id: int&#xa;- CategoryId: int&#xa;- PropertyId: int?&#xa;- StartDate: DateTime&#xa;- PaymentLimitDate: DateTime&#xa;- Amount: decimal&#xa;- InterestAmount: decimal?&#xa;- InterestRate: decimal?&#xa;- Description: string&#xa;- StatusId: int&#xa;+ Category: ExpenseCategory&#xa;+ Property: Property?&#xa;+ Status: PaymentStatus&#xa;+ ExpensePayments: ICollection&lt;ExpensePayment&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="models-layer" vertex="1">
+                    <mxGeometry x="800" y="40" width="280" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="Payment" value="Payment&#xa;____________________&#xa;- Id: int&#xa;- ReceiveNumber: string&#xa;- PaymentDate: DateTime&#xa;- Amount: decimal&#xa;- Description: string?&#xa;- ReceivePhoto: string&#xa;____________________&#xa;+ ExpensePayments: ICollection&lt;ExpensePayment&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="models-layer" vertex="1">
+                    <mxGeometry x="1100" y="40" width="240" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpense" value="ServiceExpense&#xa;____________________&#xa;- Id: int&#xa;- ServiceTypeId: int&#xa;- Description: string&#xa;- Amount: decimal&#xa;- StartDate: DateTime&#xa;- PaymentLimitDate: DateTime&#xa;- InterestAmount: decimal?&#xa;- TotalAmount: decimal&#xa;- Status: int&#xa;- ExpenseDate: DateTime&#xa;- StatusId: int&#xa;____________________&#xa;+ ServiceType: ServiceType&#xa;+ StatusNavigation: PaymentStatus&#xa;+ ServiceExpensePayments: ICollection&lt;ServiceExpensePayment&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="models-layer" vertex="1">
+                    <mxGeometry x="1360" y="40" width="300" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServicePayment" value="ServicePayment&#xa;____________________&#xa;- Id: int&#xa;- ReceiveNumber: string&#xa;- PaymentDate: DateTime&#xa;- Amount: decimal&#xa;- Description: string?&#xa;- ReceivePhoto: string&#xa;- StatusId: int&#xa;____________________&#xa;+ Status: PaymentStatus&#xa;+ ServiceExpensePayments: ICollection&lt;ServiceExpensePayment&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;" parent="models-layer" vertex="1">
+                    <mxGeometry x="1680" y="40" width="280" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="support-layer" value="SUPPORT ENTITIES LAYER" style="swimlane;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="840" width="1900" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="ExpenseCategory" value="ExpenseCategory&#xa;____________________&#xa;- Id: int&#xa;- Category: string&#xa;- Description: string&#xa;____________________&#xa;+ Expenses: ICollection&lt;Expense&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="40" y="40" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="ExpensePayment" value="ExpensePayment&#xa;____________________&#xa;- Id: int&#xa;- ExpenseId: int&#xa;- PaymentId: int&#xa;____________________&#xa;+ Expense: Expense&#xa;+ Payment: Payment" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="260" y="40" width="160" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceExpensePayment" value="ServiceExpensePayment&#xa;____________________&#xa;- Id: int&#xa;- ServiceExpenseId: int&#xa;- PaymentId: int&#xa;____________________&#xa;+ ServiceExpense: ServiceExpense&#xa;+ Payment: ServicePayment" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="440" y="40" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="PaymentStatus" value="PaymentStatus&#xa;____________________&#xa;- Id: int&#xa;- StatusDescription: string&#xa;____________________&#xa;+ Expenses: ICollection&lt;Expense&gt;&#xa;+ ServiceExpenses: ICollection&lt;ServiceExpense&gt;&#xa;+ ServicePayments: ICollection&lt;ServicePayment&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="660" y="40" width="220" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="ServiceType" value="ServiceType&#xa;____________________&#xa;- Id: int&#xa;- ServiceName: string&#xa;- Description: string&#xa;____________________&#xa;+ ServiceExpenses: ICollection&lt;ServiceExpense&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="900" y="40" width="200" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="PropertyType" value="PropertyType&#xa;____________________&#xa;- Id: int&#xa;- TypeName: string&#xa;- Description: string&#xa;____________________&#xa;+ Properties: ICollection&lt;Property&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="1120" y="40" width="180" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="Role" value="Role&#xa;____________________&#xa;- Id: int&#xa;- RoleName: string&#xa;- Description: string&#xa;____________________&#xa;+ UserRoles: ICollection&lt;UserRole&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="1320" y="40" width="180" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="UserRole" value="UserRole&#xa;____________________&#xa;- UserId: int&#xa;- RoleId: int&#xa;____________________&#xa;+ User: User&#xa;+ Role: Role" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="1520" y="40" width="140" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="DatabaseVersion" value="DatabaseVersion&#xa;____________________&#xa;- Version: string&#xa;- LastUpdated: DateTime" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="support-layer" vertex="1">
+                    <mxGeometry x="1680" y="40" width="160" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="repository-layer" value="REPOSITORY LAYER" style="swimlane;fillColor=#b1ddf0;strokeColor=#10739e;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="1060" width="1900" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="IRepository" value="IRepository&lt;T&gt;&#xa;____________________&#xa;+ GetAllAsync(): Task&lt;IEnumerable&lt;T&gt;&gt;&#xa;+ GetByIdAsync(id): Task&lt;T?&gt;&#xa;+ AddAsync(entity): Task&#xa;+ UpdateAsync(entity): Task&#xa;+ DeleteAsync(id): Task" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;align=left;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="40" y="40" width="220" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="IUserRepository" value="IUserRepository&#xa;____________________&#xa;[Repository Interface]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="280" y="40" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPropertyRepository" value="IPropertyRepository&#xa;____________________&#xa;[Repository Interface]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="420" y="40" width="130" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="IExpenseRepository" value="IExpenseRepository&#xa;____________________&#xa;+ GetAllWithRelationsAsync()&#xa;+ GetByPropertyIdAsync()&#xa;+ GetByStatusIdAsync()&#xa;+ GetOverdueExpensesAsync()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;align=left;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="570" y="40" width="160" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPaymentRepository" value="IPaymentRepository&#xa;____________________&#xa;+ GetAllWithRelationsAsync()&#xa;+ GetByReceiveNumberAsync()&#xa;+ GetByDateRangeAsync()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;align=left;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="750" y="40" width="160" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="IServiceExpenseRepository" value="IServiceExpenseRepository&#xa;____________________&#xa;+ GetAllAsync()&#xa;+ GetByServiceTypeIdAsync()&#xa;+ GetByStatusIdAsync()&#xa;+ GetPendingExpensesAsync()&#xa;+ GetOverdueExpensesAsync()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;align=left;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="930" y="40" width="180" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="IServicePaymentRepository" value="IServicePaymentRepository&#xa;____________________&#xa;+ GetAllAsync()&#xa;+ GetByStatusIdAsync()&#xa;+ GetByReceiveNumberAsync()&#xa;+ GetByDateRangeAsync()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;align=left;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="1130" y="40" width="180" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPropertyOwnerRepository" value="IPropertyOwnerRepository&#xa;____________________&#xa;+ GetByPropertyIdAsync()&#xa;+ GetByUserIdAsync()&#xa;+ GetAllWithRelationsAsync()&#xa;+ GetFilteredAsync()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;align=left;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="1330" y="40" width="170" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="OtherRepositories" value="Other Repository Interfaces&#xa;____________________&#xa;IRoleRepository&#xa;IUserRoleRepository&#xa;IExpenseCategoryRepository&#xa;IPaymentStatusRepository&#xa;IServiceTypeRepository&#xa;IPropertyTypeRepository" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=#0e8088;align=left;" parent="repository-layer" vertex="1">
+                    <mxGeometry x="1520" y="40" width="180" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="utils-layer" value="UTILS LAYER" style="swimlane;fillColor=#f0f0f0;strokeColor=#666666;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="1280" width="1910" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="DTOConverter" value="DTOConverter&#xa;____________________&#xa;+ ToExpenseResponse()&#xa;+ ToPaymentResponse()&#xa;+ ToUserRequest()&#xa;+ [Multiple conversion methods]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;" parent="utils-layer" vertex="1">
+                    <mxGeometry x="40" y="30" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="PasswordHasher" value="PasswordHasher&#xa;____________________&#xa;+ HashPassword()&#xa;+ VerifyPassword()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;" parent="utils-layer" vertex="1">
+                    <mxGeometry x="260" y="30" width="160" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="AppRoles" value="AppRoles&#xa;____________________&#xa;+ Administrador: string&#xa;+ Director: string&#xa;+ Habitante: string&#xa;+ Super: string" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;" parent="utils-layer" vertex="1">
+                    <mxGeometry x="440" y="30" width="160" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="PaymentStatusEnum" value="PaymentStatus (enum)&#xa;____________________&#xa;- Pending&#xa;- Paid&#xa;- Overdue&#xa;- Cancelled" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;" parent="utils-layer" vertex="1">
+                    <mxGeometry x="620" y="30" width="140" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="StrongPasswordAttribute" value="StrongPasswordAttribute&#xa;____________________&#xa;+ IsValid()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" parent="utils-layer" vertex="1">
+                    <mxGeometry x="780" y="30" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="data-layer" value="DATA ACCESS LAYER" style="swimlane;fillColor=#d4edda;strokeColor=#155724;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="1100" y="1280" width="850" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="CondominioContext" value="CondominioContext&#xa;____________________&#xa;+ Users: DbSet&lt;User&gt;&#xa;+ Properties: DbSet&lt;Property&gt;&#xa;+ Expenses: DbSet&lt;Expense&gt;&#xa;+ Payments: DbSet&lt;Payment&gt;&#xa;+ ServiceExpenses: DbSet&lt;ServiceExpense&gt;&#xa;+ ServicePayments: DbSet&lt;ServicePayment&gt;&#xa;+ [Other DbSets]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c3e6cb;strokeColor=#155724;align=left;" parent="data-layer" vertex="1">
+                    <mxGeometry x="30" y="30" width="290" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="Repository" value="Repository&lt;T&gt;&#xa;____________________&#xa;+ CondominioContext: _context&#xa;____________________&#xa;+ GetAllAsync()&#xa;+ GetByIdAsync()&#xa;+ AddAsync()&#xa;+ UpdateAsync()&#xa;+ DeleteAsync()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c3e6cb;strokeColor=#155724;align=left;" parent="data-layer" vertex="1">
+                    <mxGeometry x="340" y="30" width="180" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="ConcreteRepositories" value="Concrete Repositories&#xa;____________________&#xa;UserRepository&#xa;PropertyRepository&#xa;ExpenseRepository&#xa;PaymentRepository&#xa;ServiceExpenseRepository&#xa;ServicePaymentRepository&#xa;PropertyOwnerRepository&#xa;[Other concrete repositories]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c3e6cb;strokeColor=#155724;align=left;" parent="data-layer" vertex="1">
+                    <mxGeometry x="540" y="30" width="200" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge1" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;dashed=1;" parent="1" source="UsersController" target="IUserRepository" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="340" y="600" as="sourcePoint"/>
+                        <mxPoint x="390" y="550" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="320" y="1000"/>
+                            <mxPoint x="390" y="1000"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge2" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;dashed=1;" parent="1" source="UserRequest" target="User" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="140" y="500" as="sourcePoint"/>
+                        <mxPoint x="190" y="450" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge3" value="1" style="endArrow=classic;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;" parent="1" source="User" target="PropertyOwner" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="300" y="700" as="sourcePoint"/>
+                        <mxPoint x="350" y="650" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge4" value="*" style="endArrow=classic;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeWidth=2;" parent="1" source="PropertyOwner" target="Property" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="580" y="620" as="sourcePoint"/>
+                        <mxPoint x="570" y="640" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge5" value="implements" style="endArrow=classic;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;dashed=1;" parent="1" source="Repository" target="IRepository" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="1570" y="1380" as="sourcePoint"/>
+                        <mxPoint x="150" y="1260" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="1580" y="1240"/>
+                            <mxPoint x="150" y="1240"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="legend" value="LEYENDA:&#xa;Controllers → Orquestan HTTP requests/responses&#xa;DTOs → Data Transfer Objects para API&#xa;Models → Entidades del dominio&#xa;Repositories → Capa de acceso a datos&#xa;Utils → Utilidades y servicios transversales&#xa;DbContext → Entity Framework Core context" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+                    <mxGeometry x="660" y="1510" width="400" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="arch-notes" value="ARQUITECTURA C# .NET:&#xa;• Clean Architecture con capas bien definidas&#xa;• Repository Pattern para acceso a datos&#xa;• DTOs para isolación de la API&#xa;• Entity Framework Core como ORM&#xa;• Inyección de dependencias en Controllers&#xa;• Validaciones con Data Annotations&#xa;• Autorización basada en roles" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+                    <mxGeometry x="180" y="1510" width="400" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="patterns" value="PATRONES IMPLEMENTADOS:&#xa;• Repository Pattern&#xa;• DTO Pattern&#xa;• Dependency Injection&#xa;• MVC Pattern&#xa;• Factory Pattern (DTOConverter)&#xa;• Active Record Pattern (Entity Framework)&#xa;• Strategy Pattern (PaymentStatus)" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="1180" y="1510" width="300" height="120" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
