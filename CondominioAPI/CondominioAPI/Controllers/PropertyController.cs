@@ -15,11 +15,13 @@ namespace CondominioAPI.Controllers
     {
         private readonly IPropertyRepository _propertyRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IPropertyOwnerRepository _propertyOwnerRepository;
 
-        public PropertyController(IPropertyRepository propertyRepository, IUserRepository userRepository)
+        public PropertyController(IPropertyRepository propertyRepository, IUserRepository userRepository, IPropertyOwnerRepository propertyOwnerRepository)
         {
             _propertyRepository = propertyRepository;
             _userRepository = userRepository;
+            _propertyOwnerRepository = propertyOwnerRepository;
         }
 
         /// <summary>
@@ -32,6 +34,72 @@ namespace CondominioAPI.Controllers
             Log.Information("GET > Property > GetAll. User: {0}", this.User.Identity.Name);
             var properties = await _propertyRepository.GetAllAsync();
             return Ok(properties.Select(x => x.ToFullPropertyRequest()));
+        }
+
+        /// <summary>
+        /// Obtiene los IDs de todas las propiedades asignadas a un usuario
+        /// </summary>
+        [HttpGet("UserPropertyIds")]
+        [Authorize(Roles = $"{AppRoles.Habitante},{AppRoles.Administrador}")]
+        public async Task<ActionResult<IEnumerable<int>>> GetUserPropertyIds()
+        {
+            Log.Information("GET > Property > UserPropertyIds > User: {0}", this.User.Identity.Name);
+
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            if (currentUserId == 0)
+                return BadRequest("Usuario no identificado");
+
+            try
+            {
+                // Obtener las propiedades asignadas al usuario (solo activas)
+                var propertyOwners = await _propertyOwnerRepository.GetByUserIdAsync(currentUserId, includeFinalized: false);
+
+                // Extraer solo los IDs de las propiedades
+                var propertyIds = propertyOwners.Select(po => po.PropertyId).ToList();
+
+                Log.Information("User {UserId} has {PropertyCount} properties assigned", currentUserId, propertyIds.Count);
+
+                return Ok(propertyIds);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error getting property IDs for user {UserId}", currentUserId);
+                return StatusCode(500, "Error interno del servidor");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los IDs de todas las propiedades asignadas a un usuario específico (Solo Administradores)
+        /// </summary>
+        [HttpGet("UserPropertyIds/{userId}")]
+        [Authorize(Roles = AppRoles.Administrador)]
+        public async Task<ActionResult<IEnumerable<int>>> GetUserPropertyIdsByUserId(int userId)
+        {
+            Log.Information("GET > Property > UserPropertyIds > Admin User: {0}, Target UserId: {1}", this.User.Identity.Name, userId);
+
+            try
+            {
+                // Verificar que el usuario existe
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                    return NotFound($"Usuario con ID {userId} no encontrado");
+
+                // Obtener las propiedades asignadas al usuario especificado (solo activas)
+                var propertyOwners = await _propertyOwnerRepository.GetByUserIdAsync(userId, includeFinalized: false);
+
+                // Extraer solo los IDs de las propiedades
+                var propertyIds = propertyOwners.Select(po => po.PropertyId).ToList();
+
+                Log.Information("User {UserId} has {PropertyCount} properties assigned", userId, propertyIds.Count);
+
+                return Ok(propertyIds);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error getting property IDs for user {UserId}", userId);
+                return StatusCode(500, "Error interno del servidor");
+            }
         }
 
         /// <summary>
@@ -54,13 +122,10 @@ namespace CondominioAPI.Controllers
             }
 
             // Para habitantes, obtener solo sus propiedades asignadas
-            var user = await _userRepository.GetByIdAsync(currentUserId);
-            if (user == null)
-                return NotFound("Usuario no encontrado");
+            var propertyOwners = await _propertyOwnerRepository.GetByUserIdAsync(currentUserId, includeFinalized: false);
+            var properties = propertyOwners.Select(po => po.Property.ToPropertyRequest());
 
-            // Nota: Necesitarás un método en el repositorio para obtener propiedades por usuario
-            // Por ahora retorno mensaje informativo
-            return Ok(new { message = "Implementar lógica para obtener propiedades del usuario", userId = currentUserId });
+            return Ok(properties);
         }
 
         /// <summary>
@@ -84,8 +149,9 @@ namespace CondominioAPI.Controllers
             // Si no es administrador, verificar que la propiedad esté asignada al usuario
             if (!isAdmin)
             {
-                // Aquí deberías verificar en PropertyOwners si el usuario tiene asignada esta propiedad
-                // Por ahora se permite el acceso, pero deberías implementar la validación
+                var userPropertyOwnership = await _propertyOwnerRepository.GetByPropertyAndUserIdAsync(id, currentUserId);
+                if (userPropertyOwnership == null || userPropertyOwnership.EndDate != null)
+                    return Forbid("No tiene permisos para acceder a esta propiedad");
             }
 
             return Ok(property.ToPropertyRequest());

@@ -4,6 +4,7 @@ namespace Condominio.Repository.Repositories
 {
   public interface IResourceCostRepository : IRepository<ResourceCost>
   {
-    // Add entity-specific methods if needed
+    Task<IEnumerable<ResourceCost>> GetByResourceIdAsync(int resourceId, bool includeFinalized = false);
+    Task<ResourceCost?> GetCurrentResourceCostAsync(int resourceId);
   }
 }
