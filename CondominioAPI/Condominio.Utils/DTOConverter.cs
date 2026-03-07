@@ -52,7 +52,7 @@ namespace Condominio.Utils
                 Login = userRequest.Login
             };
         }
-        
+
         private static string HashPassword(string password)
         {
             return !string.IsNullOrEmpty(password)
@@ -547,6 +547,234 @@ namespace Condominio.Utils
                 UserId = propertyOwnerRequest.UserId,
                 StartDate = DateTime.Now,
                 EndDate = null
+            };
+        }
+
+        // Resource conversions
+        public static Resource ToResource(this ResourceRequest resourceRequest)
+        {
+            if (resourceRequest == null) return null;
+
+            return new Resource
+            {
+                Name = resourceRequest.Name,
+                Description = resourceRequest.Description,
+                StartDate = resourceRequest.StartDate,
+                Photo = resourceRequest.Photo,
+                EndDate = null
+            };
+        }
+
+        public static ResourceRequest ToResourceRequest(this Resource resource)
+        {
+            if (resource == null) return null;
+
+            return new ResourceRequest
+            {
+                Id = resource.Id,
+                Name = resource.Name,
+                Description = resource.Description,
+                StartDate = resource.StartDate,
+                Photo = resource.Photo
+            };
+        }
+
+        public static FullResourceRequest ToFullResourceRequest(this Resource resource)
+        {
+            if (resource == null) return null;
+
+            return new FullResourceRequest
+            {
+                Id = resource.Id,
+                Name = resource.Name,
+                Description = resource.Description,
+                StartDate = resource.StartDate,
+                Photo = resource.Photo,
+                EndDate = resource.EndDate
+            };
+        }
+
+        // ResourceCost conversions
+        public static ResourceCost ToResourceCost(this ResourceCostRequest resourceCostRequest)
+        {
+            if (resourceCostRequest == null) return null;
+
+            return new ResourceCost
+            {
+                ResourceId = resourceCostRequest.ResourceId,
+                BookingPrice = resourceCostRequest.BookingPrice,
+                BookingWarrantyCost = resourceCostRequest.BookingWarrantyCost,
+                StartDate = resourceCostRequest.StartDate,
+                EndDate = null
+            };
+        }
+
+        public static ResourceCostRequest ToResourceCostRequest(this ResourceCost resourceCost)
+        {
+            if (resourceCost == null) return null;
+
+            return new ResourceCostRequest
+            {
+                Id = resourceCost.Id,
+                ResourceId = resourceCost.ResourceId,
+                BookingPrice = resourceCost.BookingPrice,
+                BookingWarrantyCost = resourceCost.BookingWarrantyCost,
+                StartDate = resourceCost.StartDate
+            };
+        }
+
+        public static FullResourceCostRequest ToFullResourceCostRequest(this ResourceCost resourceCost)
+        {
+            if (resourceCost == null) return null;
+
+            return new FullResourceCostRequest
+            {
+                Id = resourceCost.Id,
+                ResourceId = resourceCost.ResourceId,
+                BookingPrice = resourceCost.BookingPrice,
+                BookingWarrantyCost = resourceCost.BookingWarrantyCost,
+                StartDate = resourceCost.StartDate,
+                EndDate = resourceCost.EndDate
+            };
+        }
+
+        // ResourceBooking conversions
+        public static ResourceBooking ToResourceBooking(this ResourceBookingRequest resourceBookingRequest)
+        {
+            if (resourceBookingRequest == null) return null;
+
+            return new ResourceBooking
+            {
+                ResourceId = resourceBookingRequest.ResourceId,
+                UserId = resourceBookingRequest.UserId,
+                PropertyId = resourceBookingRequest.PropertyId,
+                StatusId = resourceBookingRequest.StatusId,
+                BookingDate = resourceBookingRequest.BookingDate,
+                BookingPrice = resourceBookingRequest.BookingPrice,
+                BookingWarrantyCost = resourceBookingRequest.BookingWarrantyCost,
+                BookingDescription = resourceBookingRequest.BookingDescription,
+                BookingPhoto = resourceBookingRequest.BookingPhoto
+            };
+        }
+
+        public static ResourceBookingRequest ToResourceBookingRequest(this ResourceBooking resourceBooking)
+        {
+            if (resourceBooking == null) return null;
+
+            return new ResourceBookingRequest
+            {
+                Id = resourceBooking.Id,
+                ResourceId = resourceBooking.ResourceId,
+                UserId = resourceBooking.UserId,
+                PropertyId = resourceBooking.PropertyId,
+                StatusId = resourceBooking.StatusId,
+                BookingDate = resourceBooking.BookingDate,
+                BookingPrice = resourceBooking.BookingPrice,
+                BookingWarrantyCost = resourceBooking.BookingWarrantyCost,
+                BookingDescription = resourceBooking.BookingDescription,
+                BookingPhoto = resourceBooking.BookingPhoto
+            };
+        }
+
+        // IncidentType conversions
+        public static IncidentType ToIncidentType(this IncidentTypeRequest incidentTypeRequest)
+        {
+            if (incidentTypeRequest == null) return null;
+
+            return new IncidentType
+            {
+                Type = incidentTypeRequest.Type,
+                Description = incidentTypeRequest.Description
+            };
+        }
+
+        public static IncidentTypeRequest ToIncidentTypeRequest(this IncidentType incidentType)
+        {
+            if (incidentType == null) return null;
+
+            return new IncidentTypeRequest
+            {
+                Id = incidentType.Id,
+                Type = incidentType.Type,
+                Description = incidentType.Description
+            };
+        }
+
+        // IncidentCost conversions
+        public static IncidentCost ToIncidentCost(this IncidentCostRequest incidentCostRequest)
+        {
+            if (incidentCostRequest == null) return null;
+
+            return new IncidentCost
+            {
+                IncidentTypeId = incidentCostRequest.IncidentTypeId,
+                Cost = incidentCostRequest.Cost,
+                StartDate = incidentCostRequest.StartDate,
+                Description = incidentCostRequest.Description,
+                EndDate = null
+            };
+        }
+
+        public static IncidentCostRequest ToIncidentCostRequest(this IncidentCost incidentCost)
+        {
+            if (incidentCost == null) return null;
+
+            return new IncidentCostRequest
+            {
+                Id = incidentCost.Id,
+                IncidentTypeId = incidentCost.IncidentTypeId,
+                Cost = incidentCost.Cost,
+                StartDate = incidentCost.StartDate,
+                Description = incidentCost.Description
+            };
+        }
+
+        public static FullIncidentCostRequest ToFullIncidentCostRequest(this IncidentCost incidentCost)
+        {
+            if (incidentCost == null) return null;
+
+            return new FullIncidentCostRequest
+            {
+                Id = incidentCost.Id,
+                IncidentTypeId = incidentCost.IncidentTypeId,
+                Cost = incidentCost.Cost,
+                StartDate = incidentCost.StartDate,
+                Description = incidentCost.Description,
+                EndDate = incidentCost.EndDate
+            };
+        }
+
+        // Incident conversions
+        public static Incident ToIncident(this IncidentRequest incidentRequest)
+        {
+            if (incidentRequest == null) return null;
+
+            return new Incident
+            {
+                IncidentTypeId = incidentRequest.IncidentTypeId,
+                UserId = incidentRequest.UserId,
+                PropertyId = incidentRequest.PropertyId,
+                StatusId = incidentRequest.StatusId,
+                IncidentDate = incidentRequest.IncidentDate,
+                IncidentDescription = incidentRequest.IncidentDescription,
+                IncidentPhoto = incidentRequest.IncidentPhoto
+            };
+        }
+
+        public static IncidentRequest ToIncidentRequest(this Incident incident)
+        {
+            if (incident == null) return null;
+
+            return new IncidentRequest
+            {
+                Id = incident.Id,
+                IncidentTypeId = incident.IncidentTypeId,
+                UserId = incident.UserId,
+                PropertyId = incident.PropertyId,
+                StatusId = incident.StatusId,
+                IncidentDate = incident.IncidentDate,
+                IncidentDescription = incident.IncidentDescription,
+                IncidentPhoto = incident.IncidentPhoto
             };
         }
     }

@@ -50,6 +50,19 @@ public partial class CondominioContext : DbContext
 
     public virtual DbSet<DatabaseVersion> Versions { get; set; }
 
+    // Nuevas entidades v2.0 - Resources e Incidents
+    public virtual DbSet<Resource> Resources { get; set; }
+
+    public virtual DbSet<ResourceCost> ResourceCosts { get; set; }
+
+    public virtual DbSet<ResourceBooking> ResourceBookings { get; set; }
+
+    public virtual DbSet<IncidentType> IncidentTypes { get; set; }
+
+    public virtual DbSet<IncidentCost> IncidentCosts { get; set; }
+
+    public virtual DbSet<Incident> Incidents { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         //No implementation needed if using DI to provide connection string
@@ -442,6 +455,193 @@ public partial class CondominioContext : DbContext
             entity.Property(e => e.LastUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("Last_Updated");
+        });
+
+        // Resources - v2.0
+        modelBuilder.Entity<Resource>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("resources");
+
+            entity.Property(e => e.Name).HasMaxLength(150);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+            entity.Property(e => e.Photo).HasMaxLength(1000);
+        });
+
+        // Resource Costs - v2.0
+        modelBuilder.Entity<ResourceCost>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("resource_costs");
+
+            entity.HasIndex(e => e.ResourceId, "Resource_Id");
+
+            entity.Property(e => e.ResourceId).HasColumnName("Resource_Id");
+            entity.Property(e => e.BookingPrice)
+                .HasPrecision(10, 2)
+                .HasColumnName("Booking_Price");
+            entity.Property(e => e.BookingWarrantyCost)
+                .HasPrecision(10, 2)
+                .HasColumnName("Booking_Warranty_Cost");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+
+            entity.HasOne(d => d.Resource)
+                .WithMany(p => p.ResourceCosts)
+                .HasForeignKey(d => d.ResourceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resource_costs_ibfk_1");
+        });
+
+        // Resource Bookings - v2.0
+        modelBuilder.Entity<ResourceBooking>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("resource_bookings");
+
+            entity.HasIndex(e => e.ResourceId, "Resource_Id");
+            entity.HasIndex(e => e.UserId, "User_Id");
+            entity.HasIndex(e => e.PropertyId, "Property_Id");
+            entity.HasIndex(e => e.StatusId, "Status_Id");
+
+            entity.Property(e => e.ResourceId).HasColumnName("Resource_Id");
+            entity.Property(e => e.UserId).HasColumnName("User_Id");
+            entity.Property(e => e.PropertyId).HasColumnName("Property_Id");
+            entity.Property(e => e.StatusId).HasColumnName("Status_Id");
+            entity.Property(e => e.BookingDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Booking_Date");
+            entity.Property(e => e.BookingPrice)
+                .HasPrecision(10, 2)
+                .HasColumnName("Booking_Price");
+            entity.Property(e => e.BookingWarrantyCost)
+                .HasPrecision(10, 2)
+                .HasColumnName("Booking_Warranty_Cost");
+            entity.Property(e => e.BookingDescription)
+                .HasMaxLength(500)
+                .HasColumnName("Booking_Description");
+            entity.Property(e => e.BookingPhoto)
+                .HasMaxLength(1000)
+                .HasColumnName("Booking_Photo");
+
+            entity.HasOne(d => d.Resource)
+                .WithMany(p => p.ResourceBookings)
+                .HasForeignKey(d => d.ResourceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resource_bookings_ibfk_1");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resource_bookings_ibfk_2");
+
+            entity.HasOne(d => d.Property)
+                .WithMany()
+                .HasForeignKey(d => d.PropertyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resource_bookings_ibfk_3");
+
+            entity.HasOne(d => d.Status)
+                .WithMany()
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("resource_bookings_ibfk_4");
+        });
+
+        // Incident Types - v2.0
+        modelBuilder.Entity<IncidentType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("incident_types");
+
+            entity.Property(e => e.Type).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+        });
+
+        // Incident Costs - v2.0
+        modelBuilder.Entity<IncidentCost>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("incident_costs");
+
+            entity.HasIndex(e => e.IncidentTypeId, "Incident_Type_Id");
+
+            entity.Property(e => e.IncidentTypeId).HasColumnName("Incident_Type_Id");
+            entity.Property(e => e.Cost).HasPrecision(10, 2);
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+            entity.Property(e => e.Description).HasMaxLength(500);
+
+            entity.HasOne(d => d.IncidentType)
+                .WithMany(p => p.IncidentCosts)
+                .HasForeignKey(d => d.IncidentTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("incident_costs_ibfk_1");
+        });
+
+        // Incidents - v2.0
+        modelBuilder.Entity<Incident>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("incidents");
+
+            entity.HasIndex(e => e.IncidentTypeId, "Incident_Type_Id");
+            entity.HasIndex(e => e.UserId, "User_Id");
+            entity.HasIndex(e => e.PropertyId, "Property_Id");
+            entity.HasIndex(e => e.StatusId, "Status_Id");
+
+            entity.Property(e => e.IncidentTypeId).HasColumnName("Incident_Type_Id");
+            entity.Property(e => e.UserId).HasColumnName("User_Id");
+            entity.Property(e => e.PropertyId).HasColumnName("Property_Id");
+            entity.Property(e => e.StatusId).HasColumnName("Status_Id");
+            entity.Property(e => e.IncidentDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Incident_Date");
+            entity.Property(e => e.IncidentDescription)
+                .HasMaxLength(500)
+                .HasColumnName("Incident_Description");
+            entity.Property(e => e.IncidentPhoto)
+                .HasMaxLength(1000)
+                .HasColumnName("Incident_Photo");
+
+            entity.HasOne(d => d.IncidentType)
+                .WithMany(p => p.Incidents)
+                .HasForeignKey(d => d.IncidentTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("incidents_ibfk_1");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("incidents_ibfk_2");
+
+            entity.HasOne(d => d.Property)
+                .WithMany()
+                .HasForeignKey(d => d.PropertyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("incidents_ibfk_3");
+
+            entity.HasOne(d => d.Status)
+                .WithMany()
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("incidents_ibfk_4");
         });
 
         OnModelCreatingPartial(modelBuilder);
