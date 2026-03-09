@@ -65,7 +65,7 @@ namespace CondominioAPI.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = AppRoles.Administrador)]
-        public async Task<IActionResult> Update(int id, ResourceRequest resource)
+        public async Task<ActionResult<ResourceRequest>> Update(int id, ResourceRequest resource)
         {
             Log.Information("PUT > Resources > User: {0}", this.User.Identity?.Name);
             if (id != resource.Id)
@@ -80,7 +80,9 @@ namespace CondominioAPI.Controllers
             existingResource.Photo = resource.Photo;
 
             await _resourceRepository.UpdateAsync(existingResource);
-            return Ok();
+            
+            Log.Information("Resource updated successfully. ID: {ResourceId}", id);
+            return Ok(existingResource.ToResourceRequest());
         }
 
         /// <summary>
