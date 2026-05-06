@@ -13,7 +13,8 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-RootPass123!}
       MYSQL_DATABASE: ${DB_NAME:-Condominio2}
     ports:
-      - "3306:3306"
+      - "3306:3306"  # Default MySQL port (commented out to avoid conflict with local MySQL)
+      # - "3307:3306"  # Changed to 3307 to avoid conflict with local MySQL
     volumes:
       - mysql-data:/var/lib/mysql
       - ./Database/Db_Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro

@@ -211,7 +211,7 @@ INSERT INTO Versions (Version, Last_Updated) VALUES ('0.1', NOW());
 -- Insert Default users
 
 SELECT 'Inserting Default Users and Roles for version 0.3.2';
-INSERT INTO users(Login, User_Name, Last_Name, Legal_Id, Start_Date, Password)
+INSERT INTO Users(Login, User_Name, Last_Name, Legal_Id, Start_Date, Password)
 VALUES 
 ('usa', 'sa', 'sa', '-1', NOW(), '$2a$11$GUefHVMEvy8hXQHvnuVRcu3ZsTSWJTSypz6Ml2enRrkQVhNHDn3aG'),-- sa
 ('uadmin', 'admin', 'admin', '-1', NOW(), '$2a$11$frjA/I.pkPTZrUEQXeHdWeXjebMRBhgF4v3XeFGCfccuHyGKdwpzK'), -- admin
@@ -220,7 +220,7 @@ VALUES
 ('uauxiliar', 'auxiliar', 'auxiliar', '-1', NOW(), '$2a$11$OQb6S.GLFsVNlTbia56dLegk64JYiBCi4rk1P4855xJofIp/Up3Ey'),-- auxiliar
 ('useguridad', 'seguridad', 'seguridad', '-1', NOW(), '$2a$11$m20UOSFeHoZ8dj6sDOATc.lecO6H58u40GadDdaetgROcUQklgq/W');-- seguridad
 -- Insert Default roles
-INSERT INTO roles(Id, Rol_Name, Description) VALUES
+INSERT INTO Roles(Id, Rol_Name, Description) VALUES
 (1, 'super', 'Super Administrador'),
 (2, 'admin', 'Administrador Condominio'),
 (3, 'director', 'Miembro de la directiva'),
@@ -229,23 +229,23 @@ INSERT INTO roles(Id, Rol_Name, Description) VALUES
 (6, 'seguridad', 'Guardia de Seguridad');
 
 -- Assign Roles to default users
-INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 1, u.id, NOW() FROM users u WHERE u.Login = 'usa';
+INSERT INTO User_Roles(Role_Id, User_Id, Start_Date)
+SELECT 1, u.Id, NOW() FROM Users u WHERE u.Login = 'usa';
 
-INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 2, u.id, NOW() FROM users u WHERE u.Login = 'uadmin';
+INSERT INTO User_Roles(Role_Id, User_Id, Start_Date)
+SELECT 2, u.Id, NOW() FROM Users u WHERE u.Login = 'uadmin';
 
-INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 3, u.id, NOW() FROM users u WHERE u.Login = 'udirector';
+INSERT INTO User_Roles(Role_Id, User_Id, Start_Date)
+SELECT 3, u.Id, NOW() FROM Users u WHERE u.Login = 'udirector';
 
-INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 4, u.id, NOW() FROM users u WHERE u.Login = 'uhabitante';
+INSERT INTO User_Roles(Role_Id, User_Id, Start_Date)
+SELECT 4, u.Id, NOW() FROM Users u WHERE u.Login = 'uhabitante';
 
-INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 5, u.id, NOW() FROM users u WHERE u.Login = 'uauxiliar';
+INSERT INTO User_Roles(Role_Id, User_Id, Start_Date)
+SELECT 5, u.Id, NOW() FROM Users u WHERE u.Login = 'uauxiliar';
 
-INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 6, u.id, NOW() FROM users u WHERE u.Login = 'useguridad';
+INSERT INTO User_Roles(Role_Id, User_Id, Start_Date)
+SELECT 6, u.Id, NOW() FROM Users u WHERE u.Login = 'useguridad';
 
 INSERT INTO Versions(Version, Last_Updated) VALUES('0.3.2', NOW());
 
