@@ -8,7 +8,7 @@
 -- Users and roles
 SELECT 'Creating Users and Roles Tables';
 
-CREATE TABLE IF NOT EXISTS Users (
+CREATE TABLE IF NOT EXISTS users (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Login VARCHAR(30) NOT NULL UNIQUE,
     User_Name VARCHAR(100) NOT NULL,
@@ -19,14 +19,14 @@ CREATE TABLE IF NOT EXISTS Users (
     PASSWORD VARCHAR(1000) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Roles
+CREATE TABLE IF NOT EXISTS roles
 (
   Id INT PRIMARY KEY,
   Rol_Name VARCHAR(50) NOT NULL,
   Description VARCHAR(1000)
 );
 
-CREATE TABLE IF NOT EXISTS User_Roles
+CREATE TABLE IF NOT EXISTS user_roles
 (
   Role_Id INT NOT NULL,
   User_Id INT NOT NULL,
@@ -34,13 +34,13 @@ CREATE TABLE IF NOT EXISTS User_Roles
   End_Date DATETIME NULL,
 
   PRIMARY KEY (Role_Id, User_Id),
-  FOREIGN KEY (Role_Id) REFERENCES Roles(Id),
-  FOREIGN KEY (User_Id) REFERENCES Users(Id)
+  FOREIGN KEY (Role_Id) REFERENCES roles(Id),
+  FOREIGN KEY (User_Id) REFERENCES users(Id)
 );
 
 -- Properties
 SELECT 'Creating Property Tables';
-CREATE TABLE IF NOT EXISTS Property_Type
+CREATE TABLE IF NOT EXISTS property_type
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Type VARCHAR (100) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS Property_Type
   End_Date DATETIME NULL
 );
 
-CREATE TABLE IF NOT EXISTS Property
+CREATE TABLE IF NOT EXISTS property
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Legal_Id VARCHAR(100) NULL,
@@ -63,10 +63,10 @@ CREATE TABLE IF NOT EXISTS Property
   Start_Date DATETIME NOT NULL,
   End_Date DATETIME NULL,
 
-  FOREIGN KEY (Property_Type) REFERENCES Property_Type (Id)
+  FOREIGN KEY (Property_Type) REFERENCES property_type (Id)
 );
 
-CREATE TABLE IF NOT EXISTS Property_Owners
+CREATE TABLE IF NOT EXISTS property_owners
 (
   Property_Id INT NOT NULL,
   User_Id INT NOT NULL,
@@ -74,26 +74,26 @@ CREATE TABLE IF NOT EXISTS Property_Owners
   End_Date DATETIME NULL,
 
   PRIMARY KEY (Property_Id, User_Id),
-  FOREIGN KEY (Property_Id) REFERENCES Property (Id),
-  FOREIGN KEY (User_Id) REFERENCES Users (Id)
+  FOREIGN KEY (Property_Id) REFERENCES property (Id),
+  FOREIGN KEY (User_Id) REFERENCES users (Id)
 );
 
 -- Expenses and Payments
 SELECT 'Creating Expenses and Payments Tables';
-CREATE TABLE IF NOT EXISTS Payment_Status
+CREATE TABLE IF NOT EXISTS payment_status
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Status_Description VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Expense_Categories
+CREATE TABLE IF NOT EXISTS expense_categories
 (
   Id INT AUTO_INCREMENT PRIMARY KEY, 
   Category VARCHAR(100) NOT NULL,
   Description VARCHAR(500) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Expenses
+CREATE TABLE IF NOT EXISTS expenses
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Category_Id INT NOT NULL,
@@ -106,12 +106,12 @@ CREATE TABLE IF NOT EXISTS Expenses
   Description VARCHAR(500) NOT NULL,
   Status_Id INT NOT NULL DEFAULT 0, 
   
-  FOREIGN KEY (Category_Id) REFERENCES Expense_Categories (Id),
-  FOREIGN KEY (Property_Id) REFERENCES Property (Id),
-  FOREIGN KEY (Status_Id) REFERENCES Payment_Status (Id)
+  FOREIGN KEY (Category_Id) REFERENCES expense_categories (Id),
+  FOREIGN KEY (Property_Id) REFERENCES property (Id),
+  FOREIGN KEY (Status_Id) REFERENCES payment_status (Id)
 );
 
-CREATE TABLE IF NOT EXISTS Payments
+CREATE TABLE IF NOT EXISTS payments
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Receive_Number VARCHAR(100) NOT NULL,
@@ -121,25 +121,25 @@ CREATE TABLE IF NOT EXISTS Payments
   Receive_Photo VARCHAR(1000) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Expense_Payments
+CREATE TABLE IF NOT EXISTS expense_payments
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Expense_Id INT NOT NULL,
   Payment_Id INT NOT NULL,
-  FOREIGN KEY (Expense_Id) REFERENCES Expenses(Id),
-  FOREIGN KEY (Payment_Id) REFERENCES Payments(Id)
+  FOREIGN KEY (Expense_Id) REFERENCES expenses(Id),
+  FOREIGN KEY (Payment_Id) REFERENCES payments(Id)
 );
 
 -- Service Expenses and Payments
 SELECT 'Creating Service Expenses and Payments Tables';
-CREATE TABLE IF NOT EXISTS Service_Types
+CREATE TABLE IF NOT EXISTS service_types
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Service_Name VARCHAR(100) NOT NULL,
   Description VARCHAR(500) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Service_Expenses
+CREATE TABLE IF NOT EXISTS service_expenses
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Service_Type_Id INT NOT NULL,
@@ -153,11 +153,11 @@ CREATE TABLE IF NOT EXISTS Service_Expenses
   Expense_Date DATETIME NOT NULL,
   Status_Id INT NOT NULL DEFAULT 0, 
   
-  FOREIGN KEY (Service_Type_Id) REFERENCES Service_Types(Id),
-  FOREIGN KEY (Status_Id) REFERENCES Payment_Status (Id)
+  FOREIGN KEY (Service_Type_Id) REFERENCES service_types(Id),
+  FOREIGN KEY (Status_Id) REFERENCES payment_status (Id)
 );
 
-CREATE TABLE IF NOT EXISTS Service_Payments
+CREATE TABLE IF NOT EXISTS service_payments
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Receive_Number VARCHAR(100) NOT NULL,
@@ -166,29 +166,29 @@ CREATE TABLE IF NOT EXISTS Service_Payments
   Description VARCHAR(500) NULL,
   Receive_Photo VARCHAR(1000) NOT NULL,
   Status_Id INT NOT NULL DEFAULT 0,
-  FOREIGN KEY (Status_Id) REFERENCES Payment_Status (Id)
+  FOREIGN KEY (Status_Id) REFERENCES payment_status (Id)
 );
 
-CREATE TABLE IF NOT EXISTS Service_Expense_Payments
+CREATE TABLE IF NOT EXISTS service_expense_payments
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Service_Expense_Id INT NOT NULL,
   Payment_Id INT NOT NULL,
 
-  FOREIGN KEY (Service_Expense_Id) REFERENCES Service_Expenses(Id),
-  FOREIGN KEY (Payment_Id) REFERENCES Service_Payments(Id)
+  FOREIGN KEY (Service_Expense_Id) REFERENCES service_expenses(Id),
+  FOREIGN KEY (Payment_Id) REFERENCES service_payments(Id)
 );
 
 
 -- Version 1.3 2024.10.24
 SELECT 'Creating Versions Table';
-CREATE TABLE IF NOT EXISTS Versions
+CREATE TABLE IF NOT EXISTS versions
 (
   Version VARCHAR(20) NOT NULL PRIMARY KEY,
   Last_Updated DATETIME NOT NULL
 );
 
-INSERT INTO Versions (Version, Last_Updated) VALUES ('0.1', NOW());
+INSERT INTO versions (Version, Last_Updated) VALUES ('0.1', NOW());
 
 -- Insertar roles si no existen
 -- INSERT INTO roles (Rol_Name, Description)
@@ -230,24 +230,24 @@ INSERT INTO roles(Id, Rol_Name, Description) VALUES
 
 -- Assign Roles to default users
 INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 1, u.id, NOW() FROM users u WHERE u.Login = 'usa';
+SELECT 1, u.Id, NOW() FROM users u WHERE u.Login = 'usa';
 
 INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 2, u.id, NOW() FROM users u WHERE u.Login = 'uadmin';
+SELECT 2, u.Id, NOW() FROM users u WHERE u.Login = 'uadmin';
 
 INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 3, u.id, NOW() FROM users u WHERE u.Login = 'udirector';
+SELECT 3, u.Id, NOW() FROM users u WHERE u.Login = 'udirector';
 
 INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 4, u.id, NOW() FROM users u WHERE u.Login = 'uhabitante';
+SELECT 4, u.Id, NOW() FROM users u WHERE u.Login = 'uhabitante';
 
 INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 5, u.id, NOW() FROM users u WHERE u.Login = 'uauxiliar';
+SELECT 5, u.Id, NOW() FROM users u WHERE u.Login = 'uauxiliar';
 
 INSERT INTO user_roles(Role_Id, User_Id, Start_Date)
-SELECT 6, u.id, NOW() FROM users u WHERE u.Login = 'useguridad';
+SELECT 6, u.Id, NOW() FROM users u WHERE u.Login = 'useguridad';
 
-INSERT INTO Versions(Version, Last_Updated) VALUES('0.3.2', NOW());
+INSERT INTO versions(Version, Last_Updated) VALUES('0.3.2', NOW());
 
 -- Create payment status
 INSERT INTO payment_status(Status_Description)
@@ -260,9 +260,9 @@ VALUES
 
 -- v2.0 - 2026.03.02
 SELECT 'Creating New Tables for Version 2.0';
-INSERT INTO Versions(Version, Last_Updated) VALUES('1.0.0', NOW());
+INSERT INTO versions(Version, Last_Updated) VALUES('1.0.0', NOW());
 
-CREATE TABLE IF NOT EXISTS Resources
+CREATE TABLE IF NOT EXISTS resources
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Name VARCHAR(150) NOT NULL,
@@ -272,7 +272,7 @@ CREATE TABLE IF NOT EXISTS Resources
   Photo VARCHAR(1000) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Resource_Costs
+CREATE TABLE IF NOT EXISTS resource_costs
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Resource_Id INT NOT NULL,
@@ -281,10 +281,10 @@ CREATE TABLE IF NOT EXISTS Resource_Costs
   Start_Date DATETIME NOT NULL,
   End_Date DATETIME NULL,
 
-  FOREIGN KEY (Resource_Id) REFERENCES Resources(Id)
+  FOREIGN KEY (Resource_Id) REFERENCES resources(Id)
 );
 
-CREATE TABLE IF NOT EXISTS Resource_Bookings
+CREATE TABLE IF NOT EXISTS resource_bookings
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Resource_Id INT NOT NULL,
@@ -297,20 +297,20 @@ CREATE TABLE IF NOT EXISTS Resource_Bookings
   Booking_Description VARCHAR(500) NULL,
   Booking_Photo VARCHAR(1000) NULL,
 
-  FOREIGN KEY (Resource_Id) REFERENCES Resources(Id),
-  FOREIGN KEY (User_Id) REFERENCES Users(Id),
-  FOREIGN KEY (Property_Id) REFERENCES Property(Id),
-  FOREIGN KEY (Status_Id) REFERENCES Payment_Status(Id)
+  FOREIGN KEY (Resource_Id) REFERENCES resources(Id),
+  FOREIGN KEY (User_Id) REFERENCES users(Id),
+  FOREIGN KEY (Property_Id) REFERENCES property(Id),
+  FOREIGN KEY (Status_Id) REFERENCES payment_status(Id)
 );
 
-CREATE TABLE IF NOT EXISTS INCIDENT_TYPES
+CREATE TABLE IF NOT EXISTS incident_types
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Type VARCHAR(100) NOT NULL,
   Description VARCHAR(500) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS INCIDENT_COSTS
+CREATE TABLE IF NOT EXISTS incident_costs
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Incident_Type_Id INT NOT NULL,
@@ -319,10 +319,10 @@ CREATE TABLE IF NOT EXISTS INCIDENT_COSTS
   End_Date DATETIME NULL,
   Description VARCHAR(500) NOT NULL,
 
-  FOREIGN KEY (Incident_Type_Id) REFERENCES INCIDENT_TYPES(Id)
+  FOREIGN KEY (Incident_Type_Id) REFERENCES incident_types(Id)
 );
 
-CREATE TABLE IF NOT EXISTS INCIDENTS
+CREATE TABLE IF NOT EXISTS incidents
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Incident_Type_Id INT NOT NULL,
@@ -333,10 +333,10 @@ CREATE TABLE IF NOT EXISTS INCIDENTS
   Incident_Description VARCHAR(500) NULL,
   Incident_Photo VARCHAR(1000) NULL,
 
-  FOREIGN KEY (Incident_Type_Id) REFERENCES INCIDENT_TYPES(Id),
-  FOREIGN KEY (User_Id) REFERENCES Users(Id),
-  FOREIGN KEY (Property_Id) REFERENCES Property(Id),
-  FOREIGN KEY (Status_Id) REFERENCES Payment_Status(Id)
+  FOREIGN KEY (Incident_Type_Id) REFERENCES incident_types(Id),
+  FOREIGN KEY (User_Id) REFERENCES users(Id),
+  FOREIGN KEY (Property_Id) REFERENCES property(Id),
+  FOREIGN KEY (Status_Id) REFERENCES payment_status(Id)
 );
 
-INSERT INTO Versions(Version, Last_Updated) VALUES('1.0.1', NOW());
+INSERT INTO versions(Version, Last_Updated) VALUES('1.0.1', NOW());

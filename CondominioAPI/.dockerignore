@@ -1,0 +1,59 @@
+# .dockerignore - Exclude unnecessary files from Docker build context
+
+# Build outputs
+**/bin/
+**/obj/
+**/publish/
+**/out/
+
+# Logs
+**/Logs/
+**/*.log
+
+# IDE and editor files
+**/.vs/
+**/.vscode/
+**/*.suo
+**/*.user
+**/*.userosscache
+**/*.sln.docstates
+**/.idea/
+
+# Git
+**/.git/
+**/.gitignore
+**/.gitattributes
+
+# Environment files (IMPORTANT: Never include secrets in Docker images)
+**/.env
+**/.env.local
+**/.env.*.local
+**/appsettings.Development.json
+
+# Test results
+**/TestResults/
+**/*.trx
+
+# NuGet
+**/.nuget/
+**/packages/
+
+# Documentation (not needed in runtime image)
+**/README.md
+**/Docs/
+
+# Database backups
+**/*.bak
+**/*.mdf
+**/*.ldf
+
+# OS files
+**/Thumbs.db
+**/.DS_Store
+
+# Temporary files
+**/tmp/
+**/temp/
+**/*.tmp
+**/*.swp
+**/*.swo

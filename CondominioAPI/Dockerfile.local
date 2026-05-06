@@ -1,0 +1,51 @@
+# Dockerfile.local - For Local Development
+# Use this for faster builds when developing locally
+# Build with: docker build -f Dockerfile.local -t condominio-api .
+
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy solution file and project files
+COPY CondominioAPI.sln ./
+COPY CondominioAPI/CondominioAPI.csproj CondominioAPI/
+COPY Condominio.Data.Mysql/Condominio.Data.Mysql.csproj Condominio.Data.Mysql/
+COPY Condominio.DTOs/Condominio.DTOs.csproj Condominio.DTOs/
+COPY Condominio.Models/Condominio.Models.csproj Condominio.Models/
+COPY Condominio.Repository/Condominio.Repository.csproj Condominio.Repository/
+COPY Condominio.Utils/Condominio.Utils.csproj Condominio.Utils/
+# Add missing Tests project
+COPY Condominio.Tests/Condominio.Tests.csproj Condominio.Tests/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy everything else
+COPY . .
+
+# Build the application
+WORKDIR /src/CondominioAPI
+RUN dotnet build -c Release -o /app/build
+
+# Stage 2: Publish
+FROM build AS publish
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+
+# Stage 3: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+
+# Copy published application
+COPY --from=publish /app/publish .
+
+# Copy database scripts (for reference, not auto-execution)
+COPY Database/ /app/Database/
+
+# Expose port
+EXPOSE 8080
+
+# Set environment variable for ASP.NET Core
+ENV ASPNETCORE_URLS=http://+:8080
+
+# Entry point
+ENTRYPOINT ["dotnet", "CondominioAPI.dll"]

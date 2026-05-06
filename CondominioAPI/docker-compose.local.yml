@@ -1,0 +1,71 @@
+version: '3.8'
+
+# docker-compose.local.yml - For Local Development
+# Use this when developing locally with code on your machine
+# Usage: docker-compose -f docker-compose.local.yml up -d --build
+
+services:
+  # MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: condominio-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-RootPass123!}
+      MYSQL_DATABASE: ${DB_NAME:-Condominio2}
+    ports:
+      # - "3306:3306"  # Default MySQL port (commented out to avoid conflict with local MySQL)
+      - "3307:3306"  # Changed to 3307 to avoid conflict with local MySQL
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./Database/Db_Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - condominio-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-RootPass123!}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # .NET API Service - Local Build
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: condominio-api
+    environment:
+      DB_SERVER: mysql
+      DB_NAME: ${DB_NAME:-Condominio2}
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-RootPass123!}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-clave_super_secreta_para_jwt_1234567890}
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:3000}
+      LOG_PATH: /app/Logs/log-.txt
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    ports:
+      - "5000:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - condominio-network
+    volumes:
+      - api-logs:/app/Logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  condominio-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+  api-logs:
+    driver: local

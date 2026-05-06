@@ -1,4 +1,4 @@
-using Condominio.Data.MySql.Models;
+using Condominio.Data.Mysql.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Condominio.Repository.Repositories

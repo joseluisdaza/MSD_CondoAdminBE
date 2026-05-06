@@ -4,7 +4,7 @@ using Condominio.Models;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
-namespace Condominio.Data.MySql.Models;
+namespace Condominio.Data.Mysql.Models;
 
 public partial class CondominioContext : DbContext
 {
