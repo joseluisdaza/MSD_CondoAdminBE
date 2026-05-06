@@ -1,27 +1,31 @@
 # Dockerfile for Condominio API
 # Multi-stage build to keep final image small
+# Clones from GitHub repository
 
 # Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
 
-# Copy solution file and project files
-COPY CondominioAPI.sln ./
-COPY CondominioAPI/CondominioAPI.csproj CondominioAPI/
-COPY Condominio.Data.Mysql/Condominio.Data.Mysql.csproj Condominio.Data.Mysql/
-COPY Condominio.DTOs/Condominio.DTOs.csproj Condominio.DTOs/
-COPY Condominio.Models/Condominio.Models.csproj Condominio.Models/
-COPY Condominio.Repository/Condominio.Repository.csproj Condominio.Repository/
-COPY Condominio.Utils/Condominio.Utils.csproj Condominio.Utils/
+# Install git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /repo
+
+# Build arguments for Git configuration
+ARG GIT_REPO=https://github.com/joseluisdaza/MSD_CondoAdminBE.git
+#ARG GIT_BRANCH=main
+ARG GIT_BRANCH=feature/Backend_AWS_Deployment
+
+# Clone the repository
+RUN git clone --branch ${GIT_BRANCH} --depth 1 ${GIT_REPO} .
+
+# Navigate to the CondominioAPI folder where .sln is located
+WORKDIR /repo/CondominioAPI
 
 # Restore dependencies
 RUN dotnet restore
 
-# Copy everything else
-COPY . .
-
 # Build the application
-WORKDIR /src/CondominioAPI
+WORKDIR /repo/CondominioAPI/CondominioAPI
 RUN dotnet build -c Release -o /app/build
 
 # Stage 2: Publish
@@ -35,8 +39,8 @@ WORKDIR /app
 # Copy published application
 COPY --from=publish /app/publish .
 
-# Copy database scripts (for reference, not auto-execution)
-COPY Database/ /app/Database/
+# Copy database scripts from the cloned repository
+COPY --from=build /repo/CondominioAPI/Database/ /app/Database/
 
 # Expose port
 EXPOSE 8080

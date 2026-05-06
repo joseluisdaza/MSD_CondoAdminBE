@@ -2,12 +2,30 @@
 
 This guide helps you quickly get started with Docker locally before deploying to AWS.
 
+## Two Build Modes Available
+
+### 1. Git-Based Build (Default - Production Ready)
+
+- **Dockerfile**: Clones from GitHub repository
+- **Use when**: Building for production, CI/CD, or testing specific commits
+- **Command**: `docker-compose up -d --build`
+
+### 2. Local Build (Faster for Development)
+
+- **Dockerfile.local**: Copies local code
+- **Use when**: Actively developing and testing changes
+- **Command**: `docker-compose -f docker-compose.local.yml up -d --build`
+
+---
+
 ## Prerequisites
 
 1. Install Docker Desktop for Windows
 2. Ensure Docker is running (check system tray)
 
-## Quick Start (5 minutes)
+## Quick Start - Git-Based Build (5 minutes)
+
+This builds directly from the GitHub repository.
 
 ### Step 1: Create Environment File
 
@@ -21,10 +39,18 @@ Copy-Item .env.example .env
 notepad .env
 ```
 
-### Step 2: Build and Run
+### Step 2: Build and Run from GitHub
 
 ```powershell
-# Build and start containers
+# Build from GitHub main branch (default)
+docker-compose up -d --build
+
+# Or build from a specific branch
+docker-compose build --build-arg GIT_BRANCH=develop api
+docker-compose up -d
+
+# Or build from a specific commit/tag
+docker-compose build --build-arg GIT_BRANCH=v1.0.0 api
 docker-compose up -d
 
 # Check status
@@ -36,7 +62,40 @@ docker-compose ps
 # condominio-api      Up          0.0.0.0:5000->8080/tcp
 ```
 
-### Step 3: Test the API
+## Quick Start - Local Development (Faster Rebuilds)
+
+Use this when actively developing - it copies your local code instead of cloning from Git.
+
+### Step 1: Same as above (Create .env file)
+
+### Step 2: Build and Run from Local Code
+
+```powershell
+# Build from local code (faster for development)
+docker-compose -f docker-compose.local.yml up -d --build
+
+# Check status
+docker-compose -f docker-compose.local.yml ps
+```
+
+**When to use local mode:**
+
+- ✅ Testing uncommitted changes
+- ✅ Faster rebuild times (only copies changed files)
+- ✅ No internet required
+
+**When to use Git mode:**
+
+- ✅ Ensure clean build from repository
+- ✅ Test specific commits/tags/branches
+- ✅ Consistent with CI/CD pipeline
+- ✅ Building on servers without local code
+
+---
+
+## Step 3: Test the API
+
+Both modes use the same commands:
 
 ```powershell
 # Test health endpoint

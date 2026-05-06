@@ -1,5 +1,9 @@
 version: '3.8'
 
+# docker-compose.local.yml - For Local Development
+# Use this when developing locally with code on your machine
+# Usage: docker-compose -f docker-compose.local.yml up -d --build
+
 services:
   # MySQL Database Service
   mysql:
@@ -23,16 +27,11 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # .NET API Service - Builds from GitHub
-  # For local development, use: docker-compose -f docker-compose.local.yml up -d
+  # .NET API Service - Local Build
   api:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        GIT_REPO: https://github.com/joseluisdaza/MSD_CondoAdminBE.git
-        #GIT_BRANCH: main  # Change to 'develop' or specific tag/commit as needed
-        GIT_BRANCH: feature/Backend_AWS_Deployment
+      dockerfile: Dockerfile.local
     container_name: condominio-api
     environment:
       DB_SERVER: mysql
