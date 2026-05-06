@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Condominio.Data.MySql\Condominio.Data.Mysql.csproj" />
+    <ProjectReference Include="..\Condominio.Data.Mysql\Condominio.Data.Mysql.csproj" />
   </ItemGroup>
 
 </Project>
