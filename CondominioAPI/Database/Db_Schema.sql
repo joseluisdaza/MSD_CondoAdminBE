@@ -250,7 +250,7 @@ SELECT 6, u.Id, NOW() FROM Users u WHERE u.Login = 'useguridad';
 INSERT INTO Versions(Version, Last_Updated) VALUES('0.3.2', NOW());
 
 -- Create payment status
-INSERT INTO payment_status(Status_Description)
+INSERT INTO Payment_Status(Status_Description)
 VALUES 
     ('Pendiente'),
     ('Pagado'),
