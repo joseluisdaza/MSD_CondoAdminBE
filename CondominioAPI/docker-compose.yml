@@ -32,8 +32,8 @@ services:
       dockerfile: Dockerfile
       args:
         GIT_REPO: https://github.com/joseluisdaza/MSD_CondoAdminBE.git
-        #GIT_BRANCH: main  # Change to 'develop' or specific tag/commit as needed
-        GIT_BRANCH: feature/Backend_AWS_Deployment
+        GIT_BRANCH: main  # Change to 'develop' or specific tag/commit as needed
+        # GIT_BRANCH: feature/Backend_AWS_Deployment
     container_name: condominio-api
     environment:
       DB_SERVER: mysql
