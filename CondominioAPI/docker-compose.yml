@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-RootPass123!}
       MYSQL_DATABASE: ${DB_NAME:-Condominio2}
     ports:
-      - "3307:3306"  # Default port mapping (commented out to avoid conflict with local MySQL)
+      - "3306:3306"  # Default port mapping (commented out to avoid conflict with local MySQL)
       # - "3307:3306"  # Changed to 3307 to avoid conflict with local MySQL
     volumes:
       - mysql-data:/var/lib/mysql
@@ -40,7 +40,7 @@ services:
       DB_NAME: ${DB_NAME:-Condominio2}
       DB_USER: ${DB_USER:-root}
       DB_PASSWORD: ${DB_PASSWORD:-RootPass123!}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-YourSuperSecretKeyHere123456789012345}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-clave_super_secreta_para_jwt_1234567890}
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:3000}
       LOG_PATH: /app/Logs/log-.txt
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
