@@ -1,4 +1,4 @@
-using Condominio.Data.MySql.Models;
+using Condominio.Data.Mysql.Models;
 using Condominio.Models;
 using Microsoft.EntityFrameworkCore;
 

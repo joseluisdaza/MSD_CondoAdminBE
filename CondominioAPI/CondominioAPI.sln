@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36408.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CondominioAPI", "CondominioAPI\CondominioAPI.csproj", "{EEA9D14C-8775-4CC6-A2B5-977475BE2372}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Condominio.Data.Mysql", "Condominio.Data.MySql\Condominio.Data.Mysql.csproj", "{D17DA617-2FAF-4356-842E-E3FED5A3E949}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Condominio.Data.Mysql", "Condominio.Data.Mysql\Condominio.Data.Mysql.csproj", "{D17DA617-2FAF-4356-842E-E3FED5A3E949}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Condominio.Repository", "Condominio.Repository\Condominio.Repository.csproj", "{C2E1673C-293F-4171-A27F-18317202CDEB}"
 EndProject
