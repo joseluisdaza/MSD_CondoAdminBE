@@ -121,12 +121,13 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+//TODO: Remove this in production and use environment-specific configuration instead
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+app.UseSwagger();
+app.UseSwaggerUI();
+// }
 
 // Place CORS middleware here, before authentication/authorization
 app.UseCors(builder =>
