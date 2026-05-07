@@ -175,32 +175,40 @@ Write-Host "Database Endpoint: $DB_ENDPOINT" -ForegroundColor Green
 Write-Host "`n[7/12] Creating Secrets in Secrets Manager..." -ForegroundColor Yellow
 
 # Database credentials secret (use proper JSON formatting)
+$dbSecretJson = @{
+    username = $DB_USERNAME
+    password = $DB_PASSWORD
+    host = $DB_ENDPOINT
+    port = 3306
+    dbname = $DB_NAME
+} | ConvertTo-Json -Compress
+
 try {
-    $dbSecretJson = @{
-        username = $DB_USERNAME
-        password = $DB_PASSWORD
-        host = $DB_ENDPOINT
-        port = 3306
-        dbname = $DB_NAME
-    } | ConvertTo-Json -Compress
-    
-    $DB_SECRET_ARN = (aws secretsmanager create-secret --name condominio/db/credentials --description "Database credentials for Condominio API" --secret-string $dbSecretJson --region $AWS_REGION --query 'ARN' --output text 2>$null)
-    Write-Host "Database secret created: $DB_SECRET_ARN" -ForegroundColor Green
+    aws secretsmanager create-secret --name condominio/db/credentials --description "Database credentials for Condominio API" --secret-string $dbSecretJson --region $AWS_REGION 2>$null | Out-Null
+    Write-Host "Database secret created" -ForegroundColor Green
 }
 catch {
-    $DB_SECRET_ARN = (aws secretsmanager describe-secret --secret-id condominio/db/credentials --query 'ARN' --output text --region $AWS_REGION)
-    Write-Host "Database secret already exists: $DB_SECRET_ARN" -ForegroundColor Green
+    Write-Host "Database secret already exists, updating..." -ForegroundColor Yellow
+    aws secretsmanager update-secret --secret-id condominio/db/credentials --secret-string $dbSecretJson --region $AWS_REGION 2>$null | Out-Null
 }
+
+# Always get the actual ARN after creation/update
+$DB_SECRET_ARN = (aws secretsmanager describe-secret --secret-id condominio/db/credentials --query 'ARN' --output text --region $AWS_REGION)
+Write-Host "DB Secret ARN: $DB_SECRET_ARN" -ForegroundColor Cyan
 
 # JWT secret
 try {
-    $JWT_SECRET_ARN = (aws secretsmanager create-secret --name condominio/jwt/secret --description "JWT secret key for Condominio API" --secret-string $JWT_SECRET --region $AWS_REGION --query 'ARN' --output text 2>$null)
-    Write-Host "JWT secret created: $JWT_SECRET_ARN" -ForegroundColor Green
+    aws secretsmanager create-secret --name condominio/jwt/secret --description "JWT secret key for Condominio API" --secret-string $JWT_SECRET --region $AWS_REGION 2>$null | Out-Null
+    Write-Host "JWT secret created" -ForegroundColor Green
 }
 catch {
-    $JWT_SECRET_ARN = (aws secretsmanager describe-secret --secret-id condominio/jwt/secret --query 'ARN' --output text --region $AWS_REGION)
-    Write-Host "JWT secret already exists: $JWT_SECRET_ARN" -ForegroundColor Green
+    Write-Host "JWT secret already exists, updating..." -ForegroundColor Yellow
+    aws secretsmanager update-secret --secret-id condominio/jwt/secret --secret-string $JWT_SECRET --region $AWS_REGION 2>$null | Out-Null
 }
+
+# Always get the actual ARN after creation/update
+$JWT_SECRET_ARN = (aws secretsmanager describe-secret --secret-id condominio/jwt/secret --query 'ARN' --output text --region $AWS_REGION)
+Write-Host "JWT Secret ARN: $JWT_SECRET_ARN" -ForegroundColor Cyan
 
 # ============================================
 # 8. CREATE ECS CLUSTER AND IAM ROLE
@@ -243,8 +251,15 @@ try {
     Set-Content -Path trust-policy.json -Value $TRUST_POLICY
     aws iam create-role --role-name condominioECSExecutionRole --assume-role-policy-document file://trust-policy.json 2>$null
     aws iam attach-role-policy --role-name condominioECSExecutionRole --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy 2>$null
-    
-    $SECRETS_POLICY = @"
+    Remove-Item trust-policy.json
+    Write-Host "IAM Execution Role created" -ForegroundColor Green
+}
+catch {
+    Write-Host "IAM Execution Role already exists" -ForegroundColor Green
+}
+
+# ALWAYS update the secrets policy with current ARNs (whether role is new or existing)
+$SECRETS_POLICY = @"
 {
   "Version": "2012-10-17",
   "Statement": [{
@@ -254,15 +269,11 @@ try {
   }]
 }
 "@
-    
-    Set-Content -Path secrets-policy.json -Value $SECRETS_POLICY
-    aws iam put-role-policy --role-name condominioECSExecutionRole --policy-name SecretsManagerAccess --policy-document file://secrets-policy.json 2>$null
-    Remove-Item trust-policy.json, secrets-policy.json
-    Write-Host "IAM Execution Role created" -ForegroundColor Green
-}
-catch {
-    Write-Host "IAM Execution Role already exists" -ForegroundColor Green
-}
+
+Set-Content -Path secrets-policy.json -Value $SECRETS_POLICY
+aws iam put-role-policy --role-name condominioECSExecutionRole --policy-name SecretsManagerAccess --policy-document file://secrets-policy.json 2>$null
+Remove-Item secrets-policy.json
+Write-Host "IAM Secrets Policy updated with current ARNs" -ForegroundColor Cyan
 
 $EXECUTION_ROLE_ARN = (aws iam get-role --role-name condominioECSExecutionRole --query 'Role.Arn' --output text)
 
@@ -313,6 +324,16 @@ catch {
 # ============================================
 
 Write-Host "`n[11/12] Registering ECS Task Definition..." -ForegroundColor Yellow
+
+# Validate all required variables before creating task definition
+Write-Host "Validating configuration variables..." -ForegroundColor Gray
+if (-not $EXECUTION_ROLE_ARN) { Write-Host "ERROR: EXECUTION_ROLE_ARN is empty" -ForegroundColor Red; exit 1 }
+if (-not $ECR_REPO_URI) { Write-Host "ERROR: ECR_REPO_URI is empty" -ForegroundColor Red; exit 1 }
+if (-not $DB_ENDPOINT) { Write-Host "ERROR: DB_ENDPOINT is empty" -ForegroundColor Red; exit 1 }
+if (-not $DB_SECRET_ARN) { Write-Host "ERROR: DB_SECRET_ARN is empty" -ForegroundColor Red; exit 1 }
+if (-not $JWT_SECRET_ARN) { Write-Host "ERROR: JWT_SECRET_ARN is empty" -ForegroundColor Red; exit 1 }
+if (-not $ALB_DNS) { Write-Host "ERROR: ALB_DNS is empty" -ForegroundColor Red; exit 1 }
+Write-Host "All variables validated" -ForegroundColor Green
 
 $taskDefContent = @"
 {
