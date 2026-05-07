@@ -138,28 +138,33 @@ We need two main files:
 Create `Dockerfile` in `C:\Jose\code\FullStackMaster\MSD_CondoAdminBE\CondominioAPI\`
 
 ```dockerfile
-# Dockerfile
+# Dockerfile for Condominio API
+# Multi-stage build to keep final image small
+# Clones from GitHub repository
+
 # Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
 
-# Copy solution file and project files
-COPY CondominioAPI.sln ./
-COPY CondominioAPI/CondominioAPI.csproj CondominioAPI/
-COPY Condominio.Data.Mysql/Condominio.Data.Mysql.csproj Condominio.Data.Mysql/
-COPY Condominio.DTOs/Condominio.DTOs.csproj Condominio.DTOs/
-COPY Condominio.Models/Condominio.Models.csproj Condominio.Models/
-COPY Condominio.Repository/Condominio.Repository.csproj Condominio.Repository/
-COPY Condominio.Utils/Condominio.Utils.csproj Condominio.Utils/
+# Install git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /repo
+
+# Build arguments for Git configuration
+ARG GIT_REPO=https://github.com/joseluisdaza/MSD_CondoAdminBE.git
+ARG GIT_BRANCH=main
+
+# Clone the repository
+RUN git clone --branch ${GIT_BRANCH} --depth 1 ${GIT_REPO} .
+
+# Navigate to the CondominioAPI folder where .sln is located
+WORKDIR /repo/CondominioAPI
 
 # Restore dependencies
 RUN dotnet restore
 
-# Copy everything else
-COPY . .
-
 # Build the application
-WORKDIR /src/CondominioAPI
+WORKDIR /repo/CondominioAPI/CondominioAPI
 RUN dotnet build -c Release -o /app/build
 
 # Stage 2: Publish
@@ -173,8 +178,8 @@ WORKDIR /app
 # Copy published application
 COPY --from=publish /app/publish .
 
-# Copy database scripts
-COPY Database/ /app/Database/
+# Copy database scripts from the cloned repository
+COPY --from=build /repo/CondominioAPI/Database/ /app/Database/
 
 # Expose port
 EXPOSE 8080
@@ -188,10 +193,19 @@ ENTRYPOINT ["dotnet", "CondominioAPI.dll"]
 
 **What this does:**
 
-- **Stage 1**: Uses SDK image to build the application
+- **Git Clone**: Clones the repository from GitHub during build (allows deployment without local files)
+- **Build Arguments**: GIT_REPO and GIT_BRANCH can be customized at build time
+- **Stage 1**: Uses SDK image to clone and build the application
 - **Stage 2**: Publishes the application (creates deployment-ready files)
 - **Stage 3**: Uses smaller runtime image for final container
 - **Multi-stage build**: Keeps final image small (~200MB vs ~800MB)
+
+**Benefits of GitHub Clone Approach:**
+
+- ✅ Ensures deployment uses committed code from repository
+- ✅ No need to copy local files (cleaner CI/CD)
+- ✅ Easy to deploy specific branches or tags
+- ✅ Consistent builds across different environments
 
 ### 2.3 Create .dockerignore
 
@@ -249,22 +263,26 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    restart: unless-stopped
 
-  # .NET API Service
+  # .NET API Service - Builds from GitHub
   api:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        GIT_REPO: https://github.com/joseluisdaza/MSD_CondoAdminBE.git
+        GIT_BRANCH: main # Change to 'develop' or specific tag/commit as needed
     container_name: condominio-api
     environment:
       DB_SERVER: mysql
       DB_NAME: ${DB_NAME:-Condominio2}
       DB_USER: ${DB_USER:-root}
       DB_PASSWORD: ${DB_PASSWORD:-RootPass123!}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-YourSuperSecretKeyHere123456789012345}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-clave_super_secreta_para_jwt_1234567890}
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:3000}
       LOG_PATH: /app/Logs/log-.txt
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
     ports:
       - "5000:8080"
     depends_on:
@@ -274,6 +292,13 @@ services:
       - condominio-network
     volumes:
       - api-logs:/app/Logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   condominio-network:
@@ -281,16 +306,32 @@ networks:
 
 volumes:
   mysql-data:
+    driver: local
   api-logs:
+    driver: local
 ```
 
 **What this does:**
 
 - **mysql service**: Runs MySQL 8.0, automatically executes Db_Schema.sql on first start
-- **api service**: Builds and runs your .NET application
-- **healthcheck**: Ensures MySQL is ready before starting API
+- **api service**: Builds from GitHub repository with configurable branch
+- **build args**: GIT_REPO and GIT_BRANCH allow switching between branches/repos
+- **healthcheck**: Ensures MySQL is ready before starting API, and monitors API health
 - **volumes**: Persists database data and logs
 - **networks**: Allows containers to communicate
+- **restart policies**: Automatically restart containers on failure
+
+**To use a different branch:**
+
+```yaml
+# For development branch
+args:
+  GIT_BRANCH: develop
+
+# For feature branch
+args:
+  GIT_BRANCH: feature/Backend_AWS_Deployment
+```
 
 ### 2.5 Create .env File for Local Development
 
@@ -302,7 +343,7 @@ DB_SERVER=mysql
 DB_NAME=Condominio2
 DB_USER=root
 DB_PASSWORD=RootPass123!
-JWT_SECRET_KEY=YourSuperSecretKeyHere123456789012345CHANGETHIS
+JWT_SECRET_KEY=clave_super_secreta_para_jwt_1234567890
 CORS_ALLOWED_ORIGIN=http://localhost:3000
 ```
 
@@ -330,6 +371,29 @@ docker images | Select-String "condominio"
 ```
 condominioapi-api     latest    abc123def456   2 minutes ago   220MB
 ```
+
+**⚠️ Important - Rebuilding After GitHub Changes:**
+
+Since the Dockerfile clones from GitHub, Docker may cache old versions. After pushing changes to GitHub:
+
+```powershell
+# Clean rebuild (no cache) - recommended after GitHub updates
+docker-compose build --no-cache
+
+# Clear build cache if needed
+docker builder prune
+
+# Rebuild and restart everything
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+**Why `--no-cache` is needed:**
+
+- Docker caches the git clone layer
+- Changes pushed to GitHub won't appear without `--no-cache`
+- The `--no-cache` flag forces a fresh clone from the repository
 
 ### 3.2 Start Containers
 
@@ -365,30 +429,39 @@ docker exec -it condominio-mysql mysql -uroot -pRootPass123! -e "USE Condominio2
 +-------------------------+
 | Tables_in_Condominio2   |
 +-------------------------+
-| Expenses                |
-| Expense_Categories      |
-| Expense_Payments        |
-| Incidents               |
-| Incident_Costs          |
-| Incident_Types          |
-| Payments                |
-| Payment_Status          |
-| Property                |
-| Property_Owners         |
-| Property_Type           |
-| Resources               |
-| Resource_Bookings       |
-| Resource_Costs          |
-| Roles                   |
-| Service_Expenses        |
-| Service_Expense_Payments|
-| Service_Payments        |
-| Service_Types           |
-| Users                   |
-| User_Roles              |
-| Versions                |
+| expense_categories      |
+| expense_payments        |
+| expenses                |
+| incident_costs          |
+| incident_types          |
+| incidents               |
+| payment_status          |
+| payments                |
+| property                |
+| property_owners         |
+| property_type           |
+| resource_bookings       |
+| resource_costs          |
+| resources               |
+| roles                   |
+| service_expense_payments|
+| service_expenses        |
+| service_payments        |
+| service_types           |
+| user_roles              |
+| users                   |
+| versions                |
 +-------------------------+
 ```
+
+**⚠️ Important Note - Linux MySQL Case Sensitivity:**
+
+All table names are lowercase to ensure compatibility with Linux-based MySQL containers. Linux file systems are case-sensitive, so:
+
+- ✅ `users` works on both Windows and Linux
+- ❌ `Users` only works on Windows MySQL
+
+The Entity Framework mappings in the codebase are configured for lowercase table names to ensure consistent behavior across all environments.
 
 ### 3.4 Test API Endpoints
 
@@ -1150,7 +1223,97 @@ aws ecs describe-tasks `
 
 ### Common Issues
 
-#### Issue 1: Task keeps restarting
+#### Issue 1: Table 'Condominio2.users' doesn't exist (Case Sensitivity)
+
+**Symptom:**
+
+```
+MySqlConnector.MySqlException: Table 'Condominio2.users' doesn't exist
+```
+
+**Cause:** Linux MySQL is case-sensitive for table names. The database has `Users` but the application queries `users`.
+
+**Solution:**
+Ensure all table names in `Db_Schema.sql` are lowercase:
+
+```sql
+-- ✅ Correct (lowercase)
+CREATE TABLE IF NOT EXISTS users (...)
+CREATE TABLE IF NOT EXISTS roles (...)
+CREATE TABLE IF NOT EXISTS payment_status (...)
+
+-- ❌ Incorrect (mixed case - only works on Windows)
+CREATE TABLE IF NOT EXISTS Users (...)
+CREATE TABLE IF NOT EXISTS Roles (...)
+CREATE TABLE IF NOT EXISTS Payment_Status (...)
+```
+
+All `INSERT INTO`, `FOREIGN KEY REFERENCES`, and `SELECT FROM` statements must also use lowercase table names.
+
+#### Issue 2: Docker build uses cached/old code after GitHub changes
+
+**Symptom:** Changes pushed to GitHub don't appear in the Docker container.
+
+**Cause:** Docker caches the git clone layer.
+
+**Solution:**
+
+```powershell
+# Rebuild without cache
+docker-compose build --no-cache
+
+# Or clean everything and rebuild
+docker-compose down -v
+docker builder prune
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+#### Issue 3: MySQL container unhealthy
+
+**Symptom:** `docker-compose ps` shows mysql as unhealthy, API container doesn't start.
+
+**Cause:** Usually SQL script errors during initialization.
+
+**Solution:**
+
+```powershell
+# Check MySQL logs for errors
+docker logs condominio-mysql
+
+# Look for errors like:
+# - Syntax errors in SQL
+# - Foreign key constraint failures
+# - Duplicate key errors
+
+# Fix the SQL file, then rebuild
+docker-compose down -v
+docker-compose up -d
+```
+
+#### Issue 4: Connection string / credentials mismatch
+
+**Symptom:** API can't connect to MySQL.
+
+**Solution:** Verify environment variables match between `docker-compose.yml` and `.env`:
+
+```yaml
+# docker-compose.yml - MySQL credentials
+environment:
+  MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-RootPass123!}
+  MYSQL_DATABASE: ${DB_NAME:-Condominio2}
+
+# docker-compose.yml - API credentials (must match MySQL)
+environment:
+  DB_SERVER: mysql  # Service name, not 'localhost'
+  DB_NAME: ${DB_NAME:-Condominio2}
+  DB_USER: ${DB_USER:-root}
+  DB_PASSWORD: ${DB_PASSWORD:-RootPass123!}
+```
+
+**Important:** Use `DB_SERVER: mysql` (the service name) not `localhost` when containers communicate.
+
+#### Issue 5: Task keeps restarting
 
 ```powershell
 # Check task stopped reason
