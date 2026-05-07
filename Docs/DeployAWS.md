@@ -431,16 +431,13 @@ aws rds create-db-instance `
     --db-instance-identifier condominio-db `
     --db-instance-class db.t3.micro `
     --engine mysql `
-    --engine-version 8.0.35 `
+    --engine-version 8.0.45 `
     --master-username $DB_USERNAME `
     --master-user-password $DB_PASSWORD `
     --allocated-storage 20 `
     --storage-type gp3 `
     --db-subnet-group-name condominio-db-subnet-group `
     --vpc-security-group-ids $DB_SG_ID `
-    --backup-retention-period 7 `
-    --preferred-backup-window "03:00-04:00" `
-    --preferred-maintenance-window "mon:04:00-mon:05:00" `
     --no-publicly-accessible `
     --region $AWS_REGION
 
@@ -450,10 +447,11 @@ Write-Host "Creating RDS instance... This takes 5-10 minutes"
 **RDS Configuration Explained:**
 
 - `db.t3.micro` - Free tier eligible, 1 vCPU, 1 GB RAM
+- `engine-version 8.0.45` - MySQL 8.0.45 (compatible with your application)
 - `gp3` - Latest generation SSD storage
 - `20 GB` - Minimum storage (can auto-scale)
 - `no-publicly-accessible` - Security best practice
-- `backup-retention-period 7` - Keep backups for 7 days
+- Backup retention defaults to 1 day (free tier limit)
 
 ### Step 5: Wait for Database to be Available
 
@@ -673,7 +671,8 @@ ECS needs permission to pull images from ECR and read secrets.
 
 ```powershell
 # Create trust policy for ECS
-@"
+# Note: Use Set-Content to avoid BOM (Byte Order Mark) issues
+Set-Content -Path trust-policy.json -Value @'
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -686,13 +685,12 @@ ECS needs permission to pull images from ECR and read secrets.
     }
   ]
 }
-"@ | Out-File -FilePath trust-policy.json -Encoding utf8
+'@
 
-# Create role
+# Create role (IAM is global, no --region parameter needed)
 aws iam create-role `
     --role-name condominioECSExecutionRole `
-    --assume-role-policy-document file://trust-policy.json `
-    --region $AWS_REGION
+    --assume-role-policy-document file://trust-policy.json
 
 # Attach AWS managed policy for ECS task execution
 aws iam attach-role-policy `
@@ -700,7 +698,7 @@ aws iam attach-role-policy `
     --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
 # Create custom policy for Secrets Manager access
-@"
+Set-Content -Path secrets-policy.json -Value @"
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -716,7 +714,7 @@ aws iam attach-role-policy `
     }
   ]
 }
-"@ | Out-File -FilePath secrets-policy.json -Encoding utf8
+"@
 
 # Attach custom policy
 aws iam put-role-policy `
