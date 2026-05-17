@@ -6,6 +6,8 @@ obj/
 .env
 .env.local
 .env.*.local
+.env.render
+*.env
 
 # User-specific files
 *.user
