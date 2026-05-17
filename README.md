@@ -12,6 +12,7 @@ Una solución completa para la gestión de condominios que incluye manejo de pro
 - [Instalación](#-instalación)
 - [Configuración](#️-configuración)
 - [Base de Datos](#️-base-de-datos)
+- [Deployment](#-deployment)
 - [Endpoints de la API](#-endpoints-de-la-api)
 - [Autenticación y Autorización](#-autenticación-y-autorización)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
@@ -143,6 +144,71 @@ dotnet ef migrations add NombreMigracion
 
 # Aplicar migraciones
 dotnet ef database update
+```
+
+## 🚀 Deployment
+
+### Deployment en Render (Recomendado - GRATIS)
+
+La forma más rápida y económica de desplegar tu API:
+
+**Quick Start (30 minutos):**
+
+```bash
+# 1. Generar JWT secret
+.\prepare-render.ps1 -GenerateJWT
+
+# 2. Seguir guía rápida
+```
+
+Ver documentación completa:
+
+- **📖 [Guía Rápida - Render](Docs/QuickStart-Render.md)** ← Empieza aquí
+- **📘 [Guía Completa - Render](Docs/DeployRender.md)**
+- **🗄️ [MySQL Gratuito](Docs/MySQL-Gratuito.md)**
+
+**Características:**
+
+- ✅ 100% Gratuito para empezar
+- ✅ Deploy con Docker en minutos
+- ✅ HTTPS automático
+- ✅ MySQL gratuito (FreeSQLDatabase)
+
+### Deployment en AWS
+
+Para deployment en AWS ECS + RDS:
+
+**Documentación:**
+
+- **[Guía AWS ECS](Docs/DeployAWS.md)**
+- **[Guía Contenedores](Docs/Deployment.md)**
+
+**Script automatizado:**
+
+```powershell
+.\Docs\deploy-to-aws.ps1
+```
+
+**Costos aproximados:**
+
+- ECS Fargate: ~$15/mes
+- RDS MySQL: ~$15/mes
+- Total: ~$30/mes
+
+### Scripts de Utilidad
+
+```powershell
+# Generar JWT Secret Key
+.\prepare-render.ps1 -GenerateJWT
+
+# Verificar Docker
+.\prepare-render.ps1 -CheckDocker
+
+# Test build local
+.\prepare-render.ps1 -TestLocal
+
+# Probar deployment
+.\prepare-render.ps1 -TestConnection -RenderURL "https://tu-api.onrender.com"
 ```
 
 ## 🔗 Endpoints de la API
