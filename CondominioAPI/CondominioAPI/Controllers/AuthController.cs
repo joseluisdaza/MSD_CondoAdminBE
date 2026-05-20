@@ -1,13 +1,15 @@
 ﻿using Condominio.Repository.Repositories;
 using Condominio.Utils;
+using CondominioAPI.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using dto = Condominio.DTOs;
-using Serilog;
+
 namespace CondominioAPI.Controllers
 {
     [ApiController]
@@ -15,12 +17,14 @@ namespace CondominioAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly ITokenBlacklistService _tokenBlacklistService;
         private readonly string _jwtSecretKey;
 
-        public AuthController(IUserRepository userRepository, IConfiguration configuration)
+        public AuthController(IUserRepository userRepository, ITokenBlacklistService tokenBlacklistService, IConfiguration configuration)
         {
             _userRepository = userRepository;
-            _jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
+            _tokenBlacklistService = tokenBlacklistService;
+            _jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
                 ?? throw new InvalidOperationException("JWT_SECRET_KEY not configured");
         }
 
@@ -29,19 +33,19 @@ namespace CondominioAPI.Controllers
         public async Task<IActionResult> Login([FromBody] dto.LoginRequest request)
         {
             // Log del intento de login
-            Log.Information("GET > Login > User: {0} from ip: {1}", 
-                request.Login, 
+            Log.Information("GET > Login > User: {0} from ip: {1}",
+                request.Login,
                 HttpContext.Connection.RemoteIpAddress?.ToString());
 
             // Obtener usuario con sus roles
             var user = await _userRepository.GetByLoginAsync(request.Login);
 
             // Verificar que el usuario existe y que la contraseña coincide con el hash
-            if(user != null && PasswordHasher.VerifyPassword(request.Password, user.Password))
+            if (user != null && PasswordHasher.VerifyPassword(request.Password, user.Password))
             {
                 // Cargar roles del usuario
                 var userWithRoles = await _userRepository.GetByIdWithRolesAsync(user.Id);
-                
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Login),
@@ -69,8 +73,8 @@ namespace CondominioAPI.Controllers
                     expires: DateTime.Now.AddHours(1),
                     signingCredentials: creds);
 
-                return Ok(new 
-                { 
+                return Ok(new
+                {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     user = new
                     {
@@ -86,5 +90,30 @@ namespace CondominioAPI.Controllers
 
             return Unauthorized();
         }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public IActionResult Logout()
+        {
+            var authorizationHeader = Request.Headers.Authorization.ToString();
+            if (string.IsNullOrWhiteSpace(authorizationHeader) || !authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "Authorization bearer token is required." });
+
+            var token = authorizationHeader["Bearer ".Length..].Trim();
+            if (string.IsNullOrWhiteSpace(token))
+                return BadRequest(new { message = "Authorization bearer token is required." });
+
+            var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var expiresAtUtc = jwtToken.ValidTo;
+
+            _tokenBlacklistService.RevokeToken(token, expiresAtUtc);
+
+            if (HttpContext.User.Identity?.Name is { } userName)
+                Log.Information("POST > Logout > User: {User}", userName);
+            else
+                Log.Information("POST > Logout > Anonymous token revoked");
+
+            return Ok(new { message = "Logout successful." });
+        }
     }
-}   
+}

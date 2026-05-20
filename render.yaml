@@ -1,0 +1,63 @@
+services:
+  # Web Service - Condominio API
+  - type: web
+    name: condominio-api
+    runtime: docker
+    # Path to Dockerfile relative to repository root
+    dockerfilePath: ./CondominioAPI/Dockerfile
+    # Docker build context
+    dockerContext: ./CondominioAPI
+    # Branch to deploy
+    branch: main
+    # Environment variables
+    envVars:
+      # Database Configuration
+      - key: DB_SERVER
+        value: sql.freesqldatabase.com  # Change to your MySQL server
+      - key: DB_NAME
+        sync: false  # You'll set this in Render dashboard
+      - key: DB_USER
+        sync: false  # You'll set this in Render dashboard
+      - key: DB_PASSWORD
+        sync: false  # You'll set this in Render dashboard
+      
+      # JWT Configuration
+      - key: JWT_SECRET_KEY
+        generateValue: true  # Render will auto-generate a secure key
+        sync: false
+      
+      # CORS Configuration
+      - key: CORS_ALLOWED_ORIGIN
+        value: "*"  # Change to your frontend domain in production
+      
+      # Logging Configuration
+      - key: LOG_PATH
+        value: /tmp/logs/log-.txt  # Render uses /tmp for temporary files
+      
+      # ASP.NET Core Environment
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+    
+    # Health check configuration
+    healthCheckPath: /swagger/index.html
+    
+    # Auto-deploy on push
+    autoDeploy: true
+    
+    # Build command (optional, Docker handles this)
+    # buildCommand: ""
+    
+    # Start command (optional, Dockerfile ENTRYPOINT handles this)
+    # startCommand: ""
+    
+    # Region (choose closest to your users)
+    region: oregon  # Options: oregon, frankfurt, singapore, etc.
+    
+    # Plan type
+    plan: free  # Options: free, starter ($7/mo), standard ($25/mo)
+    
+    # Number of instances (for paid plans)
+    # numInstances: 1

@@ -1,12 +1,13 @@
 using Condominio.Data.Mysql.Models;
 using Condominio.Models;
 using Condominio.Repository.Repositories;
+using CondominioAPI.Security;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
-using DotNetEnv;
 
 // Load environment variables from .env file
 Env.Load();
@@ -41,6 +42,8 @@ builder.Services.AddDbContext<CondominioContext>(options =>
     options.UseMySql(connectionString,
     ServerVersion.AutoDetect(connectionString))
 );
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
@@ -116,6 +119,28 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = context =>
+        {
+            var authHeader = context.Request.Headers.Authorization.ToString();
+            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.CompletedTask;
+            }
+
+            var token = authHeader["Bearer ".Length..].Trim();
+            var tokenBlacklistService = context.HttpContext.RequestServices.GetRequiredService<ITokenBlacklistService>();
+
+            if (tokenBlacklistService.IsTokenRevoked(token))
+            {
+                context.Fail("Token has been revoked.");
+            }
+
+            return Task.CompletedTask;
+        }
     };
 });
 

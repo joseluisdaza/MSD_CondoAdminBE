@@ -1,0 +1,33 @@
+# Environment variables - NEVER commit these files
+.env
+.env.local
+.env.*.local
+.env.render
+*.env
+
+# Except example files
+!.env.example
+!.env.render.example
+
+# Logs
+*.log
+Logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+publish/
+bin/
+obj/
+
+# Temporary files
+*.tmp
+*.bak
