@@ -88,17 +88,57 @@ namespace CondominioAPI.Controllers
     {
       Log.Information("POST > ResourceBookings > User: {0}", this.User.Identity?.Name);
 
-      // Si no es administrador, el UserId debe ser el del usuario actual
+      // Validate model state
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      // Get current user ID from JWT token
       var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
       var isAdmin = User.IsInRole(AppRoles.Administrador);
 
-      if (!isAdmin)
+      // If user is not admin or userId is 0, use current user's ID
+      if (!isAdmin || resourceBooking.UserId <= 0)
       {
+        if (currentUserId <= 0)
+          return BadRequest(new { message = "Unable to determine current user. Authentication failed." });
+
         resourceBooking.UserId = currentUserId;
+      }
+
+      // Validate that booking times are valid
+      if (!TimeSpan.TryParse(resourceBooking.StartTime, out var startTime) ||
+          !TimeSpan.TryParse(resourceBooking.EndTime, out var endTime))
+      {
+        return BadRequest(new { message = "StartTime and EndTime must be in HH:mm format." });
+      }
+
+      if (startTime >= endTime)
+        return BadRequest(new { message = "StartTime must be before EndTime." });
+
+      // Set default StatusId if not provided
+      if (resourceBooking.StatusId <= 0)
+        resourceBooking.StatusId = 1; // Default to pending status
+
+      // Combine booking date with times for storage
+      var bookingDateTime = resourceBooking.BookingDate.Add(startTime);
+      resourceBooking.BookingDate = bookingDateTime;
+
+      // Store time information in description if not already set
+      if (string.IsNullOrWhiteSpace(resourceBooking.BookingDescription))
+      {
+        resourceBooking.BookingDescription = $"Time: {resourceBooking.StartTime} - {resourceBooking.EndTime}";
+        if (!string.IsNullOrWhiteSpace(resourceBooking.Purpose))
+          resourceBooking.BookingDescription += $" | Purpose: {resourceBooking.Purpose}";
+        if (resourceBooking.NumberOfPeople > 0)
+          resourceBooking.BookingDescription += $" | People: {resourceBooking.NumberOfPeople}";
       }
 
       var resourceBookingEntity = resourceBooking.ToResourceBooking();
       await _resourceBookingRepository.AddAsync(resourceBookingEntity);
+
+      Log.Information("POST > ResourceBookings > Created successfully for User: {0}, ResourceBooking ID: {1}", 
+        this.User.Identity?.Name, resourceBookingEntity.Id);
+
       return CreatedAtAction(nameof(GetById), new { id = resourceBookingEntity.Id }, resourceBookingEntity.ToResourceBookingRequest());
     }
 
