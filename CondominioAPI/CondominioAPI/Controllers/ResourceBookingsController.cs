@@ -119,19 +119,19 @@ namespace CondominioAPI.Controllers
       if (resourceBooking.StatusId <= 0)
         resourceBooking.StatusId = 1; // Default to pending status
 
-      // Combine booking date with times for storage
-      var bookingDateTime = resourceBooking.BookingDate.Add(startTime);
+      // Combine booking date with start time for storage
+      var bookingDateTime = resourceBooking.BookingDate.Date.Add(startTime);
       resourceBooking.BookingDate = bookingDateTime;
+
+      // If BookingEndDate is not provided, set it to end of the same day with endTime
+      if (!resourceBooking.BookingEndDate.HasValue)
+        resourceBooking.BookingEndDate = resourceBooking.BookingDate.Date.Add(endTime);
+      else
+        resourceBooking.BookingEndDate = resourceBooking.BookingEndDate.Value.Date.Add(endTime);
 
       // Store time information in description if not already set
       if (string.IsNullOrWhiteSpace(resourceBooking.BookingDescription))
-      {
-        resourceBooking.BookingDescription = $"Time: {resourceBooking.StartTime} - {resourceBooking.EndTime}";
-        if (!string.IsNullOrWhiteSpace(resourceBooking.Purpose))
-          resourceBooking.BookingDescription += $" | Purpose: {resourceBooking.Purpose}";
-        if (resourceBooking.NumberOfPeople > 0)
-          resourceBooking.BookingDescription += $" | People: {resourceBooking.NumberOfPeople}";
-      }
+        resourceBooking.BookingDescription = string.Empty;
 
       var resourceBookingEntity = resourceBooking.ToResourceBooking();
       await _resourceBookingRepository.AddAsync(resourceBookingEntity);
@@ -150,33 +150,74 @@ namespace CondominioAPI.Controllers
     public async Task<IActionResult> Update(int id, ResourceBookingRequest resourceBooking)
     {
       Log.Information("PUT > ResourceBookings > User: {0}", this.User.Identity?.Name);
-      if (id != resourceBooking.Id)
-        return BadRequest();
+
+      // Validate model state
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      //if (id != resourceBooking.Id)
+      //  return BadRequest(new { message = "The booking ID in the URL does not match the ID in the request body." });
 
       var existingResourceBooking = await _resourceBookingRepository.GetByIdAsync(id);
       if (existingResourceBooking == null)
-        return NotFound();
+        return NotFound(new { message = "Resource booking not found." });
 
       var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
       var isAdmin = User.IsInRole(AppRoles.Administrador);
 
       // Si no es administrador, verificar que la reserva pertenezca al usuario
       if (!isAdmin && existingResourceBooking.UserId != currentUserId)
-      {
         return Forbid();
+
+      // Validate that booking times are valid if provided
+      if (!string.IsNullOrWhiteSpace(resourceBooking.StartTime) && !string.IsNullOrWhiteSpace(resourceBooking.EndTime))
+      {
+        if (!TimeSpan.TryParse(resourceBooking.StartTime, out var startTime) ||
+            !TimeSpan.TryParse(resourceBooking.EndTime, out var endTime))
+          return BadRequest(new { message = "StartTime and EndTime must be in HH:mm format." });
+
+        if (startTime >= endTime)
+          return BadRequest(new { message = "StartTime must be before EndTime." });
+
+        // Combine booking date with start time for storage
+        var bookingDateTime = resourceBooking.BookingDate.Date.Add(startTime);
+        existingResourceBooking.BookingDate = bookingDateTime;
+
+        // Update booking end date
+        if (resourceBooking.BookingEndDate.HasValue)
+          existingResourceBooking.BookingEndDate = resourceBooking.BookingEndDate.Value.Date.Add(endTime);
+        else
+          // Default to end of the same day as BookingDate with endTime
+          existingResourceBooking.BookingEndDate = resourceBooking.BookingDate.Date.Add(endTime);
+      }
+      else
+      {
+        // If times are not provided, just update the date part
+        existingResourceBooking.BookingDate = resourceBooking.BookingDate;
+        
+        if (resourceBooking.BookingEndDate.HasValue)
+        {
+          existingResourceBooking.BookingEndDate = resourceBooking.BookingEndDate.Value;
+        }
       }
 
+      // Update basic fields
       existingResourceBooking.ResourceId = resourceBooking.ResourceId;
       existingResourceBooking.PropertyId = resourceBooking.PropertyId;
-      existingResourceBooking.StatusId = resourceBooking.StatusId;
-      existingResourceBooking.BookingDate = resourceBooking.BookingDate;
+      existingResourceBooking.StatusId = resourceBooking.StatusId > 0 ? resourceBooking.StatusId : existingResourceBooking.StatusId;
       existingResourceBooking.BookingPrice = resourceBooking.BookingPrice;
       existingResourceBooking.BookingWarrantyCost = resourceBooking.BookingWarrantyCost;
-      existingResourceBooking.BookingDescription = resourceBooking.BookingDescription;
       existingResourceBooking.BookingPhoto = resourceBooking.BookingPhoto;
 
+      
+      existingResourceBooking.BookingDescription = resourceBooking.BookingDescription ?? string.Empty;
+      
       await _resourceBookingRepository.UpdateAsync(existingResourceBooking);
-      return Ok();
+
+      Log.Information("PUT > ResourceBookings > Updated successfully for User: {0}, ResourceBooking ID: {1}",
+        this.User.Identity?.Name, id);
+
+      return Ok(new { message = "Resource booking updated successfully." });
     }
 
     /// <summary>

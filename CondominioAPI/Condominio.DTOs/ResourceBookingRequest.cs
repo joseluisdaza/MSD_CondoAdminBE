@@ -25,6 +25,8 @@ namespace Condominio.DTOs
     [Required(ErrorMessage = "EndTime is required")]
     public string EndTime { get; set; } = null!; // Format: "HH:mm"
 
+    public DateTime? BookingEndDate { get; set; } // If null, it will default to same date as BookingDate with end-of-day time
+
     public decimal BookingPrice { get; set; }
 
     public decimal BookingWarrantyCost { get; set; }

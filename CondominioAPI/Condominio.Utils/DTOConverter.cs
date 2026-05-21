@@ -643,6 +643,18 @@ namespace Condominio.Utils
         {
             if (resourceBookingRequest == null) return null;
 
+            // Calculate BookingEndDate if not provided
+            DateTime bookingEndDate;
+            if (resourceBookingRequest.BookingEndDate.HasValue)
+            {
+                bookingEndDate = resourceBookingRequest.BookingEndDate.Value;
+            }
+            else
+            {
+                // Default to end of the same day as BookingDate (23:59:59)
+                bookingEndDate = resourceBookingRequest.BookingDate.Date.AddDays(1).AddSeconds(-1);
+            }
+
             return new ResourceBooking
             {
                 ResourceId = resourceBookingRequest.ResourceId,
@@ -650,6 +662,7 @@ namespace Condominio.Utils
                 PropertyId = resourceBookingRequest.PropertyId,
                 StatusId = resourceBookingRequest.StatusId,
                 BookingDate = resourceBookingRequest.BookingDate,
+                BookingEndDate = bookingEndDate,
                 BookingPrice = resourceBookingRequest.BookingPrice,
                 BookingWarrantyCost = resourceBookingRequest.BookingWarrantyCost,
                 BookingDescription = resourceBookingRequest.BookingDescription,
@@ -669,6 +682,7 @@ namespace Condominio.Utils
                 PropertyId = resourceBooking.PropertyId,
                 StatusId = resourceBooking.StatusId,
                 BookingDate = resourceBooking.BookingDate,
+                BookingEndDate = resourceBooking.BookingEndDate,
                 BookingPrice = resourceBooking.BookingPrice,
                 BookingWarrantyCost = resourceBooking.BookingWarrantyCost,
                 BookingDescription = resourceBooking.BookingDescription,

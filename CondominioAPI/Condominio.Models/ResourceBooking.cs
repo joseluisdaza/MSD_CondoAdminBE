@@ -14,6 +14,8 @@ public partial class ResourceBooking
 
   public DateTime BookingDate { get; set; }
 
+  public DateTime? BookingEndDate { get; set; }
+
   public decimal BookingPrice { get; set; }
 
   public decimal BookingWarrantyCost { get; set; }

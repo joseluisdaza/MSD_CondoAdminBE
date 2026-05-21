@@ -521,6 +521,10 @@ public partial class CondominioContext : DbContext
             entity.Property(e => e.BookingDate)
                 .HasColumnType("datetime")
                 .HasColumnName("Booking_Date");
+            entity.Property(e => e.BookingEndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Booking_End_Date")
+                .IsRequired(false); // Allow NULL values
             entity.Property(e => e.BookingPrice)
                 .HasPrecision(10, 2)
                 .HasColumnName("Booking_Price");

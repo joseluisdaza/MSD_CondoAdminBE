@@ -258,7 +258,7 @@ VALUES
     ('Anulado');
 
 
--- v2.0 - 2026.03.02
+-- v1.0.1 - 2026.03.02
 SELECT 'Creating New Tables for Version 2.0';
 INSERT INTO versions(Version, Last_Updated) VALUES('1.0.0', NOW());
 
@@ -292,6 +292,7 @@ CREATE TABLE IF NOT EXISTS resource_bookings
   Property_Id INT NOT NULL,
   Status_Id INT NOT NULL DEFAULT 0,
   Booking_Date DATETIME NOT NULL,
+  Booking_End_Date DATETIME NOT NULL,
   Booking_Price DECIMAL(10,2) NOT NULL DEFAULT 0,
   Booking_Warranty_Cost DECIMAL(10,2) NOT NULL DEFAULT 0,
   Booking_Description VARCHAR(500) NULL,
@@ -340,3 +341,55 @@ CREATE TABLE IF NOT EXISTS incidents
 );
 
 INSERT INTO versions(Version, Last_Updated) VALUES('1.0.1', NOW());
+
+-- ============================================================
+-- Script para agregar la columna Booking_End_Date a resource_bookings
+-- Compatible con MySQL 5.7+
+-- Solo la agrega si no existe
+-- Luego actualiza los registros existentes SOLO UNA VEZ
+-- ============================================================
+
+-- Verificar si la columna ya existe
+SET @columnExists = (
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'resource_bookings' 
+    AND COLUMN_NAME = 'Booking_End_Date'
+    AND TABLE_SCHEMA = DATABASE()
+);
+
+-- 1. Agregar la columna solo si no existe
+SET @alterSQL = IF(
+    @columnExists = 0,
+    'ALTER TABLE resource_bookings ADD COLUMN Booking_End_Date DATETIME NULL',
+    'SELECT "Columna Booking_End_Date ya existe, no se realizarán cambios" as Mensaje'
+);
+
+PREPARE stmt FROM @alterSQL;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- 2. Actualizar registros existentes SOLO si la columna fue recién agregada
+-- Esto solo se ejecuta si @columnExists = 0 (columna no existía antes)
+SET @updateSQL = IF(
+    @columnExists = 0,
+    'UPDATE resource_bookings SET Booking_End_Date = CONCAT(DATE(Booking_Date), \' 23:59:59\') WHERE Booking_End_Date IS NULL',
+    'SELECT "No se requiere actualización de datos" as Mensaje'
+);
+
+PREPARE stmt FROM @updateSQL;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- 3. Cambiar la columna a NOT NULL solo si fue recién agregada
+SET @modifySQL = IF(
+    @columnExists = 0,
+    'ALTER TABLE resource_bookings MODIFY COLUMN Booking_End_Date DATETIME NOT NULL',
+    'SELECT "Columna ya configurada correctamente" as Mensaje'
+);
+
+PREPARE stmt FROM @modifySQL;
+EXECUTE stmt;
+
+
+INSERT INTO versions(Version, Last_Updated) VALUES('1.0.2', NOW());
