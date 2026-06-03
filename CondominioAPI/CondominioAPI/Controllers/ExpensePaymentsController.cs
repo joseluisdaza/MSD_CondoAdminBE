@@ -156,7 +156,7 @@ namespace CondominioAPI.Controllers
         /// crea la relación gasto-pago y actualiza el estado del gasto a pagado (statusId = 2)
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+        [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Habitante},{AppRoles.Auxiliar}")]
         public async Task<ActionResult<ExpensePaymentResponse>> Create([FromBody] CreateExpensePaymentRequest request)
         {
             try
