@@ -33,6 +33,43 @@ namespace CondominioAPI.Controllers
     }
 
     /// <summary>
+    /// Verifica la disponibilidad de un recurso en un horario específico
+    /// </summary>
+    [HttpPost("CheckAvailability")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Habitante}")]
+    public async Task<ActionResult<ResourceAvailabilityResponse>> CheckAvailability(ResourceAvailabilityRequest request)
+    {
+      Log.Information("POST > ResourceBookings > CheckAvailability > User: {0}, ResourceId: {1}",
+        this.User.Identity?.Name, request.ResourceId);
+
+      // Validate model state
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      DateTime startTime = request.BookingStart;
+      DateTime endTime = request.BookingEnd ?? (request.BookingStart.Date.AddDays(1));
+
+      if (startTime < DateTime.Now)
+        return BadRequest(new { message = "BookingStart must be in the future." });
+
+      if (endTime <= startTime)
+        return BadRequest(new { message = "BookingEnd must be after BookingStart." });
+
+      // Check for conflicting bookings
+      bool hasConflicts = await _resourceBookingRepository.HasBookingConflictsAsync(
+        request.ResourceId,
+        startTime,
+        endTime,
+        request.ExcludeBookingId);
+
+      return Ok(new ResourceAvailabilityResponse
+      {
+        IsAvailable = !hasConflicts,
+        Message = string.Format("El recurso {0}está disponible en el horario seleccionado.", hasConflicts ? "no " : ""),
+      });
+    }
+
+    /// <summary>
     /// Obtiene las reservas del usuario actual
     /// </summary>
     [HttpGet("MyBookings")]
@@ -108,9 +145,7 @@ namespace CondominioAPI.Controllers
       // Validate that booking times are valid
       if (!TimeSpan.TryParse(resourceBooking.StartTime, out var startTime) ||
           !TimeSpan.TryParse(resourceBooking.EndTime, out var endTime))
-      {
         return BadRequest(new { message = "StartTime and EndTime must be in HH:mm format." });
-      }
 
       if (startTime >= endTime)
         return BadRequest(new { message = "StartTime must be before EndTime." });
@@ -125,9 +160,21 @@ namespace CondominioAPI.Controllers
 
       // If BookingEndDate is not provided, set it to end of the same day with endTime
       if (!resourceBooking.BookingEndDate.HasValue)
-        resourceBooking.BookingEndDate = resourceBooking.BookingDate.Date.Add(endTime);
-      else
-        resourceBooking.BookingEndDate = resourceBooking.BookingEndDate.Value.Date.Add(endTime);
+        resourceBooking.BookingEndDate = resourceBooking.BookingDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+      // Verificar disponibilidad del recurso
+      bool hasConflicts = await _resourceBookingRepository.HasBookingConflictsAsync(
+        resourceBooking.ResourceId,
+        bookingDateTime,
+        resourceBooking.BookingEndDate.Value);
+
+      if (hasConflicts)
+      {
+        return BadRequest(new 
+        {
+          message = GetIsAvailableMessage(hasConflicts)
+        });
+      }
 
       // Store time information in description if not already set
       if (string.IsNullOrWhiteSpace(resourceBooking.BookingDescription))
@@ -136,7 +183,7 @@ namespace CondominioAPI.Controllers
       var resourceBookingEntity = resourceBooking.ToResourceBooking();
       await _resourceBookingRepository.AddAsync(resourceBookingEntity);
 
-      Log.Information("POST > ResourceBookings > Created successfully for User: {0}, ResourceBooking ID: {1}", 
+      Log.Information("POST > ResourceBookings > Created successfully for User: {0}, ResourceBooking ID: {1}",
         this.User.Identity?.Name, resourceBookingEntity.Id);
 
       return CreatedAtAction(nameof(GetById), new { id = resourceBookingEntity.Id }, resourceBookingEntity.ToResourceBookingRequest());
@@ -189,12 +236,27 @@ namespace CondominioAPI.Controllers
         else
           // Default to end of the same day as BookingDate with endTime
           existingResourceBooking.BookingEndDate = resourceBooking.BookingDate.Date.Add(endTime);
+
+        // Verificar disponibilidad del recurso (excluyendo la reserva actual)
+        bool hasConflicts = await _resourceBookingRepository.HasBookingConflictsAsync(
+          resourceBooking.ResourceId,
+          bookingDateTime,
+          existingResourceBooking.BookingEndDate.Value,
+          id); // Excluir esta reserva de la validación
+
+        if (hasConflicts)
+        {
+          return BadRequest(new
+          {
+            message = GetIsAvailableMessage(hasConflicts)
+          });
+        }
       }
       else
       {
         // If times are not provided, just update the date part
         existingResourceBooking.BookingDate = resourceBooking.BookingDate;
-        
+
         if (resourceBooking.BookingEndDate.HasValue)
         {
           existingResourceBooking.BookingEndDate = resourceBooking.BookingEndDate.Value;
@@ -208,10 +270,8 @@ namespace CondominioAPI.Controllers
       existingResourceBooking.BookingPrice = resourceBooking.BookingPrice;
       existingResourceBooking.BookingWarrantyCost = resourceBooking.BookingWarrantyCost;
       existingResourceBooking.BookingPhoto = resourceBooking.BookingPhoto;
-
-      
       existingResourceBooking.BookingDescription = resourceBooking.BookingDescription ?? string.Empty;
-      
+
       await _resourceBookingRepository.UpdateAsync(existingResourceBooking);
 
       Log.Information("PUT > ResourceBookings > Updated successfully for User: {0}, ResourceBooking ID: {1}",
@@ -234,6 +294,12 @@ namespace CondominioAPI.Controllers
 
       await _resourceBookingRepository.DeleteAsync(resourceBooking);
       return Ok();
+    }
+
+    private static string GetIsAvailableMessage(bool hasConflicts)
+    {
+      return hasConflicts ? "El recurso no está disponible en el horario seleccionado."
+        : "El recurso está disponible en el horario seleccionado.";
     }
   }
 }
