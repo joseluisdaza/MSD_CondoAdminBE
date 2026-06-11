@@ -63,6 +63,11 @@ public partial class CondominioContext : DbContext
 
     public virtual DbSet<Incident> Incidents { get; set; }
 
+    // Reports - v2.1
+    public virtual DbSet<Report> Reports { get; set; }
+
+    public virtual DbSet<ReportRole> ReportRoles { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         //No implementation needed if using DI to provide connection string
@@ -646,6 +651,47 @@ public partial class CondominioContext : DbContext
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("incidents_ibfk_4");
+        });
+
+        // Reports - v2.1
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("reports");
+
+            entity.HasIndex(e => e.Name, "Name").IsUnique();
+
+            entity.Property(e => e.Name).HasMaxLength(150);
+            entity.Property(e => e.HeaderQuery).HasColumnType("text").HasColumnName("HeaderQuery");
+            entity.Property(e => e.BodyQuery).HasColumnType("text").HasColumnName("BodyQuery");
+            entity.Property(e => e.FooterQuery).HasColumnType("text").HasColumnName("FooterQuery");
+        });
+
+        // Report Roles - v2.1
+        modelBuilder.Entity<ReportRole>(entity =>
+        {
+            entity.HasKey(e => new { e.ReportId, e.RoleId })
+                .HasName("PRIMARY")
+                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+
+            entity.ToTable("report_roles");
+
+            entity.HasIndex(e => e.RoleId, "RoleId");
+
+            entity.Property(e => e.ReportId).HasColumnName("ReportId");
+            entity.Property(e => e.RoleId).HasColumnName("RoleId");
+
+            entity.HasOne(d => d.Report)
+                .WithMany(p => p.ReportRoles)
+                .HasForeignKey(d => d.ReportId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_roles_ibfk_1");
+
+            entity.HasOne(d => d.Role)
+                .WithMany(p => p.ReportRoles)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_roles_ibfk_2");
         });
 
         OnModelCreatingPartial(modelBuilder);

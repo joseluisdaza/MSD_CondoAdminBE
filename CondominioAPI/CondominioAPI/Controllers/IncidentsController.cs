@@ -149,7 +149,7 @@ namespace CondominioAPI.Controllers
       if (incident == null)
         return NotFound();
 
-      await _incidentRepository.DeleteAsync(incident);
+      await _incidentRepository.DeleteAsync(id);
       return Ok();
     }
   }

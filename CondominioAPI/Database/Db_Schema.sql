@@ -180,6 +180,25 @@ CREATE TABLE IF NOT EXISTS service_expense_payments
 );
 
 
+CREATE TABLE IF NOT EXISTS reports
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Name VARCHAR(150) NOT NULL UNIQUE,
+  HeaderQuery TEXT NULL,
+  BodyQuery TEXT NOT NULL,
+  FooterQuery TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS report_roles
+(
+  ReportId INT NOT NULL,
+  RoleId INT NOT NULL,
+
+  PRIMARY KEY (ReportId, RoleId),
+  FOREIGN KEY (ReportId) REFERENCES reports(Id),
+  FOREIGN KEY (RoleId) REFERENCES roles(Id)
+);
+
 -- Version 1.3 2024.10.24
 SELECT 'Creating Versions Table';
 CREATE TABLE IF NOT EXISTS versions

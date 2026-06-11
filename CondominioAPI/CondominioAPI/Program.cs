@@ -73,6 +73,10 @@ builder.Services.AddScoped<IIncidentTypeRepository, IncidentTypeRepository>();
 builder.Services.AddScoped<IIncidentCostRepository, IncidentCostRepository>();
 builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
 
+// Nuevos repositorios para Reports (v2.1)
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportRoleRepository, ReportRoleRepository>();
+
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
