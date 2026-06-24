@@ -179,25 +179,107 @@ CREATE TABLE IF NOT EXISTS service_expense_payments
   FOREIGN KEY (Payment_Id) REFERENCES service_payments(Id)
 );
 
+CREATE TABLE IF NOT EXISTS styles 
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Style_Name VARCHAR(100) NOT NULL,
+  Bold BOOLEAN NOT NULL DEFAULT FALSE,
+  Italic BOOLEAN NOT NULL DEFAULT FALSE,
+  Underline BOOLEAN NOT NULL DEFAULT FALSE,
+  Font_Size INT NOT NULL DEFAULT 12,
+  Font_Color VARCHAR(20) NOT NULL DEFAULT '#000000',
+  Background_Color VARCHAR(20) NOT NULL DEFAULT '#FFFFFF',
+  Horizontal_Alignment VARCHAR(20) NOT NULL DEFAULT 'left',
+  Vertical_Alignment VARCHAR(20) NOT NULL DEFAULT 'top',
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+  Width_Percentage INT NOT NULL DEFAULT 100,
+);
 
 CREATE TABLE IF NOT EXISTS reports
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
-  Name VARCHAR(150) NOT NULL UNIQUE,
-  HeaderQuery TEXT NULL,
-  BodyQuery TEXT NOT NULL,
-  FooterQuery TEXT NULL
+  Report_Name VARCHAR(50) NOT NULL UNIQUE,
+  Display_Name VARCHAR(150) NOT NULL,
+  Title_Style INT NOT NULL DEFAULT -1,
+  Display_Header BOOLEAN NOT NULL DEFAULT TRUE,
+  Display_Footer BOOLEAN NOT NULL DEFAULT TRUE,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+
+  FOREIGN KEY (Title_Style) REFERENCES styles(Id)
 );
 
 CREATE TABLE IF NOT EXISTS report_roles
 (
-  ReportId INT NOT NULL,
-  RoleId INT NOT NULL,
+  Report_Id INT NOT NULL,
+  Role_Id INT NOT NULL,
 
-  PRIMARY KEY (ReportId, RoleId),
-  FOREIGN KEY (ReportId) REFERENCES reports(Id),
-  FOREIGN KEY (RoleId) REFERENCES roles(Id)
+  PRIMARY KEY (Report_Id, Role_Id),
+  FOREIGN KEY (Report_Id) REFERENCES reports(Id),
+  FOREIGN KEY (Role_Id) REFERENCES roles(Id)
 );
+
+CREATE TABLE IF NOT EXISTS report_headers
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Report_Id INT NOT NULL,
+  [Order] INT NOT NULL,
+  Style_Id INT NOT NULL DEFAULT -1,
+  [Value] TEXT NOT NULL,
+  Is_Query BOOLEAN NOT NULL DEFAULT FALSE,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+
+  FOREIGN KEY (Report_Id) REFERENCES reports(Id),
+  FOREIGN KEY (Style_Id) REFERENCES styles(Id)
+);
+
+CREATE TABLE IF NOT EXISTS report_sections
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Report_Id INT NOT NULL,
+  [Order] INT NOT NULL,
+  Style_Id INT NOT NULL DEFAULT -1,
+  Header_Style_Id INT NOT NULL DEFAULT -1,
+  [Value] TEXT NOT NULL,
+  Is_Query BOOLEAN NOT NULL DEFAULT FALSE,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+
+  FOREIGN KEY (Report_Id) REFERENCES reports(Id),
+  FOREIGN KEY (Header_Style_Id) REFERENCES styles(Id),
+  FOREIGN KEY (Style_Id) REFERENCES styles(Id)
+);
+
+CREATE TABLE IF NOT EXISTS report_footers
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Report_Id INT NOT NULL,
+  [Order] INT NOT NULL,
+  Style_Id INT NOT NULL DEFAULT -1,
+  [Value] TEXT NOT NULL,
+  Is_Query BOOLEAN NOT NULL DEFAULT FALSE,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+
+  FOREIGN KEY (Report_Id) REFERENCES reports(Id),
+  FOREIGN KEY (Style_Id) REFERENCES styles(Id)
+);
+
+CREATE TABLE IF NOT EXISTS report_audits
+(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Report_Id INT NOT NULL,
+  User_Id INT NOT NULL,
+  Parameters TEXT NOT NULL,
+  Execution_Date DATETIME NOT NULL
+
+  FOREIGN KEY (Report_Id) REFERENCES reports(Id),
+  FOREIGN KEY (User_Id) REFERENCES users(Id)
+);
+
+
 
 -- Version 1.3 2024.10.24
 SELECT 'Creating Versions Table';

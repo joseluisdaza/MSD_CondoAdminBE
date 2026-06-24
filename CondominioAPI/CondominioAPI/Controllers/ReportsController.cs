@@ -5,6 +5,7 @@ using Condominio.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System.Security.Claims;
 
 namespace CondominioAPI.Controllers
 {
@@ -74,7 +75,7 @@ namespace CondominioAPI.Controllers
     /// Ejecuta un reporte y devuelve los datos en formato JSON
     /// </summary>
     [HttpPost("Data")]
-    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Director}")]
+    [Authorize(Roles = $"{AppRoles.Super},{AppRoles.Administrador},{AppRoles.Director},{AppRoles.Habitante},{AppRoles.Auxiliar},{AppRoles.Seguridad}")]
     public async Task<ActionResult<ReportDataResponse>> GetReportData([FromBody] ReportDataRequest request)
     {
       Log.Information("POST > Reports > Data. User: {0}, ReportId: {1}", 
@@ -86,6 +87,23 @@ namespace CondominioAPI.Controllers
       var report = await _reportRepository.GetByIdAsync(request.ReportId);
       if (report == null)
         return NotFound(new { message = "Report not found." });
+
+      // Get user's roles from claims
+      var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+      var userRoleIds = _roleRepository.GetAllAsync().Result
+                                      .Where(x => userRoles.Any(ur => ur.Equals(x.RolName)))
+                                      .Select(x => x.Id)
+                                      .ToList();
+
+      Log.Information("POST > Reports > Data > User roles: {0}", string.Join(", ", userRoles));
+
+
+      //TODO: Add code to validate that the user has enough permissions to execute the report based on their roles and the report's assigned roles.
+      IEnumerable<ReportRole> reportRoles = _reportRoleRepository.GetByReportIdAsync(report.Id).Result;
+
+      bool haseExecutionPermissions = reportRoles.Any(x => userRoleIds.Contains(x.RoleId ));
+      if (!haseExecutionPermissions)
+        return Unauthorized();
 
       try
       {
@@ -290,7 +308,7 @@ namespace CondominioAPI.Controllers
     }
 
     /// <summary>
-    /// Elimina la asignación de un rol de un reporte (hard delete)
+    /// Elimina la asignaciÃ³n de un rol de un reporte (hard delete)
     /// </summary>
     [HttpDelete("Roles")]
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
