@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Condominio.DTOs\Condominio.DTOs.csproj" />
+    <ProjectReference Include="..\Condominio.Reports\Condominio.Reports.csproj" />
     <ProjectReference Include="..\Condominio.Repository\Condominio.Repository.csproj" />
     <ProjectReference Include="..\Condominio.Utils\Condominio.Utils.csproj" />
   </ItemGroup>
