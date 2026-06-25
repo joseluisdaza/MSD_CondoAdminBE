@@ -131,9 +131,9 @@ namespace CondominioAPI.Controllers
       };
 
       await _reportRepository.AddAsync(report);
-      CreateHeaders(report.Id, request.Headers);
-      CreateSections(report.Id, request.Sections);
-      CreateFooters(report.Id, request.Footers);
+      await CreateHeadersAsync(report.Id, request.Headers);
+      await CreateSectionsAsync(report.Id, request.Sections);
+      await CreateFootersAsync(report.Id, request.Footers);
 
       Log.Information("POST > Reports > Created successfully. ReportId: {0}", report.Id);
       return CreatedAtAction(nameof(GetById), new { id = report.Id }, new ReportLightResponse
@@ -147,14 +147,14 @@ namespace CondominioAPI.Controllers
       });
     }
 
-    private void CreateHeaders(int reportId, IEnumerable<ReportHeaderLightRequest> headers)
+    private async Task CreateHeadersAsync(int reportId, IEnumerable<ReportHeaderLightRequest> headers)
     {
       if (headers == null || !headers.Any())
         return;
 
       foreach (var headerRequest in headers.Where(x => x != null))
       {
-        _reportHeaderRepository.AddAsync(new ReportHeader
+        await _reportHeaderRepository.AddAsync(new ReportHeader
         {
           ReportId = reportId,
           DisplayOrder = headerRequest.DisplayOrder,
@@ -168,13 +168,13 @@ namespace CondominioAPI.Controllers
     }
 
 
-    private void CreateSections(int reportId, IEnumerable<ReportSectionLightRequest> sections)
+    private async Task CreateSectionsAsync(int reportId, IEnumerable<ReportSectionLightRequest> sections)
     {
       if (sections == null || !sections.Any()) return;
 
       foreach (var sectionRequest in sections.Where(x => x != null))
       {
-        _reportSectionRepository.AddAsync(new ReportSection
+        await _reportSectionRepository.AddAsync(new ReportSection
         {
           ReportId = reportId,
           DisplayOrder = sectionRequest.DisplayOrder,
@@ -188,13 +188,13 @@ namespace CondominioAPI.Controllers
       }
     }
 
-    private void CreateFooters(int reportId, IEnumerable<ReportFooterLightRequest> footers)
+    private async Task CreateFootersAsync(int reportId, IEnumerable<ReportFooterLightRequest> footers)
     {
       if (footers == null || !footers.Any()) return;
 
       foreach (var footerRequest in footers.Where(x => x != null))
       {
-        _reportFooterRepository.AddAsync(new ReportFooter
+        await _reportFooterRepository.AddAsync(new ReportFooter
         {
           ReportId = reportId,
           DisplayOrder = footerRequest.DisplayOrder,
