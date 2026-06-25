@@ -267,6 +267,147 @@ namespace CondominioAPI.Controllers
       return Ok(new { message = "Report deleted successfully." });
     }
 
+    /// <summary>
+    /// Ejecuta un reporte completo con headers, sections y footers aplicando los filtros proporcionados
+    /// </summary>
+    [HttpPost("{reportId}/Execute")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Director},{AppRoles.Habitante},{AppRoles.Auxiliar},{AppRoles.Seguridad}")]
+    public async Task<ActionResult<ReportExecutionResponse>> ExecuteReport(int reportId, [FromBody] ReportExecutionRequest request)
+    {
+      Log.Information("POST > Reports > Execute. User: {0}, ReportId: {1}", 
+        this.User.Identity?.Name, reportId);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var report = await _reportRepository.GetByIdAsync(reportId);
+      if (report == null)
+        return NotFound(new { message = "Report not found." });
+
+      try
+      {
+        // Get user's roles from claims
+        var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        Log.Information("POST > Reports > Execute > User roles: {0}", string.Join(", ", userRoles));
+
+        bool hasPermissions = _reportRoleRepository.GetByReportIdAsync(reportId).Result
+                              .Any(x => userRoles.Any(y => x.Role.RolName == y));
+        if (!hasPermissions)
+          return Unauthorized();
+        
+
+        var response = new ReportExecutionResponse
+        {
+          Title = report.DisplayName ?? report.ReportName,
+          StyleId = report.TitleStyleId,
+          Headers = new List<ReportContentItem>(),
+          Sections = new List<ReportContentItem>(),
+          Footers = new List<ReportContentItem>()
+        };
+
+        // Process headers if DisplayHeader is true
+        if (report.DisplayHeader)
+        {
+          var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(reportId);
+          var headerItems = new List<ReportContentItem>();
+
+          foreach (var header in headers)
+          {
+            var item = new ReportContentItem
+            {
+              StyleId = header.StyleId,
+              IsTable = header.IsQuery
+            };
+
+            if (header.IsQuery)
+            {
+              // Execute query
+              var queryResult = await _reportRepository.ExecuteQueryAsync(header.DisplayContent, request.Filters);
+              item.Text = queryResult;// is string ? queryResult : JsonSerializer.Serialize(queryResult);
+            }
+            else
+            {
+              // Use static content
+              item.Text = header.DisplayContent;
+            }
+
+            headerItems.Add(item);
+          }
+
+          response.Headers = headerItems;
+        }
+
+        // Process sections
+        var sections = await _reportSectionRepository.GetByReportIdOrderedAsync(reportId);
+        var sectionItems = new List<ReportContentItem>();
+
+        foreach (var section in sections)
+        {
+          var item = new ReportContentItem
+          {
+            StyleId = section.StyleId,
+            IsTable = section.IsQuery
+          };
+
+          if (section.IsQuery)
+          {
+            // Execute query
+            var queryResult = await _reportRepository.ExecuteQueryAsync(section.DisplayContent, request.Filters);
+            item.Text = queryResult;// is string ? queryResult : JsonSerializer.Serialize(queryResult);
+          }
+          else
+          {
+            // Use static content
+            item.Text = section.DisplayContent;
+          }
+
+          sectionItems.Add(item);
+        }
+
+        response.Sections = sectionItems;
+
+        // Process footers if DisplayFooter is true
+        if (report.DisplayFooter)
+        {
+          var footers = await _reportFooterRepository.GetByReportIdOrderedAsync(reportId);
+          var footerItems = new List<ReportContentItem>();
+
+          foreach (var footer in footers)
+          {
+            var item = new ReportContentItem
+            {
+              StyleId = footer.StyleId,
+              IsTable = footer.IsQuery
+            };
+
+            if (footer.IsQuery)
+            {
+              // Execute query
+              var queryResult = await _reportRepository.ExecuteQueryAsync(footer.DisplayContent, request.Filters);
+              item.Text = queryResult;// is string ? queryResult : JsonSerializer.Serialize(queryResult);
+            }
+            else
+            {
+              // Use static content
+              item.Text = footer.DisplayContent;
+            }
+
+            footerItems.Add(item);
+          }
+
+          response.Footers = footerItems;
+        }
+
+        Log.Information("POST > Reports > Execute > Successfully executed for ReportId: {0}", reportId);
+        return Ok(response);
+      }
+      catch (Exception ex)
+      {
+        Log.Error(ex, "Error executing report {0}", reportId);
+        return StatusCode(500, new { message = "Error executing report.", error = ex.Message });
+      }
+    }
+
     #endregion
 
     #region REPORT ROLES ENDPOINTS
