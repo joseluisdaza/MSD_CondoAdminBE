@@ -48,19 +48,40 @@ namespace CondominioAPI.Controllers
     /// Obtiene la lista de todos los reportes (solo ID, nombre y display name)
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Director}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Director},{AppRoles.Habitante},{AppRoles.Auxiliar},{AppRoles.Seguridad}")]
     public async Task<ActionResult<IEnumerable<ReportListResponse>>> GetAll()
     {
       Log.Information("GET > Reports > GetAll. User: {0}", this.User.Identity?.Name);
 
       var reports = await _reportRepository.GetAllAsync();
-      var response = reports.Select(r => new ReportListResponse
-      {
-        Id = r.Id,
-        ReportName = r.ReportName,
-        DisplayName = r.DisplayName
-      });
+      var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
 
+      if (userRoles.Any(x => x.ToLower() == "super"))
+      {
+        return Ok(reports.Select(report => new ReportListResponse
+        {
+          Id = report.Id,
+          ReportName = report.ReportName,
+          DisplayName = report.DisplayName
+        }));
+      }
+
+      var response = new List<ReportListResponse>();
+      foreach (Report report in reports)
+      {
+        bool hasPermissions = _reportRoleRepository.GetByReportIdAsync(report.Id).Result
+                            .Any(x => userRoles.Any(y => x.Role.RolName == y));
+        if (hasPermissions)
+        {
+          response.Add(new ReportListResponse
+          {
+            Id = report.Id,
+            ReportName = report.ReportName,
+            DisplayName = report.DisplayName
+          });
+        }
+      }
+      
       return Ok(response);
     }
 

@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS styles
   Vertical_Alignment VARCHAR(20) NOT NULL DEFAULT 'top',
   Start_Date DATETIME NOT NULL,
   End_Date DATETIME NULL,
-  Width_Percentage INT NOT NULL DEFAULT 100,
+  Width_Percentage INT NOT NULL DEFAULT 100
 );
 
 CREATE TABLE IF NOT EXISTS reports
@@ -224,9 +224,9 @@ CREATE TABLE IF NOT EXISTS report_headers
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Report_Id INT NOT NULL,
-  [Order] INT NOT NULL,
+  Display_Order INT NOT NULL,
   Style_Id INT NOT NULL DEFAULT -1,
-  [Value] TEXT NOT NULL,
+  Display_Content TEXT NOT NULL,
   Is_Query BOOLEAN NOT NULL DEFAULT FALSE,
   Start_Date DATETIME NOT NULL,
   End_Date DATETIME NULL,
@@ -239,10 +239,10 @@ CREATE TABLE IF NOT EXISTS report_sections
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Report_Id INT NOT NULL,
-  [Order] INT NOT NULL,
+  Display_Order INT NOT NULL,
   Style_Id INT NOT NULL DEFAULT -1,
   Header_Style_Id INT NOT NULL DEFAULT -1,
-  [Value] TEXT NOT NULL,
+  Display_Content TEXT NOT NULL,
   Is_Query BOOLEAN NOT NULL DEFAULT FALSE,
   Start_Date DATETIME NOT NULL,
   End_Date DATETIME NULL,
@@ -256,9 +256,9 @@ CREATE TABLE IF NOT EXISTS report_footers
 (
   Id INT AUTO_INCREMENT PRIMARY KEY,
   Report_Id INT NOT NULL,
-  [Order] INT NOT NULL,
+  Display_Order INT NOT NULL,
   Style_Id INT NOT NULL DEFAULT -1,
-  [Value] TEXT NOT NULL,
+  Display_Content TEXT NOT NULL,
   Is_Query BOOLEAN NOT NULL DEFAULT FALSE,
   Start_Date DATETIME NOT NULL,
   End_Date DATETIME NULL,
@@ -273,7 +273,7 @@ CREATE TABLE IF NOT EXISTS report_audits
   Report_Id INT NOT NULL,
   User_Id INT NOT NULL,
   Parameters TEXT NOT NULL,
-  Execution_Date DATETIME NOT NULL
+  Execution_Date DATETIME NOT NULL,
 
   FOREIGN KEY (Report_Id) REFERENCES reports(Id),
   FOREIGN KEY (User_Id) REFERENCES users(Id)
