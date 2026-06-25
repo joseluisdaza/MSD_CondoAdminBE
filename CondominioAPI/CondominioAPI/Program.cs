@@ -76,6 +76,11 @@ builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
 // Nuevos repositorios para Reports (v2.1)
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportRoleRepository, ReportRoleRepository>();
+builder.Services.AddScoped<IStyleRepository, StyleRepository>();
+builder.Services.AddScoped<IReportHeaderRepository, ReportHeaderRepository>();
+builder.Services.AddScoped<IReportSectionRepository, ReportSectionRepository>();
+builder.Services.AddScoped<IReportFooterRepository, ReportFooterRepository>();
+builder.Services.AddScoped<IReportAuditRepository, ReportAuditRepository>();
 
 builder.Services.AddControllers();
 

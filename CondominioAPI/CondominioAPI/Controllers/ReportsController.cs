@@ -15,43 +15,61 @@ namespace CondominioAPI.Controllers
   {
     private readonly IReportRepository _reportRepository;
     private readonly IReportRoleRepository _reportRoleRepository;
+    private readonly IReportHeaderRepository _reportHeaderRepository;
+    private readonly IReportSectionRepository _reportSectionRepository;
+    private readonly IReportFooterRepository _reportFooterRepository;
+    private readonly IReportAuditRepository _reportAuditRepository;
+    private readonly IStyleRepository _styleRepository;
     private readonly IRoleRepository _roleRepository;
 
     public ReportsController(
       IReportRepository reportRepository,
       IReportRoleRepository reportRoleRepository,
+      IReportHeaderRepository reportHeaderRepository,
+      IReportSectionRepository reportSectionRepository,
+      IReportFooterRepository reportFooterRepository,
+      IReportAuditRepository reportAuditRepository,
+      IStyleRepository styleRepository,
       IRoleRepository roleRepository)
     {
       _reportRepository = reportRepository;
       _reportRoleRepository = reportRoleRepository;
+      _reportHeaderRepository = reportHeaderRepository;
+      _reportSectionRepository = reportSectionRepository;
+      _reportFooterRepository = reportFooterRepository;
+      _reportAuditRepository = reportAuditRepository;
+      _styleRepository = styleRepository;
       _roleRepository = roleRepository;
     }
 
+    #region REPORTS ENDPOINTS
+
     /// <summary>
-    /// Obtiene la lista de todos los reportes (solo ID y nombre)
+    /// Obtiene la lista de todos los reportes (solo ID, nombre y display name)
     /// </summary>
     [HttpGet]
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Director}")]
     public async Task<ActionResult<IEnumerable<ReportListResponse>>> GetAll()
     {
       Log.Information("GET > Reports > GetAll. User: {0}", this.User.Identity?.Name);
-      
+
       var reports = await _reportRepository.GetAllAsync();
       var response = reports.Select(r => new ReportListResponse
       {
         Id = r.Id,
-        Name = r.Name
+        ReportName = r.ReportName,
+        DisplayName = r.DisplayName
       });
 
       return Ok(response);
     }
 
     /// <summary>
-    /// Obtiene un reporte completo por ID
+    /// Obtiene un reporte completo por ID incluyendo headers, sections, footers y roles
     /// </summary>
     [HttpGet("{id}")]
-    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Director}")]
-    public async Task<ActionResult<ReportRequest>> GetById(int id)
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<ReportDetailResponse>> GetById(int id)
     {
       Log.Information("GET > Reports > GetById. User: {0}, Id: {1}", this.User.Identity?.Name, id);
 
@@ -59,88 +77,25 @@ namespace CondominioAPI.Controllers
       if (report == null)
         return NotFound(new { message = "Report not found." });
 
-      var response = new ReportRequest
+      var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(id);
+      var sections = await _reportSectionRepository.GetByReportIdOrderedAsync(id);
+      var footers = await _reportFooterRepository.GetByReportIdOrderedAsync(id);
+
+      var response = new ReportDetailResponse
       {
         Id = report.Id,
-        Name = report.Name,
-        HeaderQuery = report.HeaderQuery,
-        BodyQuery = report.BodyQuery,
-        FooterQuery = report.FooterQuery
+        ReportName = report.ReportName,
+        DisplayName = report.DisplayName,
+        TitleStyleId = report.TitleStyleId,
+        DisplayHeader = report.DisplayHeader,
+        DisplayFooter = report.DisplayFooter,
+        TitleStyle = report.TitleStyle != null ? MapStyleToResponse(report.TitleStyle) : null,
+        Headers = headers.Select(h => MapHeaderToResponse(h)),
+        Sections = sections.Select(s => MapSectionToResponse(s)),
+        Footers = footers.Select(f => MapFooterToResponse(f))
       };
 
       return Ok(response);
-    }
-
-    /// <summary>
-    /// Ejecuta un reporte y devuelve los datos en formato JSON
-    /// </summary>
-    [HttpPost("Data")]
-    [Authorize(Roles = $"{AppRoles.Super},{AppRoles.Administrador},{AppRoles.Director},{AppRoles.Habitante},{AppRoles.Auxiliar},{AppRoles.Seguridad}")]
-    public async Task<ActionResult<ReportDataResponse>> GetReportData([FromBody] ReportDataRequest request)
-    {
-      Log.Information("POST > Reports > Data. User: {0}, ReportId: {1}", 
-        this.User.Identity?.Name, request.ReportId);
-
-      if (!ModelState.IsValid)
-        return BadRequest(ModelState);
-
-      var report = await _reportRepository.GetByIdAsync(request.ReportId);
-      if (report == null)
-        return NotFound(new { message = "Report not found." });
-
-      // Get user's roles from claims
-      var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
-      var userRoleIds = _roleRepository.GetAllAsync().Result
-                                      .Where(x => userRoles.Any(ur => ur.Equals(x.RolName)))
-                                      .Select(x => x.Id)
-                                      .ToList();
-
-      Log.Information("POST > Reports > Data > User roles: {0}", string.Join(", ", userRoles));
-
-
-      //TODO: Add code to validate that the user has enough permissions to execute the report based on their roles and the report's assigned roles.
-      IEnumerable<ReportRole> reportRoles = _reportRoleRepository.GetByReportIdAsync(report.Id).Result;
-
-      bool haseExecutionPermissions = reportRoles.Any(x => userRoleIds.Contains(x.RoleId ));
-      if (!haseExecutionPermissions)
-        return Unauthorized();
-
-      try
-      {
-        var response = new ReportDataResponse();
-
-        // Execute header query if exists
-        if (!string.IsNullOrWhiteSpace(report.HeaderQuery))
-        {
-          var headerResults = await _reportRepository.ExecuteQueryAsync(
-            report.HeaderQuery, 
-            request.Filters);
-          response.Header = headerResults;
-        }
-
-        // Execute body query (required)
-        var bodyResults = await _reportRepository.ExecuteQueryAsync(
-          report.BodyQuery, 
-          request.Filters);
-        response.Body = bodyResults;
-
-        // Execute footer query if exists
-        if (!string.IsNullOrWhiteSpace(report.FooterQuery))
-        {
-          var footerResults = await _reportRepository.ExecuteQueryAsync(
-            report.FooterQuery, 
-            request.Filters);
-          response.Footer = footerResults;
-        }
-
-        Log.Information("POST > Reports > Data > Successfully executed for ReportId: {0}", request.ReportId);
-        return Ok(response);
-      }
-      catch (Exception ex)
-      {
-        Log.Error(ex, "Error executing report {0}", request.ReportId);
-        return StatusCode(500, new { message = "Error executing report query.", error = ex.Message });
-      }
     }
 
     /// <summary>
@@ -148,7 +103,7 @@ namespace CondominioAPI.Controllers
     /// </summary>
     [HttpPost]
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
-    public async Task<ActionResult<ReportRequest>> Create([FromBody] ReportRequest request)
+    public async Task<ActionResult<ReportLightResponse>> Create([FromBody] ReportLightRequest request)
     {
       Log.Information("POST > Reports > Create. User: {0}", this.User.Identity?.Name);
 
@@ -156,33 +111,100 @@ namespace CondominioAPI.Controllers
         return BadRequest(ModelState);
 
       // Validar que no exista un reporte con el mismo nombre (ignorando case)
-      var existingReport = await _reportRepository.GetByNameAsync(request.Name);
+      var existingReport = await _reportRepository.GetByNameAsync(request.ReportName);
       if (existingReport != null)
       {
-        Log.Warning("POST > Reports > Create. Report with name '{0}' already exists. User: {1}", 
-          request.Name, this.User.Identity?.Name);
-        return BadRequest(new { message = $"A report with the name '{request.Name}' already exists." });
+        Log.Warning("POST > Reports > Create. Report with name '{0}' already exists. User: {1}",
+          request.ReportName, this.User.Identity?.Name);
+        return BadRequest(new { message = $"A report with the name '{request.ReportName}' already exists." });
       }
 
       var report = new Report
       {
-        Name = request.Name,
-        HeaderQuery = request.HeaderQuery,
-        BodyQuery = request.BodyQuery,
-        FooterQuery = request.FooterQuery
+        ReportName = request.ReportName,
+        DisplayName = request.DisplayName,
+        TitleStyleId = request.TitleStyleId,
+        DisplayHeader = request.DisplayHeader,
+        DisplayFooter = request.DisplayFooter,
+        StartDate = DateTime.Now,
+        EndDate = null
       };
 
       await _reportRepository.AddAsync(report);
+      CreateHeaders(report.Id, request.Headers);
+      CreateSections(report.Id, request.Sections);
+      CreateFooters(report.Id, request.Footers);
 
       Log.Information("POST > Reports > Created successfully. ReportId: {0}", report.Id);
-      return CreatedAtAction(nameof(GetById), new { id = report.Id }, new ReportRequest
+      return CreatedAtAction(nameof(GetById), new { id = report.Id }, new ReportLightResponse
       {
         Id = report.Id,
-        Name = report.Name,
-        HeaderQuery = report.HeaderQuery,
-        BodyQuery = report.BodyQuery,
-        FooterQuery = report.FooterQuery
+        ReportName = report.ReportName,
+        DisplayName = report.DisplayName,
+        TitleStyleId = report.TitleStyleId,
+        DisplayHeader = report.DisplayHeader,
+        DisplayFooter = report.DisplayFooter
       });
+    }
+
+    private void CreateHeaders(int reportId, IEnumerable<ReportHeaderLightRequest> headers)
+    {
+      if (headers == null || !headers.Any())
+        return;
+
+      foreach (var headerRequest in headers.Where(x => x != null))
+      {
+        _reportHeaderRepository.AddAsync(new ReportHeader
+        {
+          ReportId = reportId,
+          DisplayOrder = headerRequest.DisplayOrder,
+          StyleId = headerRequest.StyleId,
+          DisplayContent = headerRequest.DisplayContent,
+          IsQuery = headerRequest.IsQuery,
+          StartDate = DateTime.Now,
+          EndDate = null
+        });
+      }
+    }
+
+
+    private void CreateSections(int reportId, IEnumerable<ReportSectionLightRequest> sections)
+    {
+      if (sections == null || !sections.Any()) return;
+
+      foreach (var sectionRequest in sections.Where(x => x != null))
+      {
+        _reportSectionRepository.AddAsync(new ReportSection
+        {
+          ReportId = reportId,
+          DisplayOrder = sectionRequest.DisplayOrder,
+          StyleId = sectionRequest.StyleId,
+          HeaderStyleId = sectionRequest.HeaderStyleId,
+          DisplayContent = sectionRequest.DisplayContent,
+          IsQuery = sectionRequest.IsQuery,
+          StartDate = DateTime.Now,
+          EndDate = null
+        });
+      }
+    }
+
+    private void CreateFooters(int reportId, IEnumerable<ReportFooterLightRequest> footers)
+    {
+      if (footers == null || !footers.Any()) return;
+
+      foreach (var footerRequest in footers.Where(x => x != null))
+      {
+        _reportFooterRepository.AddAsync(new ReportFooter
+        {
+          ReportId = reportId,
+          DisplayOrder = footerRequest.DisplayOrder,
+          StyleId = footerRequest.StyleId,
+          DisplayContent = footerRequest.DisplayContent,
+          IsQuery = footerRequest.IsQuery,
+          StartDate = DateTime.Now,
+          EndDate = null
+        });
+      }
     }
 
     /// <summary>
@@ -202,21 +224,23 @@ namespace CondominioAPI.Controllers
         return NotFound(new { message = "Report not found." });
 
       // Validar que no exista otro reporte con el mismo nombre (ignorando case)
-      if (report.Name.ToLower() != request.Name.ToLower())
+      if (report.ReportName.ToLower() != request.ReportName.ToLower())
       {
-        var existingReport = await _reportRepository.GetByNameAsync(request.Name);
+        var existingReport = await _reportRepository.GetByNameAsync(request.ReportName);
         if (existingReport != null)
         {
-          Log.Warning("PUT > Reports > Update. Report with name '{0}' already exists. User: {1}", 
-            request.Name, this.User.Identity?.Name);
-          return BadRequest(new { message = $"A report with the name '{request.Name}' already exists." });
+          Log.Warning("PUT > Reports > Update. Report with name '{0}' already exists. User: {1}",
+            request.ReportName, this.User.Identity?.Name);
+          return BadRequest(new { message = $"A report with the name '{request.ReportName}' already exists." });
         }
       }
 
-      report.Name = request.Name;
-      report.HeaderQuery = request.HeaderQuery;
-      report.BodyQuery = request.BodyQuery;
-      report.FooterQuery = request.FooterQuery;
+      report.ReportName = request.ReportName;
+      report.DisplayName = request.DisplayName;
+      report.TitleStyleId = request.TitleStyleId;
+      report.DisplayHeader = request.DisplayHeader;
+      report.DisplayFooter = request.DisplayFooter;
+      report.EndDate = request.EndDate;
 
       await _reportRepository.UpdateAsync(report);
 
@@ -243,6 +267,10 @@ namespace CondominioAPI.Controllers
       return Ok(new { message = "Report deleted successfully." });
     }
 
+    #endregion
+
+    #region REPORT ROLES ENDPOINTS
+
     /// <summary>
     /// Obtiene la lista de roles asignados a un reporte
     /// </summary>
@@ -250,7 +278,7 @@ namespace CondominioAPI.Controllers
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
     public async Task<ActionResult<IEnumerable<ReportRoleResponse>>> GetReportRoles([FromQuery] int reportId)
     {
-      Log.Information("GET > Reports > Roles. User: {0}, ReportId: {1}", 
+      Log.Information("GET > Reports > Roles. User: {0}, ReportId: {1}",
         this.User.Identity?.Name, reportId);
 
       var reportRoles = await _reportRoleRepository.GetByReportIdAsync(reportId);
@@ -270,7 +298,7 @@ namespace CondominioAPI.Controllers
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
     public async Task<IActionResult> AssignRole([FromBody] ReportRoleRequest request)
     {
-      Log.Information("POST > Reports > Roles. User: {0}, ReportId: {1}, RoleId: {2}", 
+      Log.Information("POST > Reports > Roles. User: {0}, ReportId: {1}, RoleId: {2}",
         this.User.Identity?.Name, request.ReportId, request.RoleId);
 
       if (!ModelState.IsValid)
@@ -287,9 +315,9 @@ namespace CondominioAPI.Controllers
 
       // Check if relationship already exists
       var existingRelation = await _reportRoleRepository.GetByReportIdAndRoleIdAsync(
-        request.ReportId, 
+        request.ReportId,
         request.RoleId);
-      
+
       if (existingRelation != null)
         return BadRequest(new { message = "This role is already assigned to the report." });
 
@@ -301,38 +329,636 @@ namespace CondominioAPI.Controllers
 
       await _reportRoleRepository.AddAsync(reportRole);
 
-      Log.Information("POST > Reports > Roles > Assigned successfully. ReportId: {0}, RoleId: {1}", 
+      Log.Information("POST > Reports > Roles > Assigned successfully. ReportId: {0}, RoleId: {1}",
         request.ReportId, request.RoleId);
-      
+
       return Ok(new { message = "Role assigned to report successfully." });
     }
 
     /// <summary>
-    /// Elimina la asignación de un rol de un reporte (hard delete)
+    /// Elimina la asignación de un rol de un reporte
     /// </summary>
     [HttpDelete("Roles")]
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
     public async Task<IActionResult> RemoveRole([FromBody] ReportRoleRequest request)
     {
-      Log.Information("DELETE > Reports > Roles. User: {0}, ReportId: {1}, RoleId: {2}", 
+      Log.Information("DELETE > Reports > Roles. User: {0}, ReportId: {1}, RoleId: {2}",
         this.User.Identity?.Name, request.ReportId, request.RoleId);
 
       if (!ModelState.IsValid)
         return BadRequest(ModelState);
 
       var reportRole = await _reportRoleRepository.GetByReportIdAndRoleIdAsync(
-        request.ReportId, 
+        request.ReportId,
         request.RoleId);
-      
+
       if (reportRole == null)
         return NotFound(new { message = "Report-Role assignment not found." });
 
       await _reportRoleRepository.DeleteByReportIdAndRoleIdAsync(request.ReportId, request.RoleId);
 
-      Log.Information("DELETE > Reports > Roles > Removed successfully. ReportId: {0}, RoleId: {1}", 
+      Log.Information("DELETE > Reports > Roles > Removed successfully. ReportId: {0}, RoleId: {1}",
         request.ReportId, request.RoleId);
-      
+
       return Ok(new { message = "Role removed from report successfully." });
     }
+
+    #endregion
+
+    #region STYLES ENDPOINTS
+
+    /// <summary>
+    /// Obtiene todos los estilos
+    /// </summary>
+    [HttpGet("Styles")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<StyleResponse>>> GetAllStyles()
+    {
+      Log.Information("GET > Reports > Styles > GetAll. User: {0}", this.User.Identity?.Name);
+
+      var styles = await _styleRepository.GetAllAsync();
+      var response = styles.Select(s => MapStyleToResponse(s));
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Obtiene un estilo por ID
+    /// </summary>
+    [HttpGet("Styles/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<StyleResponse>> GetStyleById(int id)
+    {
+      Log.Information("GET > Reports > Styles > GetById. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      var style = await _styleRepository.GetByIdAsync(id);
+      if (style == null)
+        return NotFound(new { message = "Style not found." });
+
+      return Ok(MapStyleToResponse(style));
+    }
+
+    /// <summary>
+    /// Crea un nuevo estilo
+    /// </summary>
+    [HttpPost("Styles")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<StyleResponse>> CreateStyle([FromBody] StyleRequest request)
+    {
+      Log.Information("POST > Reports > Styles > Create. User: {0}", this.User.Identity?.Name);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var existingStyle = await _styleRepository.GetByNameAsync(request.StyleName);
+      if (existingStyle != null)
+        return BadRequest(new { message = $"A style with the name '{request.StyleName}' already exists." });
+
+      var style = new Style
+      {
+        StyleName = request.StyleName,
+        Bold = request.Bold,
+        Italic = request.Italic,
+        Underline = request.Underline,
+        FontSize = request.FontSize,
+        FontColor = request.FontColor,
+        BackgroundColor = request.BackgroundColor,
+        HorizontalAlignment = request.HorizontalAlignment,
+        VerticalAlignment = request.VerticalAlignment,
+        StartDate = request.StartDate,
+        EndDate = request.EndDate,
+        WidthPercentage = request.WidthPercentage
+      };
+
+      await _styleRepository.AddAsync(style);
+
+      Log.Information("POST > Reports > Styles > Created successfully. StyleId: {0}", style.Id);
+      return CreatedAtAction(nameof(GetStyleById), new { id = style.Id }, MapStyleToResponse(style));
+    }
+
+    /// <summary>
+    /// Actualiza un estilo existente
+    /// </summary>
+    [HttpPut("Styles/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> UpdateStyle(int id, [FromBody] StyleRequest request)
+    {
+      Log.Information("PUT > Reports > Styles > Update. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var style = await _styleRepository.GetByIdAsync(id);
+      if (style == null)
+        return NotFound(new { message = "Style not found." });
+
+      style.StyleName = request.StyleName;
+      style.Bold = request.Bold;
+      style.Italic = request.Italic;
+      style.Underline = request.Underline;
+      style.FontSize = request.FontSize;
+      style.FontColor = request.FontColor;
+      style.BackgroundColor = request.BackgroundColor;
+      style.HorizontalAlignment = request.HorizontalAlignment;
+      style.VerticalAlignment = request.VerticalAlignment;
+      style.EndDate = request.EndDate;
+      style.WidthPercentage = request.WidthPercentage;
+
+      await _styleRepository.UpdateAsync(style);
+
+      Log.Information("PUT > Reports > Styles > Updated successfully. StyleId: {0}", id);
+      return Ok(new { message = "Style updated successfully." });
+    }
+
+    /// <summary>
+    /// Elimina un estilo
+    /// </summary>
+    [HttpDelete("Styles/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> DeleteStyle(int id)
+    {
+      Log.Information("DELETE > Reports > Styles. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      var style = await _styleRepository.GetByIdAsync(id);
+      if (style == null)
+        return NotFound(new { message = "Style not found." });
+
+      await _styleRepository.DeleteAsync(id);
+
+      Log.Information("DELETE > Reports > Styles > Deleted successfully. StyleId: {0}", id);
+      return Ok(new { message = "Style deleted successfully." });
+    }
+
+    #endregion
+
+    #region REPORT HEADERS ENDPOINTS
+
+    /// <summary>
+    /// Obtiene los headers de un reporte
+    /// </summary>
+    [HttpGet("{reportId}/Headers")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<ReportHeaderResponse>>> GetReportHeaders(int reportId)
+    {
+      Log.Information("GET > Reports > Headers. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(reportId);
+      var response = headers.Select(h => MapHeaderToResponse(h));
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Crea un nuevo header para un reporte
+    /// </summary>
+    [HttpPost("{reportId}/Headers")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<ReportHeaderResponse>> CreateHeader(int reportId, [FromBody] ReportHeaderRequest request)
+    {
+      Log.Information("POST > Reports > Headers. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var report = await _reportRepository.GetByIdAsync(reportId);
+      if (report == null)
+        return NotFound(new { message = "Report not found." });
+
+      var header = new ReportHeader
+      {
+        ReportId = reportId,
+        DisplayOrder = request.DisplayOrder,
+        StyleId = request.StyleId,
+        DisplayContent = request.DisplayContent,
+        IsQuery = request.IsQuery,
+        StartDate = request.StartDate,
+        EndDate = request.EndDate
+      };
+
+      await _reportHeaderRepository.AddAsync(header);
+
+      Log.Information("POST > Reports > Headers > Created successfully. HeaderId: {0}", header.Id);
+      return CreatedAtAction(nameof(GetReportHeaders), new { reportId }, MapHeaderToResponse(header));
+    }
+
+    /// <summary>
+    /// Actualiza un header de reporte
+    /// </summary>
+    [HttpPut("Headers/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> UpdateHeader(int id, [FromBody] ReportHeaderRequest request)
+    {
+      Log.Information("PUT > Reports > Headers > Update. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var header = await _reportHeaderRepository.GetByIdAsync(id);
+      if (header == null)
+        return NotFound(new { message = "Header not found." });
+
+      header.DisplayOrder = request.DisplayOrder;
+      header.StyleId = request.StyleId;
+      header.DisplayContent = request.DisplayContent;
+      header.IsQuery = request.IsQuery;
+      header.EndDate = request.EndDate;
+
+      await _reportHeaderRepository.UpdateAsync(header);
+
+      Log.Information("PUT > Reports > Headers > Updated successfully. HeaderId: {0}", id);
+      return Ok(new { message = "Header updated successfully." });
+    }
+
+    /// <summary>
+    /// Elimina un header de reporte
+    /// </summary>
+    [HttpDelete("Headers/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> DeleteHeader(int id)
+    {
+      Log.Information("DELETE > Reports > Headers. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      var header = await _reportHeaderRepository.GetByIdAsync(id);
+      if (header == null)
+        return NotFound(new { message = "Header not found." });
+
+      await _reportHeaderRepository.DeleteAsync(id);
+
+      Log.Information("DELETE > Reports > Headers > Deleted successfully. HeaderId: {0}", id);
+      return Ok(new { message = "Header deleted successfully." });
+    }
+
+    #endregion
+
+    #region REPORT SECTIONS ENDPOINTS
+
+    /// <summary>
+    /// Obtiene las secciones de un reporte
+    /// </summary>
+    [HttpGet("{reportId}/Sections")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<ReportSectionResponse>>> GetReportSections(int reportId)
+    {
+      Log.Information("GET > Reports > Sections. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      var sections = await _reportSectionRepository.GetByReportIdOrderedAsync(reportId);
+      var response = sections.Select(s => MapSectionToResponse(s));
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Crea una nueva sección para un reporte
+    /// </summary>
+    [HttpPost("{reportId}/Sections")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<ReportSectionResponse>> CreateSection(int reportId, [FromBody] ReportSectionRequest request)
+    {
+      Log.Information("POST > Reports > Sections. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var report = await _reportRepository.GetByIdAsync(reportId);
+      if (report == null)
+        return NotFound(new { message = "Report not found." });
+
+      var section = new ReportSection
+      {
+        ReportId = reportId,
+        DisplayOrder = request.DisplayOrder,
+        StyleId = request.StyleId,
+        HeaderStyleId = request.HeaderStyleId,
+        DisplayContent = request.DisplayContent,
+        IsQuery = request.IsQuery,
+        StartDate = request.StartDate,
+        EndDate = request.EndDate
+      };
+
+      await _reportSectionRepository.AddAsync(section);
+
+      Log.Information("POST > Reports > Sections > Created successfully. SectionId: {0}", section.Id);
+      return CreatedAtAction(nameof(GetReportSections), new { reportId }, MapSectionToResponse(section));
+    }
+
+    /// <summary>
+    /// Actualiza una sección de reporte
+    /// </summary>
+    [HttpPut("Sections/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> UpdateSection(int id, [FromBody] ReportSectionRequest request)
+    {
+      Log.Information("PUT > Reports > Sections > Update. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var section = await _reportSectionRepository.GetByIdAsync(id);
+      if (section == null)
+        return NotFound(new { message = "Section not found." });
+
+      section.DisplayOrder = request.DisplayOrder;
+      section.StyleId = request.StyleId;
+      section.HeaderStyleId = request.HeaderStyleId;
+      section.DisplayContent = request.DisplayContent;
+      section.IsQuery = request.IsQuery;
+      section.EndDate = request.EndDate;
+
+      await _reportSectionRepository.UpdateAsync(section);
+
+      Log.Information("PUT > Reports > Sections > Updated successfully. SectionId: {0}", id);
+      return Ok(new { message = "Section updated successfully." });
+    }
+
+    /// <summary>
+    /// Elimina una sección de reporte
+    /// </summary>
+    [HttpDelete("Sections/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> DeleteSection(int id)
+    {
+      Log.Information("DELETE > Reports > Sections. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      var section = await _reportSectionRepository.GetByIdAsync(id);
+      if (section == null)
+        return NotFound(new { message = "Section not found." });
+
+      await _reportSectionRepository.DeleteAsync(id);
+
+      Log.Information("DELETE > Reports > Sections > Deleted successfully. SectionId: {0}", id);
+      return Ok(new { message = "Section deleted successfully." });
+    }
+
+    #endregion
+
+    #region REPORT FOOTERS ENDPOINTS
+
+    /// <summary>
+    /// Obtiene los footers de un reporte
+    /// </summary>
+    [HttpGet("{reportId}/Footers")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<ReportFooterResponse>>> GetReportFooters(int reportId)
+    {
+      Log.Information("GET > Reports > Footers. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      var footers = await _reportFooterRepository.GetByReportIdOrderedAsync(reportId);
+      var response = footers.Select(f => MapFooterToResponse(f));
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Crea un nuevo footer para un reporte
+    /// </summary>
+    [HttpPost("{reportId}/Footers")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<ReportFooterResponse>> CreateFooter(int reportId, [FromBody] ReportFooterRequest request)
+    {
+      Log.Information("POST > Reports > Footers. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var report = await _reportRepository.GetByIdAsync(reportId);
+      if (report == null)
+        return NotFound(new { message = "Report not found." });
+
+      var footer = new ReportFooter
+      {
+        ReportId = reportId,
+        DisplayOrder = request.DisplayOrder,
+        StyleId = request.StyleId,
+        DisplayContent = request.DisplayContent,
+        IsQuery = request.IsQuery,
+        StartDate = request.StartDate,
+        EndDate = request.EndDate
+      };
+
+      await _reportFooterRepository.AddAsync(footer);
+
+      Log.Information("POST > Reports > Footers > Created successfully. FooterId: {0}", footer.Id);
+      return CreatedAtAction(nameof(GetReportFooters), new { reportId }, MapFooterToResponse(footer));
+    }
+
+    /// <summary>
+    /// Actualiza un footer de reporte
+    /// </summary>
+    [HttpPut("Footers/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> UpdateFooter(int id, [FromBody] ReportFooterRequest request)
+    {
+      Log.Information("PUT > Reports > Footers > Update. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var footer = await _reportFooterRepository.GetByIdAsync(id);
+      if (footer == null)
+        return NotFound(new { message = "Footer not found." });
+
+      footer.DisplayOrder = request.DisplayOrder;
+      footer.StyleId = request.StyleId;
+      footer.DisplayContent = request.DisplayContent;
+      footer.IsQuery = request.IsQuery;
+      footer.EndDate = request.EndDate;
+
+      await _reportFooterRepository.UpdateAsync(footer);
+
+      Log.Information("PUT > Reports > Footers > Updated successfully. FooterId: {0}", id);
+      return Ok(new { message = "Footer updated successfully." });
+    }
+
+    /// <summary>
+    /// Elimina un footer de reporte
+    /// </summary>
+    [HttpDelete("Footers/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> DeleteFooter(int id)
+    {
+      Log.Information("DELETE > Reports > Footers. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      var footer = await _reportFooterRepository.GetByIdAsync(id);
+      if (footer == null)
+        return NotFound(new { message = "Footer not found." });
+
+      await _reportFooterRepository.DeleteAsync(id);
+
+      Log.Information("DELETE > Reports > Footers > Deleted successfully. FooterId: {0}", id);
+      return Ok(new { message = "Footer deleted successfully." });
+    }
+
+    #endregion
+
+    #region REPORT AUDITS ENDPOINTS
+
+    /// <summary>
+    /// Obtiene los audits de un reporte
+    /// </summary>
+    [HttpGet("{reportId}/Audits")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<ReportAuditResponse>>> GetReportAudits(int reportId)
+    {
+      Log.Information("GET > Reports > Audits. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      var audits = await _reportAuditRepository.GetByReportIdAsync(reportId);
+      var response = audits.Select(a => new ReportAuditResponse
+      {
+        Id = a.Id,
+        ReportId = a.ReportId,
+        UserId = a.UserId,
+        UserName = a.User?.UserName ?? string.Empty,
+        Parameters = a.Parameters,
+        ExecutionDate = a.ExecutionDate
+      });
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Obtiene los audits de un usuario
+    /// </summary>
+    [HttpGet("Audits/User/{userId}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<ReportAuditResponse>>> GetUserAudits(int userId)
+    {
+      Log.Information("GET > Reports > Audits > User. User: {0}, UserId: {1}", this.User.Identity?.Name, userId);
+
+      var audits = await _reportAuditRepository.GetByUserIdAsync(userId);
+      var response = audits.Select(a => new ReportAuditResponse
+      {
+        Id = a.Id,
+        ReportId = a.ReportId,
+        UserId = a.UserId,
+        UserName = a.User?.UserName ?? string.Empty,
+        Parameters = a.Parameters,
+        ExecutionDate = a.ExecutionDate
+      });
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Obtiene los audits de un reporte dentro de un rango de fechas
+    /// </summary>
+    [HttpGet("{reportId}/Audits/DateRange")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<ReportAuditResponse>>> GetAuditsByDateRange(
+      int reportId,
+      [FromQuery] DateTime startDate,
+      [FromQuery] DateTime endDate)
+    {
+      Log.Information("GET > Reports > Audits > DateRange. User: {0}, ReportId: {1}, StartDate: {2}, EndDate: {3}",
+        this.User.Identity?.Name, reportId, startDate, endDate);
+
+      var audits = await _reportAuditRepository.GetByReportIdAndDateRangeAsync(reportId, startDate, endDate);
+      var response = audits.Select(a => new ReportAuditResponse
+      {
+        Id = a.Id,
+        ReportId = a.ReportId,
+        UserId = a.UserId,
+        UserName = a.User?.UserName ?? string.Empty,
+        Parameters = a.Parameters,
+        ExecutionDate = a.ExecutionDate
+      });
+
+      return Ok(response);
+    }
+
+    ///// <summary>
+    ///// Registra la ejecución de un reporte (auditoría)
+    ///// </summary>
+    //[HttpPost("{reportId}/Audits")]
+    //[Authorize]
+    //public async Task<IActionResult> LogReportExecution(int reportId, [FromBody] ReportAuditRequest request)
+    //{
+    //  Log.Information("POST > Reports > Audits. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+    //  var report = await _reportRepository.GetByIdAsync(reportId);
+    //  if (report == null)
+    //    return NotFound(new { message = "Report not found." });
+
+    //  var audit = new ReportAudit
+    //  {
+    //    ReportId = reportId,
+    //    UserId = request.UserId,
+    //    Parameters = request.Parameters,
+    //    ExecutionDate = DateTime.Now
+    //  };
+
+    //  await _reportAuditRepository.AddAsync(audit);
+
+    //  Log.Information("POST > Reports > Audits > Logged successfully. AuditId: {0}", audit.Id);
+    //  return Ok(new { message = "Report execution logged successfully." });
+    //}
+
+    #endregion
+
+    #region HELPER METHODS
+
+    private StyleResponse MapStyleToResponse(Style style)
+    {
+      return new StyleResponse
+      {
+        Id = style.Id,
+        StyleName = style.StyleName,
+        Bold = style.Bold,
+        Italic = style.Italic,
+        Underline = style.Underline,
+        FontSize = style.FontSize,
+        FontColor = style.FontColor,
+        BackgroundColor = style.BackgroundColor,
+        HorizontalAlignment = style.HorizontalAlignment,
+        VerticalAlignment = style.VerticalAlignment,
+        WidthPercentage = style.WidthPercentage
+      };
+    }
+
+    private ReportHeaderResponse MapHeaderToResponse(ReportHeader header)
+    {
+      return new ReportHeaderResponse
+      {
+        Id = header.Id,
+        ReportId = header.ReportId,
+        DisplayOrder = header.DisplayOrder,
+        StyleId = header.StyleId,
+        DisplayContent = header.DisplayContent,
+        IsQuery = header.IsQuery,
+        Style = header.Style != null ? MapStyleToResponse(header.Style) : null
+      };
+    }
+
+    private ReportSectionResponse MapSectionToResponse(ReportSection section)
+    {
+      return new ReportSectionResponse
+      {
+        Id = section.Id,
+        ReportId = section.ReportId,
+        DisplayOrder = section.DisplayOrder,
+        StyleId = section.StyleId,
+        HeaderStyleId = section.HeaderStyleId,
+        DisplayContent = section.DisplayContent,
+        IsQuery = section.IsQuery,
+        Style = section.Style != null ? MapStyleToResponse(section.Style) : null,
+        HeaderStyle = section.HeaderStyle != null ? MapStyleToResponse(section.HeaderStyle) : null
+      };
+    }
+
+    private ReportFooterResponse MapFooterToResponse(ReportFooter footer)
+    {
+      return new ReportFooterResponse
+      {
+        Id = footer.Id,
+        ReportId = footer.ReportId,
+        DisplayOrder = footer.DisplayOrder,
+        StyleId = footer.StyleId,
+        DisplayContent = footer.DisplayContent,
+        IsQuery = footer.IsQuery,
+        Style = footer.Style != null ? MapStyleToResponse(footer.Style) : null
+      };
+    }
+
+    #endregion
   }
 }
+

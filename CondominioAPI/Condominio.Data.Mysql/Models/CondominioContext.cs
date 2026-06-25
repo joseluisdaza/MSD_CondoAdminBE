@@ -64,9 +64,19 @@ public partial class CondominioContext : DbContext
     public virtual DbSet<Incident> Incidents { get; set; }
 
     // Reports - v2.1
+    public virtual DbSet<Style> Styles { get; set; }
+
     public virtual DbSet<Report> Reports { get; set; }
 
     public virtual DbSet<ReportRole> ReportRoles { get; set; }
+
+    public virtual DbSet<ReportHeader> ReportHeaders { get; set; }
+
+    public virtual DbSet<ReportSection> ReportSections { get; set; }
+
+    public virtual DbSet<ReportFooter> ReportFooters { get; set; }
+
+    public virtual DbSet<ReportAudit> ReportAudits { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -654,20 +664,82 @@ public partial class CondominioContext : DbContext
         });
 
         // Reports - v2.1
+        modelBuilder.Entity<Style>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("styles");
+
+            entity.Property(e => e.StyleName)
+                .HasMaxLength(100)
+                .HasColumnName("Style_Name");
+            entity.Property(e => e.Bold).HasDefaultValueSql("'0'");
+            entity.Property(e => e.Italic).HasDefaultValueSql("'0'");
+            entity.Property(e => e.Underline).HasDefaultValueSql("'0'");
+            entity.Property(e => e.FontSize)
+                .HasDefaultValueSql("'12'")
+                .HasColumnName("Font_Size");
+            entity.Property(e => e.FontColor)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'#000000'")
+                .HasColumnName("Font_Color");
+            entity.Property(e => e.BackgroundColor)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'#FFFFFF'")
+                .HasColumnName("Background_Color");
+            entity.Property(e => e.HorizontalAlignment)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'left'")
+                .HasColumnName("Horizontal_Alignment");
+            entity.Property(e => e.VerticalAlignment)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'top'")
+                .HasColumnName("Vertical_Alignment");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+            entity.Property(e => e.WidthPercentage)
+                .HasDefaultValueSql("'100'")
+                .HasColumnName("Width_Percentage");
+        });
+
         modelBuilder.Entity<Report>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
             entity.ToTable("reports");
 
-            entity.HasIndex(e => e.Name, "Name").IsUnique();
+            entity.HasIndex(e => e.ReportName, "Report_Name").IsUnique();
 
-            entity.Property(e => e.Name).HasMaxLength(150);
-            entity.Property(e => e.HeaderQuery).HasColumnType("text").HasColumnName("HeaderQuery");
-            entity.Property(e => e.BodyQuery).HasColumnType("text").HasColumnName("BodyQuery");
-            entity.Property(e => e.FooterQuery).HasColumnType("text").HasColumnName("FooterQuery");
+            entity.Property(e => e.ReportName)
+                .HasMaxLength(50)
+                .HasColumnName("Report_Name");
+            entity.Property(e => e.DisplayName)
+                .HasMaxLength(150)
+                .HasColumnName("Display_Name");
+            entity.Property(e => e.TitleStyleId)
+                .HasDefaultValueSql("'-1'")
+                .HasColumnName("Title_Style");
+            entity.Property(e => e.DisplayHeader)
+                .HasDefaultValueSql("'1'")
+                .HasColumnName("Display_Header");
+            entity.Property(e => e.DisplayFooter)
+                .HasDefaultValueSql("'1'")
+                .HasColumnName("Display_Footer");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+
+            entity.HasOne(d => d.TitleStyle)
+                .WithMany()
+                .HasForeignKey(d => d.TitleStyleId)
+                .HasConstraintName("reports_ibfk_1");
         });
 
-        // Report Roles - v2.1
         modelBuilder.Entity<ReportRole>(entity =>
         {
             entity.HasKey(e => new { e.ReportId, e.RoleId })
@@ -676,10 +748,10 @@ public partial class CondominioContext : DbContext
 
             entity.ToTable("report_roles");
 
-            entity.HasIndex(e => e.RoleId, "RoleId");
+            entity.HasIndex(e => e.RoleId, "Role_Id");
 
-            entity.Property(e => e.ReportId).HasColumnName("ReportId");
-            entity.Property(e => e.RoleId).HasColumnName("RoleId");
+            entity.Property(e => e.ReportId).HasColumnName("Report_Id");
+            entity.Property(e => e.RoleId).HasColumnName("Role_Id");
 
             entity.HasOne(d => d.Report)
                 .WithMany(p => p.ReportRoles)
@@ -692,6 +764,160 @@ public partial class CondominioContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("report_roles_ibfk_2");
+        });
+
+        modelBuilder.Entity<ReportHeader>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("report_headers");
+
+            entity.HasIndex(e => e.ReportId, "Report_Id");
+            entity.HasIndex(e => e.StyleId, "Style_Id");
+
+            entity.Property(e => e.ReportId).HasColumnName("Report_Id");
+            entity.Property(e => e.DisplayOrder)
+                .HasColumnName("Display_Order");
+            entity.Property(e => e.StyleId)
+                .HasDefaultValueSql("'-1'")
+                .HasColumnName("Style_Id");
+            entity.Property(e => e.DisplayContent)
+                .HasColumnType("text")
+                .HasColumnName("Display_Content");
+            entity.Property(e => e.IsQuery)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("Is_Query");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+
+            entity.HasOne(d => d.Report)
+                .WithMany(p => p.ReportHeaders)
+                .HasForeignKey(d => d.ReportId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_headers_ibfk_1");
+
+            entity.HasOne(d => d.Style)
+                .WithMany(p => p.ReportHeaders)
+                .HasForeignKey(d => d.StyleId)
+                .HasConstraintName("report_headers_ibfk_2");
+        });
+
+        modelBuilder.Entity<ReportSection>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("report_sections");
+
+            entity.HasIndex(e => e.ReportId, "Report_Id");
+            entity.HasIndex(e => e.StyleId, "Style_Id");
+            entity.HasIndex(e => e.HeaderStyleId, "Header_Style_Id");
+
+            entity.Property(e => e.ReportId).HasColumnName("Report_Id");
+            entity.Property(e => e.DisplayOrder)
+                .HasColumnName("Display_Order");
+            entity.Property(e => e.StyleId)
+                .HasDefaultValueSql("'-1'")
+                .HasColumnName("Style_Id");
+            entity.Property(e => e.HeaderStyleId)
+                .HasDefaultValueSql("'-1'")
+                .HasColumnName("Header_Style_Id");
+            entity.Property(e => e.DisplayContent)
+                .HasColumnType("text")
+                .HasColumnName("Display_Content");
+            entity.Property(e => e.IsQuery)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("Is_Query");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+
+            entity.HasOne(d => d.Report)
+                .WithMany(p => p.ReportSections)
+                .HasForeignKey(d => d.ReportId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_sections_ibfk_1");
+
+            entity.HasOne(d => d.Style)
+                .WithMany(p => p.ReportSections)
+                .HasForeignKey(d => d.StyleId)
+                .HasConstraintName("report_sections_ibfk_2");
+
+            entity.HasOne(d => d.HeaderStyle)
+                .WithMany(p => p.ReportSectionsHeaderStyle)
+                .HasForeignKey(d => d.HeaderStyleId)
+                .HasConstraintName("report_sections_ibfk_3");
+        });
+
+        modelBuilder.Entity<ReportFooter>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("report_footers");
+
+            entity.HasIndex(e => e.ReportId, "Report_Id");
+            entity.HasIndex(e => e.StyleId, "Style_Id");
+
+            entity.Property(e => e.ReportId).HasColumnName("Report_Id");
+            entity.Property(e => e.DisplayOrder)
+                .HasColumnName("Display_Order");
+            entity.Property(e => e.StyleId)
+                .HasDefaultValueSql("'-1'")
+                .HasColumnName("Style_Id");
+            entity.Property(e => e.DisplayContent)
+                .HasColumnType("text")
+                .HasColumnName("Display_Content");
+            entity.Property(e => e.IsQuery)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("Is_Query");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+
+            entity.HasOne(d => d.Report)
+                .WithMany(p => p.ReportFooters)
+                .HasForeignKey(d => d.ReportId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_footers_ibfk_1");
+
+            entity.HasOne(d => d.Style)
+                .WithMany(p => p.ReportFooters)
+                .HasForeignKey(d => d.StyleId)
+                .HasConstraintName("report_footers_ibfk_2");
+        });
+
+        modelBuilder.Entity<ReportAudit>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("report_audits");
+
+            entity.HasIndex(e => e.ReportId, "Report_Id");
+            entity.HasIndex(e => e.UserId, "User_Id");
+
+            entity.Property(e => e.ReportId).HasColumnName("Report_Id");
+            entity.Property(e => e.UserId).HasColumnName("User_Id");
+            entity.Property(e => e.Parameters).HasColumnType("text");
+            entity.Property(e => e.ExecutionDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Execution_Date");
+
+            entity.HasOne(d => d.Report)
+                .WithMany(p => p.ReportAudits)
+                .HasForeignKey(d => d.ReportId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_audits_ibfk_1");
+
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.ReportAudits)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_audits_ibfk_2");
         });
 
         OnModelCreatingPartial(modelBuilder);

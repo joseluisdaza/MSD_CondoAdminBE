@@ -21,4 +21,6 @@ public partial class User
     public virtual ICollection<PropertyOwner> PropertyOwners { get; set; } = new List<PropertyOwner>();
 
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+    public virtual ICollection<ReportAudit> ReportAudits { get; set; } = new List<ReportAudit>();
 }

@@ -1,0 +1,64 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Condominio.DTOs
+{
+  public class ReportSectionLightRequest
+  {
+    [Required(ErrorMessage = "DisplayOrder is required")]
+    public int DisplayOrder { get; set; }
+
+    public int StyleId { get; set; } = -1;
+
+    public int HeaderStyleId { get; set; } = -1;
+
+    [Required(ErrorMessage = "DisplayContent is required")]
+    public string DisplayContent { get; set; } = null!;
+
+    public bool IsQuery { get; set; } = false;
+  }
+
+  public class ReportSectionRequest
+  {
+    public int Id { get; set; }
+
+    [Required(ErrorMessage = "ReportId is required")]
+    public int ReportId { get; set; }
+
+    [Required(ErrorMessage = "DisplayOrder is required")]
+    public int DisplayOrder { get; set; }
+
+    public int StyleId { get; set; } = -1;
+
+    public int HeaderStyleId { get; set; } = -1;
+
+    [Required(ErrorMessage = "DisplayContent is required")]
+    public string DisplayContent { get; set; } = null!;
+
+    public bool IsQuery { get; set; } = false;
+
+    public DateTime StartDate { get; set; } = DateTime.Now;
+
+    public DateTime? EndDate { get; set; }
+  }
+
+  public class ReportSectionResponse
+  {
+    public int Id { get; set; }
+
+    public int ReportId { get; set; }
+
+    public int DisplayOrder { get; set; }
+
+    public int StyleId { get; set; }
+
+    public int HeaderStyleId { get; set; }
+
+    public string DisplayContent { get; set; } = null!;
+
+    public bool IsQuery { get; set; }
+
+    public StyleResponse? Style { get; set; }
+
+    public StyleResponse? HeaderStyle { get; set; }
+  }
+}

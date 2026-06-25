@@ -21,7 +21,7 @@ namespace Condominio.Repository.Repositories
     public async Task<Report?> GetByNameAsync(string name)
     {
       return await _context.Reports
-        .FirstOrDefaultAsync(r => r.Name.ToLower() == name.ToLower());
+        .FirstOrDefaultAsync(r => r.ReportName.ToLower() == name.ToLower());
     }
 
     public async Task<IEnumerable<object>> ExecuteQueryAsync(string query, Dictionary<string, object>? parameters = null)

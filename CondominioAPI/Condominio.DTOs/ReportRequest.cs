@@ -2,19 +2,82 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Condominio.DTOs
 {
+
+  public class ReportLightRequest
+  {
+    [Required(ErrorMessage = "ReportName is required")]
+    [MaxLength(50, ErrorMessage = "ReportName cannot exceed 50 characters")]
+    public string ReportName { get; set; } = null!;
+
+    [Required(ErrorMessage = "DisplayName is required")]
+    [MaxLength(150, ErrorMessage = "DisplayName cannot exceed 150 characters")]
+    public string DisplayName { get; set; } = null!;
+
+    public int TitleStyleId { get; set; } = -1;
+
+    public bool DisplayHeader { get; set; } = true;
+
+    public bool DisplayFooter { get; set; } = true;
+
+    public IEnumerable<ReportHeaderLightRequest> Headers { get; set; } = new List<ReportHeaderLightRequest>();
+    public IEnumerable<ReportSectionLightRequest> Sections { get; set; } = new List<ReportSectionLightRequest>();
+    public IEnumerable<ReportFooterLightRequest> Footers { get; set; } = new List<ReportFooterLightRequest>();
+  }
+
   public class ReportRequest
   {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Name is required")]
-    [MaxLength(150, ErrorMessage = "Name cannot exceed 150 characters")]
-    public string Name { get; set; } = null!;
+    [Required(ErrorMessage = "ReportName is required")]
+    [MaxLength(50, ErrorMessage = "ReportName cannot exceed 50 characters")]
+    public string ReportName { get; set; } = null!;
 
-    public string? HeaderQuery { get; set; }
+    [Required(ErrorMessage = "DisplayName is required")]
+    [MaxLength(150, ErrorMessage = "DisplayName cannot exceed 150 characters")]
+    public string DisplayName { get; set; } = null!;
 
-    [Required(ErrorMessage = "BodyQuery is required")]
-    public string BodyQuery { get; set; } = null!;
+    public int TitleStyleId { get; set; } = -1;
 
-    public string? FooterQuery { get; set; }
+    public bool DisplayHeader { get; set; } = true;
+
+    public bool DisplayFooter { get; set; } = true;
+
+    public DateTime StartDate { get; set; } = DateTime.Now;
+
+    public DateTime? EndDate { get; set; }
+  }
+
+  public class ReportDetailResponse
+  {
+    public int Id { get; set; }
+
+    public string ReportName { get; set; } = null!;
+
+    public string DisplayName { get; set; } = null!;
+
+    public int TitleStyleId { get; set; }
+
+    public bool DisplayHeader { get; set; }
+
+    public bool DisplayFooter { get; set; }
+
+    public StyleResponse? TitleStyle { get; set; }
+
+    public IEnumerable<ReportHeaderResponse> Headers { get; set; } = new List<ReportHeaderResponse>();
+
+    public IEnumerable<ReportSectionResponse> Sections { get; set; } = new List<ReportSectionResponse>();
+
+    public IEnumerable<ReportFooterResponse> Footers { get; set; } = new List<ReportFooterResponse>();
+  }
+
+  public class ReportLightResponse
+  {
+    public int Id { get; set; }
+    public string ReportName { get; set; } = null!;
+    public string DisplayName { get; set; } = null!;
+    public int TitleStyleId { get; set; }
+    public bool DisplayHeader { get; set; }
+    public bool DisplayFooter { get; set; }
+    public StyleResponse? TitleStyle { get; set; }
   }
 }

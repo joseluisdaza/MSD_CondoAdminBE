@@ -5,6 +5,9 @@ namespace Condominio.DTOs
   public class ReportListResponse
   {
     public int Id { get; set; }
-    public string Name { get; set; } = null!;
+
+    public string ReportName { get; set; } = null!;
+
+    public string DisplayName { get; set; } = null!;
   }
 }
