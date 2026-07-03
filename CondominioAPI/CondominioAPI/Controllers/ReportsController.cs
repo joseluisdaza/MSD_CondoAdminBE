@@ -1,6 +1,7 @@
 using Condominio.DTOs;
 using Condominio.Models;
 using Condominio.Repository.Repositories;
+using Condominio.Reports;
 using Condominio.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ namespace CondominioAPI.Controllers
     private readonly IReportAuditRepository _reportAuditRepository;
     private readonly IStyleRepository _styleRepository;
     private readonly IRoleRepository _roleRepository;
+    private readonly IReportExecutionService _reportExecutionService;
 
     public ReportsController(
       IReportRepository reportRepository,
@@ -30,7 +32,8 @@ namespace CondominioAPI.Controllers
       IReportFooterRepository reportFooterRepository,
       IReportAuditRepository reportAuditRepository,
       IStyleRepository styleRepository,
-      IRoleRepository roleRepository)
+      IRoleRepository roleRepository,
+      IReportExecutionService reportExecutionService)
     {
       _reportRepository = reportRepository;
       _reportRoleRepository = reportRoleRepository;
@@ -40,6 +43,7 @@ namespace CondominioAPI.Controllers
       _reportAuditRepository = reportAuditRepository;
       _styleRepository = styleRepository;
       _roleRepository = roleRepository;
+      _reportExecutionService = reportExecutionService;
     }
 
     #region REPORTS ENDPOINTS
@@ -315,109 +319,13 @@ namespace CondominioAPI.Controllers
                               .Any(x => userRoles.Any(y => x.Role.RolName == y));
         if (!hasPermissions)
           return Unauthorized();
-        
 
-        var response = new ReportExecutionResponse
-        {
-          Title = report.DisplayName ?? report.ReportName,
-          StyleId = report.TitleStyleId,
-          Headers = new List<ReportContentItem>(),
-          Sections = new List<ReportContentItem>(),
-          Footers = new List<ReportContentItem>()
-        };
+        // Retrieve data from database
+        var reportData = await BuildReportExecutionData(report, reportId, request);
 
-        // Process headers if DisplayHeader is true
-        if (report.DisplayHeader)
-        {
-          var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(reportId);
-          var headerItems = new List<ReportContentItem>();
-
-          foreach (var header in headers)
-          {
-            var item = new ReportContentItem
-            {
-              StyleId = header.StyleId,
-              IsTable = header.IsQuery
-            };
-
-            if (header.IsQuery)
-            {
-              // Execute query
-              var queryResult = await _reportRepository.ExecuteQueryAsync(header.DisplayContent, request.Filters);
-              item.Text = queryResult;// is string ? queryResult : JsonSerializer.Serialize(queryResult);
-            }
-            else
-            {
-              // Use static content
-              item.Text = header.DisplayContent;
-            }
-
-            headerItems.Add(item);
-          }
-
-          response.Headers = headerItems;
-        }
-
-        // Process sections
-        var sections = await _reportSectionRepository.GetByReportIdOrderedAsync(reportId);
-        var sectionItems = new List<ReportContentItem>();
-
-        foreach (var section in sections)
-        {
-          var item = new ReportContentItem
-          {
-            StyleId = section.StyleId,
-            IsTable = section.IsQuery
-          };
-
-          if (section.IsQuery)
-          {
-            // Execute query
-            var queryResult = await _reportRepository.ExecuteQueryAsync(section.DisplayContent, request.Filters);
-            item.Text = queryResult;// is string ? queryResult : JsonSerializer.Serialize(queryResult);
-          }
-          else
-          {
-            // Use static content
-            item.Text = section.DisplayContent;
-          }
-
-          sectionItems.Add(item);
-        }
-
-        response.Sections = sectionItems;
-
-        // Process footers if DisplayFooter is true
-        if (report.DisplayFooter)
-        {
-          var footers = await _reportFooterRepository.GetByReportIdOrderedAsync(reportId);
-          var footerItems = new List<ReportContentItem>();
-
-          foreach (var footer in footers)
-          {
-            var item = new ReportContentItem
-            {
-              StyleId = footer.StyleId,
-              IsTable = footer.IsQuery
-            };
-
-            if (footer.IsQuery)
-            {
-              // Execute query
-              var queryResult = await _reportRepository.ExecuteQueryAsync(footer.DisplayContent, request.Filters);
-              item.Text = queryResult;// is string ? queryResult : JsonSerializer.Serialize(queryResult);
-            }
-            else
-            {
-              // Use static content
-              item.Text = footer.DisplayContent;
-            }
-
-            footerItems.Add(item);
-          }
-
-          response.Footers = footerItems;
-        }
+        // Generate report using the execution service (format-agnostic)
+        var result = _reportExecutionService.ExecuteReport(reportData, "json");
+        var response = result as ReportExecutionResponse;
 
         Log.Information("POST > Reports > Execute > Successfully executed for ReportId: {0}", reportId);
         return Ok(response);
@@ -427,6 +335,112 @@ namespace CondominioAPI.Controllers
         Log.Error(ex, "Error executing report {0}", reportId);
         return StatusCode(500, new { message = "Error executing report.", error = ex.Message });
       }
+    }
+
+    /// <summary>
+    /// Construye los datos necesarios para ejecutar un reporte.
+    /// Esta separación permite que la lógica de recuperación de datos esté aislada de la generación.
+    /// </summary>
+    private async Task<ReportExecutionData> BuildReportExecutionData(
+      Report report,
+      int reportId,
+      ReportExecutionRequest request)
+    {
+      // Get available styles
+      var styles = await _styleRepository.GetAllAsync();
+      var styleDataList = styles.Select(s => MapStyleToReportStyleData(s)).ToList();
+
+      // Get headers data
+      var headerParts = new List<ReportPartData>();
+      if (report.DisplayHeader)
+      {
+        var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(reportId);
+        headerParts = await BuildReportParts(headers, request.Filters);
+      }
+
+      // Get sections data
+      var sections = await _reportSectionRepository.GetByReportIdOrderedAsync(reportId);
+      var sectionParts = await BuildReportParts(sections, request.Filters);
+
+      // Get footers data
+      var footerParts = new List<ReportPartData>();
+      if (report.DisplayFooter)
+      {
+        var footers = await _reportFooterRepository.GetByReportIdOrderedAsync(reportId);
+        footerParts = await BuildReportParts(footers, request.Filters);
+      }
+
+      // Build the report execution data
+      var reportData = new ReportExecutionData
+      {
+        Title = report.DisplayName ?? report.ReportName,
+        TitleStyleId = report.TitleStyleId,
+        AvailableStyles = styleDataList,
+        HeaderParts = headerParts,
+        SectionParts = sectionParts,
+        FooterParts = footerParts
+      };
+
+      return reportData;
+    }
+
+    /// <summary>
+    /// Construye las partes del reporte a partir de headers, sections o footers.
+    /// Ejecuta queries si es necesario.
+    /// </summary>
+    private async Task<List<ReportPartData>> BuildReportParts<T>(
+      IEnumerable<T> parts,
+      Dictionary<string, object>? filters)
+      where T : class, IReportPartEntity
+    {
+      var reportParts = new List<ReportPartData>();
+
+      foreach (var part in parts.OrderBy(p => p.DisplayOrder))
+      {
+        object? content = null;
+
+        if (part.IsQuery)
+        {
+          // Execute query with provided filters
+          content = await _reportRepository.ExecuteQueryAsync(part.DisplayContent, filters);
+        }
+        else
+        {
+          // Use static content
+          content = part.DisplayContent;
+        }
+
+        reportParts.Add(new ReportPartData
+        {
+          Content = content,
+          StyleId = part.StyleId,
+          IsTable = part.IsQuery,
+          DisplayOrder = part.DisplayOrder
+        });
+      }
+
+      return reportParts;
+    }
+
+    /// <summary>
+    /// Mapea un Style a ReportStyleData para usar en la capa de reportes.
+    /// </summary>
+    private ReportStyleData MapStyleToReportStyleData(Style style)
+    {
+      return new ReportStyleData
+      {
+        Id = style.Id,
+        StyleName = style.StyleName,
+        Bold = style.Bold,
+        Italic = style.Italic,
+        Underline = style.Underline,
+        FontSize = style.FontSize,
+        FontColor = style.FontColor,
+        BackgroundColor = style.BackgroundColor,
+        HorizontalAlignment = style.HorizontalAlignment,
+        VerticalAlignment = style.VerticalAlignment,
+        WidthPercentage = style.WidthPercentage
+      };
     }
 
     #endregion

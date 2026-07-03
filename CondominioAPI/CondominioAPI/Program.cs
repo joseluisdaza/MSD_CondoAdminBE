@@ -1,5 +1,6 @@
 using Condominio.Data.Mysql.Models;
 using Condominio.Models;
+using Condominio.Reports;
 using Condominio.Repository.Repositories;
 using CondominioAPI.Security;
 using DotNetEnv;
@@ -82,6 +83,8 @@ builder.Services.AddScoped<IReportSectionRepository, ReportSectionRepository>();
 builder.Services.AddScoped<IReportFooterRepository, ReportFooterRepository>();
 builder.Services.AddScoped<IReportAuditRepository, ReportAuditRepository>();
 
+// Servicios de generación de reportes
+builder.Services.AddSingleton<IReportExecutionService, ReportExecutionService>();
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
