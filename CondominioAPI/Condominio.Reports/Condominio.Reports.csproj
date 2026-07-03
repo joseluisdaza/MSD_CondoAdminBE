@@ -8,15 +8,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Condominio.DTOs\Condominio.DTOs.csproj" />
-    <ProjectReference Include="..\Condominio.Models\Condominio.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Validation\" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
   </ItemGroup>
 
 </Project>
