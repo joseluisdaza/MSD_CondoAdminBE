@@ -25,4 +25,5 @@ public partial class Report
   public virtual ICollection<ReportSection> ReportSections { get; set; } = new List<ReportSection>();
   public virtual ICollection<ReportFooter> ReportFooters { get; set; } = new List<ReportFooter>();
   public virtual ICollection<ReportAudit> ReportAudits { get; set; } = new List<ReportAudit>();
+  public virtual ICollection<ReportParam> ReportParams { get; set; } = new List<ReportParam>();
 }

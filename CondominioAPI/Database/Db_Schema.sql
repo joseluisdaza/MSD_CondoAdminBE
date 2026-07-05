@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS expense_payments
   FOREIGN KEY (Payment_Id) REFERENCES payments(Id)
 );
 
+
 -- Service Expenses and Payments
 SELECT 'Creating Service Expenses and Payments Tables';
 CREATE TABLE IF NOT EXISTS service_types
@@ -266,6 +267,17 @@ CREATE TABLE IF NOT EXISTS report_footers
   FOREIGN KEY (Report_Id) REFERENCES reports(Id),
   FOREIGN KEY (Style_Id) REFERENCES styles(Id)
 );
+
+CREATE TABLE IF NOT EXISTS report_params(
+  Id INT AUTO_INCREMENT PRIMARY KEY,
+  Report_Id INT NOT NULL,
+  Param_Name VARCHAR(100) NOT NULL,
+  Param_Type VARCHAR(50) NOT NULL,
+  Param_Description VARCHAR(500) NULL,
+  Start_Date DATETIME NOT NULL,
+  End_Date DATETIME NULL,
+  FOREIGN KEY (Report_Id) REFERENCES reports(Id)
+)
 
 CREATE TABLE IF NOT EXISTS report_audits
 (

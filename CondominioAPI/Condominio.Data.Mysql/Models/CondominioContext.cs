@@ -78,6 +78,8 @@ public partial class CondominioContext : DbContext
 
     public virtual DbSet<ReportAudit> ReportAudits { get; set; }
 
+    public virtual DbSet<ReportParam> ReportParams { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         //No implementation needed if using DI to provide connection string

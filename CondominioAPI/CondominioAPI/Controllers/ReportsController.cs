@@ -20,6 +20,7 @@ namespace CondominioAPI.Controllers
     private readonly IReportSectionRepository _reportSectionRepository;
     private readonly IReportFooterRepository _reportFooterRepository;
     private readonly IReportAuditRepository _reportAuditRepository;
+    private readonly IReportParamRepository _reportParamRepository;
     private readonly IStyleRepository _styleRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IReportExecutionService _reportExecutionService;
@@ -31,6 +32,7 @@ namespace CondominioAPI.Controllers
       IReportSectionRepository reportSectionRepository,
       IReportFooterRepository reportFooterRepository,
       IReportAuditRepository reportAuditRepository,
+      IReportParamRepository reportParamRepository,
       IStyleRepository styleRepository,
       IRoleRepository roleRepository,
       IReportExecutionService reportExecutionService)
@@ -41,6 +43,7 @@ namespace CondominioAPI.Controllers
       _reportSectionRepository = reportSectionRepository;
       _reportFooterRepository = reportFooterRepository;
       _reportAuditRepository = reportAuditRepository;
+      _reportParamRepository = reportParamRepository;
       _styleRepository = styleRepository;
       _roleRepository = roleRepository;
       _reportExecutionService = reportExecutionService;
@@ -90,7 +93,7 @@ namespace CondominioAPI.Controllers
     }
 
     /// <summary>
-    /// Obtiene un reporte completo por ID incluyendo headers, sections, footers y roles
+    /// Obtiene un reporte completo por ID incluyendo headers, sections, footers, roles y parámetros
     /// </summary>
     [HttpGet("{id}")]
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
@@ -105,6 +108,7 @@ namespace CondominioAPI.Controllers
       var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(id);
       var sections = await _reportSectionRepository.GetByReportIdOrderedAsync(id);
       var footers = await _reportFooterRepository.GetByReportIdOrderedAsync(id);
+      var @params = await _reportParamRepository.GetByReportIdAsync(id);
 
       var response = new ReportDetailResponse
       {
@@ -117,7 +121,43 @@ namespace CondominioAPI.Controllers
         TitleStyle = report.TitleStyle != null ? MapStyleToResponse(report.TitleStyle) : null,
         Headers = headers.Select(h => MapHeaderToResponse(h)),
         Sections = sections.Select(s => MapSectionToResponse(s)),
-        Footers = footers.Select(f => MapFooterToResponse(f))
+        Footers = footers.Select(f => MapFooterToResponse(f)),
+        Params = @params.Select(p => MapParamToResponse(p))
+      };
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Obtiene un reporte por nombre incluyendo headers, sections, footers, roles y parámetros
+    /// </summary>
+    [HttpGet("/name/{reportName}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<ReportLightResponse>> GetByName(string reportName)
+    {
+      Log.Information("GET > Reports > GetByName. User: {0}, Name: {1}", this.User.Identity?.Name, reportName);
+
+      var report = await _reportRepository.GetByNameAsync(reportName);
+      if (report == null)
+        return NotFound(new { message = "Report not found." });
+
+      var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+      bool hasPermissions = _reportRoleRepository.GetByReportIdAsync(report.Id).Result
+                              .Any(x => userRoles.Any(y => x.Role.RolName == y));
+      if (!hasPermissions)
+        return Unauthorized();
+
+      var @params = await _reportParamRepository.GetByReportIdAsync(report.Id);
+
+      var response = new ReportLightResponse
+      {
+        Id = report.Id,
+        DisplayFooter = report.DisplayFooter,
+        DisplayHeader = report.DisplayHeader,
+        DisplayName = report.DisplayName,
+        ReportName = report.ReportName,
+        TitleStyleId = report.TitleStyleId,
+        Params = @params.Select(p => MapParamToResponse(p))
       };
 
       return Ok(response);
@@ -168,7 +208,8 @@ namespace CondominioAPI.Controllers
         DisplayName = report.DisplayName,
         TitleStyleId = report.TitleStyleId,
         DisplayHeader = report.DisplayHeader,
-        DisplayFooter = report.DisplayFooter
+        DisplayFooter = report.DisplayFooter,
+        Params = new List<ReportParamResponse>()
       });
     }
 
@@ -311,7 +352,6 @@ namespace CondominioAPI.Controllers
 
       try
       {
-        // Get user's roles from claims
         var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
         Log.Information("POST > Reports > Execute > User roles: {0}", string.Join(", ", userRoles));
 
@@ -1070,6 +1110,103 @@ namespace CondominioAPI.Controllers
 
     #endregion
 
+    #region REPORT PARAMS ENDPOINTS
+
+    /// <summary>
+    /// Obtiene los parámetros de un reporte
+    /// </summary>
+    [HttpGet("{reportId}/Params")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<IEnumerable<ReportParamResponse>>> GetReportParams(int reportId)
+    {
+      Log.Information("GET > Reports > Params. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      var @params = await _reportParamRepository.GetByReportIdAsync(reportId);
+      var response = @params.Select(p => MapParamToResponse(p));
+
+      return Ok(response);
+    }
+
+    /// <summary>
+    /// Crea un nuevo parámetro para un reporte
+    /// </summary>
+    [HttpPost("{reportId}/Params")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<ActionResult<ReportParamResponse>> CreateParam(int reportId, [FromBody] ReportParamRequest request)
+    {
+      Log.Information("POST > Reports > Params. User: {0}, ReportId: {1}", this.User.Identity?.Name, reportId);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var report = await _reportRepository.GetByIdAsync(reportId);
+      if (report == null)
+        return NotFound(new { message = "Report not found." });
+
+      var param = new ReportParam
+      {
+        ReportId = reportId,
+        ParamName = request.ParamName,
+        ParamType = request.ParamType,
+        ParamDescription = request.ParamDescription,
+        StartDate = request.StartDate,
+        EndDate = request.EndDate
+      };
+
+      await _reportParamRepository.AddAsync(param);
+
+      Log.Information("POST > Reports > Params > Created successfully. ParamId: {0}", param.Id);
+      return CreatedAtAction(nameof(GetReportParams), new { reportId }, MapParamToResponse(param));
+    }
+
+    /// <summary>
+    /// Actualiza un parámetro de reporte
+    /// </summary>
+    [HttpPut("Params/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> UpdateParam(int id, [FromBody] ReportParamRequest request)
+    {
+      Log.Information("PUT > Reports > Params > Update. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var param = await _reportParamRepository.GetByIdAsync(id);
+      if (param == null)
+        return NotFound(new { message = "Parameter not found." });
+
+      param.ParamName = request.ParamName;
+      param.ParamType = request.ParamType;
+      param.ParamDescription = request.ParamDescription;
+      param.EndDate = request.EndDate;
+
+      await _reportParamRepository.UpdateAsync(param);
+
+      Log.Information("PUT > Reports > Params > Updated successfully. ParamId: {0}", id);
+      return Ok(new { message = "Parameter updated successfully." });
+    }
+
+    /// <summary>
+    /// Elimina un parámetro de reporte
+    /// </summary>
+    [HttpDelete("Params/{id}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    public async Task<IActionResult> DeleteParam(int id)
+    {
+      Log.Information("DELETE > Reports > Params. User: {0}, Id: {1}", this.User.Identity?.Name, id);
+
+      var param = await _reportParamRepository.GetByIdAsync(id);
+      if (param == null)
+        return NotFound(new { message = "Parameter not found." });
+
+      await _reportParamRepository.DeleteAsync(id);
+
+      Log.Information("DELETE > Reports > Params > Deleted successfully. ParamId: {0}", id);
+      return Ok(new { message = "Parameter deleted successfully." });
+    }
+
+    #endregion
+
     #region HELPER METHODS
 
     private StyleResponse MapStyleToResponse(Style style)
@@ -1131,6 +1268,18 @@ namespace CondominioAPI.Controllers
         DisplayContent = footer.DisplayContent,
         IsQuery = footer.IsQuery,
         Style = footer.Style != null ? MapStyleToResponse(footer.Style) : null
+      };
+    }
+
+    private ReportParamResponse MapParamToResponse(ReportParam param)
+    {
+      return new ReportParamResponse
+      {
+        Id = param.Id,
+        ReportId = param.ReportId,
+        ParamName = param.ParamName,
+        ParamType = param.ParamType,
+        ParamDescription = param.ParamDescription
       };
     }
 

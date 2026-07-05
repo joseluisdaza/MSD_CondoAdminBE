@@ -82,6 +82,7 @@ builder.Services.AddScoped<IReportHeaderRepository, ReportHeaderRepository>();
 builder.Services.AddScoped<IReportSectionRepository, ReportSectionRepository>();
 builder.Services.AddScoped<IReportFooterRepository, ReportFooterRepository>();
 builder.Services.AddScoped<IReportAuditRepository, ReportAuditRepository>();
+builder.Services.AddScoped<IReportParamRepository, ReportParamRepository>();
 
 // Servicios de generación de reportes
 builder.Services.AddSingleton<IReportExecutionService, ReportExecutionService>();
