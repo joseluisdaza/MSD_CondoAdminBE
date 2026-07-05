@@ -9,5 +9,7 @@ namespace Condominio.DTOs
     public string ReportName { get; set; } = null!;
 
     public string DisplayName { get; set; } = null!;
+    
+    public List<ReportParamLightResponse> Params { get; set; } = new List<ReportParamLightResponse>();
   }
 }

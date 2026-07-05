@@ -109,16 +109,20 @@ namespace Condominio.DTOs
     public DateTime? EndDate { get; set; }
   }
 
-  public class ReportParamResponse
+  public class ReportParamLightResponse
   {
-    public int Id { get; set; }
-
-    public int ReportId { get; set; }
-
     public string ParamName { get; set; } = null!;
 
     public string ParamType { get; set; } = null!;
 
     public string? ParamDescription { get; set; }
   }
+
+  public class ReportParamResponse : ReportParamLightResponse
+  {
+    public int Id { get; set; }
+
+    public int ReportId { get; set; }
+  }
+  
 }

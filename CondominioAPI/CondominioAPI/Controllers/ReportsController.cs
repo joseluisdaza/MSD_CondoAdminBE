@@ -69,7 +69,14 @@ namespace CondominioAPI.Controllers
         {
           Id = report.Id,
           ReportName = report.ReportName,
-          DisplayName = report.DisplayName
+          DisplayName = report.DisplayName,
+          Params = _reportParamRepository.GetByReportIdAsync(report.Id).Result
+                      .Select(p => new ReportParamLightResponse
+                      {
+                        ParamName = p.ParamName,
+                        ParamType = p.ParamType,
+                        ParamDescription = p.ParamDescription
+                      }).ToList()
         }));
       }
 
@@ -84,7 +91,14 @@ namespace CondominioAPI.Controllers
           {
             Id = report.Id,
             ReportName = report.ReportName,
-            DisplayName = report.DisplayName
+            DisplayName = report.DisplayName,
+            Params = _reportParamRepository.GetByReportIdAsync(report.Id).Result
+                      .Select(p => new ReportParamLightResponse
+                      {
+                        ParamName = p.ParamName,
+                        ParamType = p.ParamType,
+                        ParamDescription = p.ParamDescription
+                      }).ToList()
           });
         }
       }
@@ -108,7 +122,7 @@ namespace CondominioAPI.Controllers
       var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(id);
       var sections = await _reportSectionRepository.GetByReportIdOrderedAsync(id);
       var footers = await _reportFooterRepository.GetByReportIdOrderedAsync(id);
-      var @params = await _reportParamRepository.GetByReportIdAsync(id);
+      var parameters = await _reportParamRepository.GetByReportIdAsync(id);
 
       var response = new ReportDetailResponse
       {
@@ -122,7 +136,7 @@ namespace CondominioAPI.Controllers
         Headers = headers.Select(h => MapHeaderToResponse(h)),
         Sections = sections.Select(s => MapSectionToResponse(s)),
         Footers = footers.Select(f => MapFooterToResponse(f)),
-        Params = @params.Select(p => MapParamToResponse(p))
+        Params = parameters.Select(p => MapParamToResponse(p))
       };
 
       return Ok(response);
