@@ -922,6 +922,37 @@ public partial class CondominioContext : DbContext
                 .HasConstraintName("report_audits_ibfk_2");
         });
 
+        modelBuilder.Entity<ReportParam>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.ToTable("report_params");
+
+            entity.HasIndex(e => e.ReportId, "Report_Id");
+
+            entity.Property(e => e.ReportId).HasColumnName("Report_Id");
+            entity.Property(e => e.ParamName)
+                .HasMaxLength(100)
+                .HasColumnName("Param_Name");
+            entity.Property(e => e.ParamType)
+                .HasMaxLength(50)
+                .HasColumnName("Param_Type");
+            entity.Property(e => e.ParamDescription)
+                .HasMaxLength(500)
+                .HasColumnName("Param_Description");
+            entity.Property(e => e.StartDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Start_Date");
+            entity.Property(e => e.EndDate)
+                .HasColumnType("datetime")
+                .HasColumnName("End_Date");
+
+            entity.HasOne(d => d.Report)
+                .WithMany(p => p.ReportParams)
+                .HasForeignKey(d => d.ReportId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("report_params_ibfk_1");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 

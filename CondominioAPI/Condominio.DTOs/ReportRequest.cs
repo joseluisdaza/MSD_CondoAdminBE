@@ -22,6 +22,7 @@ namespace Condominio.DTOs
     public IEnumerable<ReportHeaderLightRequest> Headers { get; set; } = new List<ReportHeaderLightRequest>();
     public IEnumerable<ReportSectionLightRequest> Sections { get; set; } = new List<ReportSectionLightRequest>();
     public IEnumerable<ReportFooterLightRequest> Footers { get; set; } = new List<ReportFooterLightRequest>();
+    public IEnumerable<ReportParamLightRequest> Params { get; set; } = new List<ReportParamLightRequest>();
   }
 
   public class ReportRequest
@@ -45,6 +46,8 @@ namespace Condominio.DTOs
     public DateTime StartDate { get; set; } = DateTime.Now;
 
     public DateTime? EndDate { get; set; }
+
+    public IEnumerable<ReportParamRequest> Params { get; set; } = new List<ReportParamRequest>();
   }
 
   public class ReportDetailResponse
@@ -84,7 +87,7 @@ namespace Condominio.DTOs
     public IEnumerable<ReportParamResponse> Params { get; set; } = new List<ReportParamResponse>();
   }
 
-  public class ReportParamRequest
+  public class ReportParamLightRequest
   {
     [Required(ErrorMessage = "ParamName is required")]
     [MaxLength(100, ErrorMessage = "ParamName cannot exceed 100 characters")]
@@ -97,6 +100,10 @@ namespace Condominio.DTOs
     [MaxLength(500, ErrorMessage = "ParamDescription cannot exceed 500 characters")]
     public string? ParamDescription { get; set; }
 
+  }
+
+  public class ReportParamRequest : ReportParamLightRequest
+  {
     public DateTime StartDate { get; set; } = DateTime.Now;
 
     public DateTime? EndDate { get; set; }

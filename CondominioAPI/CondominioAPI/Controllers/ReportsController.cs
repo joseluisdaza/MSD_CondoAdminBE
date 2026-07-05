@@ -199,6 +199,7 @@ namespace CondominioAPI.Controllers
       await CreateHeadersAsync(report.Id, request.Headers);
       await CreateSectionsAsync(report.Id, request.Sections);
       await CreateFootersAsync(report.Id, request.Footers);
+      await CreateParamsAsync(report.Id, request.Params);
 
       Log.Information("POST > Reports > Created successfully. ReportId: {0}", report.Id);
       return CreatedAtAction(nameof(GetById), new { id = report.Id }, new ReportLightResponse
@@ -209,7 +210,12 @@ namespace CondominioAPI.Controllers
         TitleStyleId = report.TitleStyleId,
         DisplayHeader = report.DisplayHeader,
         DisplayFooter = report.DisplayFooter,
-        Params = new List<ReportParamResponse>()
+        Params = request.Params.Select(p => new ReportParamResponse 
+        { 
+          ParamName = p.ParamName, 
+          ParamType = p.ParamType, 
+          ParamDescription = p.ParamDescription,
+        })
       });
     }
 
@@ -273,6 +279,26 @@ namespace CondominioAPI.Controllers
       }
     }
 
+    private async Task CreateParamsAsync(int reportId, IEnumerable<ReportParamLightRequest> @params)
+    {
+      if (@params == null || !@params.Any())
+        return;
+
+      var startDate = DateTime.Now;
+      foreach (var paramRequest in @params.Where(x => x != null))
+      {
+        await _reportParamRepository.AddAsync(new ReportParam
+        {
+          ReportId = reportId,
+          ParamName = paramRequest.ParamName,
+          ParamType = paramRequest.ParamType,
+          ParamDescription = paramRequest.ParamDescription,
+          StartDate = startDate,
+          EndDate = null
+        });
+      }
+    }
+
     /// <summary>
     /// Actualiza un reporte existente
     /// </summary>
@@ -309,6 +335,54 @@ namespace CondominioAPI.Controllers
       report.EndDate = request.EndDate;
 
       await _reportRepository.UpdateAsync(report);
+
+      // Update parameters if provided
+      if (request.Params != null && request.Params.Any())
+      {
+        // Get existing params for this report
+        var existingParams = await _reportParamRepository.GetByReportIdAsync(id);
+
+        // Delete params that are not in the request
+        foreach (var existingParam in existingParams)
+        {
+          var paramInRequest = request.Params.FirstOrDefault(p => 
+            p.ParamName.ToLower() == existingParam.ParamName.ToLower());
+
+          if (paramInRequest == null)
+          {
+            await _reportParamRepository.DeleteAsync(existingParam.Id);
+          }
+        }
+
+        // Add or update params from request
+        foreach (var paramRequest in request.Params.Where(x => x != null))
+        {
+          var existingParam = existingParams.FirstOrDefault(p => 
+            p.ParamName.ToLower() == paramRequest.ParamName.ToLower());
+
+          if (existingParam != null)
+          {
+            // Update existing param
+            existingParam.ParamType = paramRequest.ParamType;
+            existingParam.ParamDescription = paramRequest.ParamDescription;
+            existingParam.EndDate = paramRequest.EndDate;
+            await _reportParamRepository.UpdateAsync(existingParam);
+          }
+          else
+          {
+            // Create new param
+            await _reportParamRepository.AddAsync(new ReportParam
+            {
+              ReportId = id,
+              ParamName = paramRequest.ParamName,
+              ParamType = paramRequest.ParamType,
+              ParamDescription = paramRequest.ParamDescription,
+              StartDate = paramRequest.StartDate,
+              EndDate = paramRequest.EndDate
+            });
+          }
+        }
+      }
 
       Log.Information("PUT > Reports > Updated successfully. ReportId: {0}", id);
       return Ok(new { message = "Report updated successfully." });
