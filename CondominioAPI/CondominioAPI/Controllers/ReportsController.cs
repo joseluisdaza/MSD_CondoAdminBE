@@ -145,7 +145,7 @@ namespace CondominioAPI.Controllers
     /// <summary>
     /// Obtiene un reporte por nombre incluyendo headers, sections, footers, roles y parámetros
     /// </summary>
-    [HttpGet("/name/{reportName}")]
+    [HttpGet("ByName/{reportName}")]
     [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
     public async Task<ActionResult<ReportLightResponse>> GetByName(string reportName)
     {
@@ -483,7 +483,7 @@ namespace CondominioAPI.Controllers
       if (report.DisplayHeader)
       {
         var headers = await _reportHeaderRepository.GetByReportIdOrderedAsync(reportId);
-        headerParts = await BuildReportParts(headers, request.Filters);
+        headerParts = await BuildReportHeaderParts(headers, request.Filters);
       }
 
       // Get sections data
@@ -517,6 +517,40 @@ namespace CondominioAPI.Controllers
     /// Ejecuta queries si es necesario.
     /// </summary>
     private async Task<List<ReportPartData>> BuildReportParts<T>(
+      IEnumerable<T> parts,
+      Dictionary<string, object>? filters)
+      where T : class, IReportPartEntity
+    {
+      var reportParts = new List<ReportPartData>();
+
+      foreach (var part in parts.OrderBy(p => p.DisplayOrder))
+      {
+        object? content = null;
+
+        if (part.IsQuery)
+        {
+          // Execute query with provided filters
+          content = await _reportRepository.ExecuteQueryAsync(part.DisplayContent, filters);
+        }
+        else
+        {
+          // Use static content
+          content = part.DisplayContent;
+        }
+
+        reportParts.Add(new ReportPartData
+        {
+          Content = content,
+          StyleId = part.StyleId,
+          IsTable = part.IsQuery,
+          DisplayOrder = part.DisplayOrder
+        });
+      }
+
+      return reportParts;
+    }
+
+    private async Task<List<ReportPartData>> BuildReportHeaderParts<T>(
       IEnumerable<T> parts,
       Dictionary<string, object>? filters)
       where T : class, IReportPartEntity
