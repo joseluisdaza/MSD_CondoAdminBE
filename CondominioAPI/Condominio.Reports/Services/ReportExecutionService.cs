@@ -1,3 +1,4 @@
+using Condominio.Reports.Models;
 using Serilog;
 
 namespace Condominio.Reports
@@ -21,7 +22,7 @@ namespace Condominio.Reports
     /// <summary>
     /// Ejecuta un reporte usando el generador del formato especificado.
     /// </summary>
-    public object ExecuteReport(ReportExecutionData reportData, string format = "json")
+    public AbstractReportOutput ExecuteReport(ReportExecutionData reportData, string format = "json")
     {
       if (reportData == null)
         throw new ArgumentNullException(nameof(reportData), "Report data cannot be null");

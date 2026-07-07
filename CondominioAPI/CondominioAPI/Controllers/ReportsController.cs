@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Security.Claims;
+using Condominio.Reports.Models;
 
 namespace CondominioAPI.Controllers
 {
@@ -453,7 +454,7 @@ namespace CondominioAPI.Controllers
 
         // Generate report using the execution service (format-agnostic)
         var result = _reportExecutionService.ExecuteReport(reportData, "json");
-        var response = result as ReportExecutionResponse;
+        var response = (result as JsonReportOutput).Content;
 
         Log.Information("POST > Reports > Execute > Successfully executed for ReportId: {0}", reportId);
         return Ok(response);
@@ -603,6 +604,65 @@ namespace CondominioAPI.Controllers
         VerticalAlignment = style.VerticalAlignment,
         WidthPercentage = style.WidthPercentage
       };
+    }
+
+    /// <summary>
+    /// Ejecuta un reporte y lo genera en formato PDF, retornando la ubicación del archivo
+    /// </summary>
+    [HttpPost("{reportId}/Execute/Pdf")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Director},{AppRoles.Habitante},{AppRoles.Auxiliar},{AppRoles.Seguridad}")]
+    public async Task<ActionResult<ReportPdfResponse>> ExecuteReportPdf(int reportId, [FromBody] ReportExecutionRequest request)
+    {
+      Log.Information("POST > Reports > Execute > PDF. User: {0}, ReportId: {1}",
+        this.User.Identity?.Name, reportId);
+
+      if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+      var report = await _reportRepository.GetByIdAsync(reportId);
+      if (report == null)
+        return NotFound(new { message = "Report not found." });
+
+      try
+      {
+        var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        Log.Information("POST > Reports > Execute > PDF > User roles: {0}", string.Join(", ", userRoles));
+
+        bool hasPermissions = _reportRoleRepository.GetByReportIdAsync(reportId).Result
+                              .Any(x => userRoles.Any(y => x.Role.RolName == y));
+        if (!hasPermissions)
+          return Unauthorized();
+
+        // Retrieve data from database
+        var reportData = await BuildReportExecutionData(report, reportId, request);
+
+        // Generate PDF report using the PDF generator
+        var pdfGenerator = new PdfReportGenerator();
+        var  result = pdfGenerator.Generate(reportData) as FileReportOutput;
+
+        
+        var response = new ReportPdfResponse
+        {
+          FilePath = result.FilePath ?? "",
+          FileName = result.FileName ?? "",
+          Success = result.Success
+        };
+
+        Log.Information("POST > Reports > Execute > PDF > Successfully generated for ReportId: {0}, FileName: {1}", 
+          reportId, response.FileName);
+
+        return Ok(response);
+        
+      }
+      catch (Exception ex)
+      {
+        Log.Error(ex, "Error generating PDF report {0}", reportId);
+        return StatusCode(500, new ReportPdfResponse
+        {
+          Success = false,
+          Error = ex.Message
+        });
+      }
     }
 
     #endregion

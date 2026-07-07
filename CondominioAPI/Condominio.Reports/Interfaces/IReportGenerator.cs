@@ -1,3 +1,5 @@
+using Condominio.Reports.Models;
+
 namespace Condominio.Reports
 {
   /// <summary>
@@ -11,6 +13,6 @@ namespace Condominio.Reports
     /// </summary>
     /// <param name="reportData">Datos del reporte a generar</param>
     /// <returns>Reporte generado</returns>
-    object Generate(ReportExecutionData reportData);
+    AbstractReportOutput Generate(ReportExecutionData reportData);
   }
 }

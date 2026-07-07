@@ -1,3 +1,5 @@
+using Condominio.Reports.Models;
+
 namespace Condominio.Reports
 {
   /// <summary>
@@ -12,7 +14,7 @@ namespace Condominio.Reports
     /// <param name="reportData">Datos del reporte a ejecutar</param>
     /// <param name="format">Formato de salida (json, pdf, excel, html, etc.)</param>
     /// <returns>Reporte generado en el formato especificado</returns>
-    object ExecuteReport(ReportExecutionData reportData, string format = "json");
+    AbstractReportOutput ExecuteReport(ReportExecutionData reportData, string format = "json");
 
     /// <summary>
     /// Registra un generador de reportes para un formato específico.

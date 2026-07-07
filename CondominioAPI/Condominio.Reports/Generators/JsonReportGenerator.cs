@@ -1,4 +1,5 @@
 using Condominio.DTOs;
+using Condominio.Reports.Models;
 
 namespace Condominio.Reports
 {
@@ -13,18 +14,22 @@ namespace Condominio.Reports
     /// </summary>
     /// <param name="reportData">Datos del reporte a generar</param>
     /// <returns>ReportExecutionResponse con la estructura del reporte</returns>
-    public object Generate(ReportExecutionData reportData)
+    public AbstractReportOutput Generate(ReportExecutionData reportData)
     {
       if (reportData == null)
         throw new ArgumentNullException(nameof(reportData));
 
-      var response = new ReportExecutionResponse
+      var response = new JsonReportOutput
       {
-        Title = reportData.Title,
-        StyleId = reportData.TitleStyleId,
-        Headers = ConvertPartsToContentItems(reportData.HeaderParts),
-        Sections = ConvertPartsToContentItems(reportData.SectionParts),
-        Footers = ConvertPartsToContentItems(reportData.FooterParts)
+        Content = new ReportExecutionResponse
+        {
+          Title = reportData.Title,
+          StyleId = reportData.TitleStyleId,
+          Headers = ConvertPartsToContentItems(reportData.HeaderParts),
+          Sections = ConvertPartsToContentItems(reportData.SectionParts),
+          Footers = ConvertPartsToContentItems(reportData.FooterParts)
+        },
+        Success = true
       };
 
       return response;
