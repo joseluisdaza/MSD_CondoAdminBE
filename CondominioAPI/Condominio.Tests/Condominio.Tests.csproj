@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Condominio.Models\Condominio.Models.csproj" />
     <ProjectReference Include="..\Condominio.Repository\Condominio.Repository.csproj" />
     <ProjectReference Include="..\Condominio.Utils\Condominio.Utils.csproj" />
+    <ProjectReference Include="..\Condominio.Reports\Condominio.Reports.csproj" />
   </ItemGroup>
 
 </Project>
