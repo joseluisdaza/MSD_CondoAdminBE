@@ -147,7 +147,7 @@ namespace CondominioAPI.Controllers
     /// Obtiene un reporte por nombre incluyendo headers, sections, footers, roles y parámetros
     /// </summary>
     [HttpGet("ByName/{reportName}")]
-    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super}")]
+    [Authorize(Roles = $"{AppRoles.Administrador},{AppRoles.Super},{AppRoles.Auxiliar},{AppRoles.Director},{AppRoles.Habitante},{AppRoles.Seguridad}")]
     public async Task<ActionResult<ReportLightResponse>> GetByName(string reportName)
     {
       Log.Information("GET > Reports > GetByName. User: {0}, Name: {1}", this.User.Identity?.Name, reportName);

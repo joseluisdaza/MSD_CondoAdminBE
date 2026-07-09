@@ -534,6 +534,9 @@ VALUES
 (@reportId, 0             , 5       , 0       , @startDate, 'Gracias por su pago.'),
 (@reportId, 1             , 5       , 0       , @startDate, 'CONDOMINIO - AMBAR'  );
 
+INSERT INTO report_roles (Report_Id, Role_Id)
+SELECT @reportId, `Id` FROM roles
+WHERE Rol_Name NOT IN ('seguridad');
 
 INSERT INTO report_params (Report_Id, Param_Name, Param_Type, Param_Description, Start_Date, End_Date)
 VALUES 
