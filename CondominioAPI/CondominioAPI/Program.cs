@@ -1,6 +1,8 @@
 using Condominio.Data.Mysql.Models;
 using Condominio.Models;
 using Condominio.Reports;
+using Condominio.Reports.Models;
+using Condominio.Reports.Services;
 using Condominio.Repository.Repositories;
 using CondominioAPI.Security;
 using DotNetEnv;
@@ -21,6 +23,12 @@ var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 var corsOrigin = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN");
 var logPath = Environment.GetEnvironmentVariable("LOG_PATH") ?? "Logs/log-.txt";
+
+// Cloud Storage Configuration
+var cloudStorageEnabled = Environment.GetEnvironmentVariable("CLOUD_STORAGE_ENABLED")?.ToLower() == "true";
+var cloudStorageProvider = Environment.GetEnvironmentVariable("CLOUD_STORAGE_PROVIDER") ?? "GoogleDrive";
+var googleDriveClientSecretsPath = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_CLIENT_SECRETS_PATH");
+var googleDriveRefreshToken = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_REFRESH_TOKEN");
 
 // Build connection string
 var connectionString = $"server={dbServer};database={dbName};user={dbUser};password={dbPassword}";
@@ -86,6 +94,22 @@ builder.Services.AddScoped<IReportParamRepository, ReportParamRepository>();
 
 // Servicios de generación de reportes
 builder.Services.AddSingleton<IReportExecutionService, ReportExecutionService>();
+
+// Configurar Cloud Storage Service
+var cloudStorageConfig = new CloudStorageConfig
+{
+  Enabled = cloudStorageEnabled,
+  Provider = cloudStorageProvider,
+  GoogleDrive = new GoogleDriveConfig
+  {
+    ClientSecretsPath = googleDriveClientSecretsPath,
+    RefreshToken = googleDriveRefreshToken
+  }
+};
+
+builder.Services.AddSingleton(cloudStorageConfig);
+builder.Services.AddSingleton<CloudStorageService>();
+
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

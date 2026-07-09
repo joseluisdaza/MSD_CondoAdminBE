@@ -9,6 +9,12 @@
 !.env.example
 !.env.render.example
 
+# Cloud Storage Credentials and Tokens - NEVER commit these files
+credentials/
+token_cache/
+*.json.bak
+service-account-key.json
+
 # Logs
 *.log
 Logs/
@@ -32,3 +38,4 @@ obj/
 # Temporary files
 *.tmp
 *.bak
+

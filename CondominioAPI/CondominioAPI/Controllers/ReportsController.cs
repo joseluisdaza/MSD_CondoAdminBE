@@ -2,12 +2,13 @@ using Condominio.DTOs;
 using Condominio.Models;
 using Condominio.Repository.Repositories;
 using Condominio.Reports;
+using Condominio.Reports.Models;
+using Condominio.Reports.Services;
 using Condominio.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Security.Claims;
-using Condominio.Reports.Models;
 
 namespace CondominioAPI.Controllers
 {
@@ -25,6 +26,7 @@ namespace CondominioAPI.Controllers
     private readonly IStyleRepository _styleRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IReportExecutionService _reportExecutionService;
+    private readonly CloudStorageService _cloudStorageService;
 
     public ReportsController(
       IReportRepository reportRepository,
@@ -36,7 +38,8 @@ namespace CondominioAPI.Controllers
       IReportParamRepository reportParamRepository,
       IStyleRepository styleRepository,
       IRoleRepository roleRepository,
-      IReportExecutionService reportExecutionService)
+      IReportExecutionService reportExecutionService,
+      CloudStorageService cloudStorageService)
     {
       _reportRepository = reportRepository;
       _reportRoleRepository = reportRoleRepository;
@@ -48,6 +51,7 @@ namespace CondominioAPI.Controllers
       _styleRepository = styleRepository;
       _roleRepository = roleRepository;
       _reportExecutionService = reportExecutionService;
+      _cloudStorageService = cloudStorageService;
     }
 
     #region REPORTS ENDPOINTS
@@ -634,24 +638,73 @@ namespace CondominioAPI.Controllers
           return Unauthorized();
 
         // Retrieve data from database
-        var reportData = await BuildReportExecutionData(report, reportId, request);
+          var reportData = await BuildReportExecutionData(report, reportId, request);
 
-        // Generate PDF report using the PDF generator
-        var pdfGenerator = new PdfReportGenerator();
-        var  result = pdfGenerator.Generate(reportData) as FileReportOutput;
+          // Generate PDF report using the PDF generator
+          var pdfGenerator = new PdfReportGenerator();
+          var result = pdfGenerator.Generate(reportData) as FileReportOutput;
 
-        
-        var response = new ReportPdfResponse
-        {
-          FilePath = result.FilePath ?? "",
-          FileName = result.FileName ?? "",
-          Success = result.Success
-        };
+          // Intenta subir el archivo a la nube si está configurado
+          if (result.Success && result.FilePath != null)
+          {
+            try
+            {
+              var isCloudAvailable = await _cloudStorageService.IsAvailableAsync();
+              if (isCloudAvailable)
+              {
+                Log.Information("Subiendo reporte a almacenamiento en la nube: {0}", result.FileName);
+                var cloudResult = await _cloudStorageService.UploadFileWithInfoAsync(
+                  result.FilePath, 
+                  result.FileName);
 
-        Log.Information("POST > Reports > Execute > PDF > Successfully generated for ReportId: {0}, FileName: {1}", 
-          reportId, response.FileName);
+                result.CloudStorage = new CloudStorageInfo
+                {
+                  IsStored = cloudResult.Success,
+                  ProviderName = cloudResult.ProviderName,
+                  FileId = cloudResult.FileId,
+                  FileUrl = cloudResult.FileUrl,
+                  UploadedAt = cloudResult.UploadedAt,
+                  ErrorMessage = cloudResult.ErrorMessage
+                };
 
-        return Ok(response);
+                if (cloudResult.Success)
+                {
+                  Log.Information("Reporte subido exitosamente a la nube: {0} (ID: {1})", 
+                    result.FileName, cloudResult.FileId);
+                }
+                else
+                {
+                  Log.Warning("Error al subir reporte a la nube: {0}", cloudResult.ErrorMessage);
+                }
+              }
+            }
+            catch (Exception ex)
+            {
+              Log.Error(ex, "Excepción al intentar subir reporte a la nube");
+              // No fallar la generación del reporte si falla la nube
+            }
+          }
+
+          var response = new ReportPdfResponse
+          {
+            FilePath = result.FilePath ?? "",
+            FileName = result.FileName ?? "",
+            Success = result.Success,
+            CloudStorage = result.CloudStorage != null ? new CloudStorageResponseInfo
+            {
+              IsStored = result.CloudStorage.IsStored,
+              ProviderName = result.CloudStorage.ProviderName,
+              FileId = result.CloudStorage.FileId,
+              FileUrl = result.CloudStorage.FileUrl,
+              UploadedAt = result.CloudStorage.UploadedAt,
+              ErrorMessage = result.CloudStorage.ErrorMessage
+            } : null
+          };
+
+          Log.Information("POST > Reports > Execute > PDF > Successfully generated for ReportId: {0}, FileName: {1}", 
+            reportId, response.FileName);
+
+          return Ok(response);
         
       }
       catch (Exception ex)
