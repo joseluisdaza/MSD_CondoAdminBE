@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
@@ -24,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Condominio.DTOs\Condominio.DTOs.csproj" />
     <ProjectReference Include="..\Condominio.Models\Condominio.Models.csproj" />
+    <ProjectReference Include="..\Condominio.Repository\Condominio.Repository.csproj" />
     <ProjectReference Include="..\Condominio.Utils\Condominio.Utils.csproj" />
   </ItemGroup>
 
