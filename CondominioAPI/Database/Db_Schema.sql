@@ -1,10 +1,6 @@
--- Database Schema for Condominio Management System
--- This script creates the necessary tables and relationships for managing users, roles, properties, expenses, and payments.
--- It ensures that the database and tables are created only if they do not already exist.
--- v0.1
+ CREATE DATABASE IF NOT EXISTS condominio_demo;
+ USE condominio_demo;
 
- CREATE DATABASE IF NOT EXISTS Condominio2;
- USE Condominio2;
 -- Users and roles
 SELECT 'Creating Users and Roles Tables';
 
@@ -277,7 +273,7 @@ CREATE TABLE IF NOT EXISTS report_params(
   Start_Date DATETIME NOT NULL,
   End_Date DATETIME NULL,
   FOREIGN KEY (Report_Id) REFERENCES reports(Id)
-)
+);
 
 CREATE TABLE IF NOT EXISTS report_audits
 (
@@ -504,5 +500,43 @@ SET @modifySQL = IF(
 PREPARE stmt FROM @modifySQL;
 EXECUTE stmt;
 
-
 INSERT INTO versions(Version, Last_Updated) VALUES('1.0.2', NOW());
+-- Insertando estilos por defecto para los reportes del sistema.
+SET @startdate = NOW();
+
+INSERT INTO styles 
+(Style_Name , Bold, Italic, Underline , Font_Size , Font_Color  , Background_Color, Horizontal_Alignment, Vertical_Alignment, Start_Date, Width_Percentage)
+VALUES
+('Texto'    , 0   , 0     , 0         , 13        , '#000000' , '#FFFFFF'     , 'center'            , 'middle', @startdate, 100),
+('H1'       , 1   , 0     , 0         , 24        , '#FFFFFF' , '#1a1a1a'     , 'center'            , 'middle', @startdate, 100),
+('H2'       , 1   , 0     , 0         , 18        , '#1a1a1a' , '#E8E8E8'     , 'left'              , 'middle', @startdate, 100),
+('H3'       , 1   , 0     , 0         , 16        , '#1a1a1a' , '#F5F5F5'     , 'left'              , 'middle', @startdate, 100),
+('Footer'   , 0   , 0     , 0         , 11        , '#666666' , '#FFFFFF'     , 'center'            , 'middle', @startdate, 100);
+
+
+-- Insertando reporte de recibo de pago de expensa
+INSERT INTO REPORTS (Report_Name, Display_Name, Title_Style , Display_Header, Display_Footer, Start_Date)
+VALUES ('ReciboPagoDeExpensa', 'Recibo de Pago de Expensa'  , 1, 1, 1, @startdate);
+
+
+SET @reportId = LAST_INSERT_ID();
+
+INSERT INTO report_headers 
+(Report_Id, Display_Order , Style_Id, Is_Query, Start_Date, Display_Content)
+VALUES 
+(@reportId, 0             , 2       , 0       , @startDate,'RECIBO PAGO DE EXPENSA'),
+(@reportId, 1             , 4       , 1       , @startDate,' SELECT \'Id Expensa\' as f1, \'Categoria\' as f2, \'Descripcion\' as f3, \'Monto\' as f4, \'Interes\' as f5, \'Fecha limite\' as f6, \'Departamento\' as f7, \'Monto Pagado\' as f8, \'Recibo\' as f9'),
+(@reportId, 2             , 1       , 1       , @startDate,'SELECT e.id AS f1, ec.Category AS f2, e.Description AS f3, e.Amount AS f4, e.Interest_Amount AS f5, e.Payment_Limit_Date AS f6, pr.Tower + \' \' + pr.Floor + \' \' + pr.Code AS f7, p.Amount AS f8, p.Receive_Number AS f9 FROM expenses e JOIN expense_payments ep ON e.id = ep.expense_id JOIN payments p ON ep.payment_id = p.id JOIN expense_categories ec ON e.Category_Id = ec.id JOIN property pr ON e.Property_Id = pr.id WHERE e.Id = @expenseId;');
+
+INSERT INTO report_footers 
+(Report_Id, Display_Order , Style_Id, Is_Query, Start_Date, Display_Content)
+VALUES 
+(@reportId, 0             , 5       , 0       , @startDate, 'Gracias por su pago.'),
+(@reportId, 1             , 5       , 0       , @startDate, 'CONDOMINIO - AMBAR'  );
+
+
+INSERT INTO report_params (Report_Id, Param_Name, Param_Type, Param_Description, Start_Date, End_Date)
+VALUES 
+(@reportId, 'expenseId', 'INT', 'Id de la expensa', @startDate, NULL);
+
+INSERT INTO versions(Version, Last_Updated) VALUES('1.0.3', NOW());
