@@ -1,0 +1,2384 @@
+{
+  "info": {
+    "name": "Condominio API",
+    "description": "Colección completa de endpoints de la API de Administración de Condominios",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Autenticación",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"uadmin\",\n  \"password\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "Health Check (Sin Autenticación)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "Auth Health Check (Con Autenticación)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/authhealthcheck",
+              "host": ["{{base_url}}"],
+              "path": ["api", "authhealthcheck"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Usuarios",
+      "item": [
+        {
+          "name": "Obtener todos los usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Obtener usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"newuser\",\n  \"userName\": \"New User\",\n  \"lastName\": \"Test\",\n  \"legalId\": \"12345678\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userName\": \"Updated User\",\n  \"lastName\": \"Updated\",\n  \"legalId\": \"87654321\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cambiar contraseña",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"NewSecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/1/password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1", "password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔑 Roles",
+      "item": [
+        {
+          "name": "Obtener todos los roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "role"]
+            }
+          }
+        },
+        {
+          "name": "Obtener roles de un usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/role/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "role", "1"]
+            }
+          }
+        },
+        {
+          "name": "Asignar roles a usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[1, 2, 3]"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/role/user/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "role", "user", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏠 Propiedades",
+      "item": [
+        {
+          "name": "Obtener todas las propiedades",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/property",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property"]
+            }
+          }
+        },
+        {
+          "name": "Obtener propiedad por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/property/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener mis propiedades",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/property/ByUser",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property", "ByUser"]
+            }
+          }
+        },
+        {
+          "name": "Obtener IDs de propiedades del usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/property/UserPropertyIds",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property", "UserPropertyIds"]
+            }
+          }
+        },
+        {
+          "name": "Obtener IDs de propiedades por usuario específico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/property/UserPropertyIds/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property", "UserPropertyIds", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear propiedad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"legalId\": \"12345\",\n  \"tower\": \"A\",\n  \"floor\": 1,\n  \"code\": \"01\",\n  \"propertyTypeId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/property",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar propiedad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"legalId\": \"12345\",\n  \"tower\": \"A\",\n  \"floor\": 2,\n  \"code\": \"01\",\n  \"propertyTypeId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/property/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar propiedad",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/property/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "property", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏘️ Tipos de Propiedad",
+      "item": [
+        {
+          "name": "Obtener todos los tipos de propiedad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/propertytype",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype"]
+            }
+          }
+        },
+        {
+          "name": "Obtener tipo de propiedad por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/propertytype/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear tipo de propiedad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"Apartamento\",\n  \"description\": \"Apartamento estándar\",\n  \"rooms\": 2,\n  \"bathrooms\": 1,\n  \"waterService\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/propertytype",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar tipo de propiedad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"type\": \"Apartamento\",\n  \"description\": \"Apartamento actualizado\",\n  \"rooms\": 3,\n  \"bathrooms\": 2,\n  \"waterService\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/propertytype/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar tipo de propiedad",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/propertytype/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertytype", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔗 Propietarios de Propiedades",
+      "item": [
+        {
+          "name": "Obtener propietarios (con filtros)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/propertyowners?propertyId=1&userId=1&includeFinalized=false",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertyowners"],
+              "query": [
+                {
+                  "key": "propertyId",
+                  "value": "1"
+                },
+                {
+                  "key": "userId",
+                  "value": "1"
+                },
+                {
+                  "key": "includeFinalized",
+                  "value": "false"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener propietario por propiedad y usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/propertyowners/1/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertyowners", "1", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear propietario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": 1,\n  \"userId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/propertyowners",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertyowners"]
+            }
+          }
+        },
+        {
+          "name": "Terminar relación propietario-propiedad",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/propertyowners/1/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "propertyowners", "1", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Gastos",
+      "item": [
+        {
+          "name": "Obtener todos los gastos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gasto por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gastos por propiedad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/property/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "property", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gastos por estado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/status/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "status", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gastos vencidos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expenses/overdue",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "overdue"]
+            }
+          }
+        },
+        {
+          "name": "Crear gasto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": 1,\n  \"propertyId\": 1,\n  \"description\": \"Gasto de mantenimiento\",\n  \"amount\": 100.00,\n  \"paymentLimitDate\": \"2024-12-31T23:59:59Z\",\n  \"interestAmount\": 5.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar gasto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"categoryId\": 1,\n  \"propertyId\": 1,\n  \"description\": \"Gasto actualizado\",\n  \"amount\": 150.00,\n  \"paymentLimitDate\": \"2024-12-31T23:59:59Z\",\n  \"interestAmount\": 7.50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expenses", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏷️ Categorías de Gastos",
+      "item": [
+        {
+          "name": "Obtener todas las categorías",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensecategories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensecategories"]
+            }
+          }
+        },
+        {
+          "name": "Obtener categoría por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensecategories/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensecategories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener categoría por nombre",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensecategories/category/Mantenimiento",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensecategories", "category", "Mantenimiento"]
+            }
+          }
+        },
+        {
+          "name": "Crear categoría",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Mantenimiento\",\n  \"description\": \"Gastos de mantenimiento del edificio\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expensecategories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensecategories"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar categoría",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"category\": \"Mantenimiento\",\n  \"description\": \"Gastos de mantenimiento actualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expensecategories/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensecategories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar categoría",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensecategories/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensecategories", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔗 Relaciones Gasto-Pago",
+      "item": [
+        {
+          "name": "Obtener todas las relaciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments"]
+            }
+          }
+        },
+        {
+          "name": "Obtener relación por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pagos por gasto",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/expense/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "expense", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gastos por pago",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "payment", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener relación por gasto y pago",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments/expense/1/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments", "expense", "1", "payment", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear relación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expenseId\": 1,\n  \"paymentId\": 1,\n  \"amount\": 100.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/expensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "expensepayments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Pagos",
+      "item": [
+        {
+          "name": "Obtener todos los pagos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pago por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pago por número de recibo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments/receive-number/REC001",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "receive-number", "REC001"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pagos por rango de fechas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments/date-range?startDate=2024-01-01&endDate=2024-12-31",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "date-range"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": 1,\n  \"userId\": 1,\n  \"statusId\": 1,\n  \"amount\": 100.00,\n  \"receiveNumber\": \"REC001\",\n  \"paymentMethod\": \"Efectivo\",\n  \"paymentDate\": \"2024-01-15T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar pago",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"propertyId\": 1,\n  \"userId\": 1,\n  \"statusId\": 2,\n  \"amount\": 150.00,\n  \"receiveNumber\": \"REC001\",\n  \"paymentMethod\": \"Transferencia\",\n  \"paymentDate\": \"2024-01-15T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar pago",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Estados de Pago",
+      "item": [
+        {
+          "name": "Obtener todos los estados",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/paymentstatus",
+              "host": ["{{base_url}}"],
+              "path": ["api", "paymentstatus"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 Reportes",
+      "item": [
+        {
+          "name": "Obtener lista de reportes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports"]
+            }
+          }
+        },
+        {
+          "name": "Obtener reporte por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener reporte por nombre",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/ByName/ReciboPagoDeExpensa",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "ByName", "ReciboPagoDeExpensa"]
+            }
+          }
+        },
+        {
+          "name": "Ejecutar reporte",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportName\": \"ReciboPagoDeExpensa\",\n  \"parameters\": {\n    \"expenseId\": 1\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reports/execute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "execute"]
+            }
+          }
+        },
+        {
+          "name": "Ejecutar reporte como PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportName\": \"ReciboPagoDeExpensa\",\n  \"parameters\": {\n    \"expenseId\": 1\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reports/execute-pdf",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "execute-pdf"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛠️ Recursos",
+      "item": [
+        {
+          "name": "Obtener todos los recursos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resources"]
+            }
+          }
+        },
+        {
+          "name": "Obtener recurso por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resources", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear recurso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Salón de Reuniones\",\n  \"description\": \"Salón para reuniones de condominio\",\n  \"photo\": \"https://example.com/image.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resources",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resources"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar recurso",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"name\": \"Salón de Reuniones\",\n  \"description\": \"Salón actualizado\",\n  \"photo\": \"https://example.com/image.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resources/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resources", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar recurso",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resources/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resources", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💵 Costos de Recursos",
+      "item": [
+        {
+          "name": "Agregar costo de recurso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingPrice\": 50.00,\n  \"bookingWarrantyCost\": 25.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resourcecosts/Add/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcecosts", "Add", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener historial de costos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resourcecosts/History/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcecosts", "History", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener costo actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resourcecosts/Current/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcecosts", "Current", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Reservas de Recursos",
+      "item": [
+        {
+          "name": "Obtener todas las reservas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resourcebookings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcebookings"]
+            }
+          }
+        },
+        {
+          "name": "Obtener mis reservas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resourcebookings/MyBookings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcebookings", "MyBookings"]
+            }
+          }
+        },
+        {
+          "name": "Obtener reserva por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resourcebookings/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcebookings", "1"]
+            }
+          }
+        },
+        {
+          "name": "Verificar disponibilidad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resourceId\": 1,\n  \"bookingStart\": \"2024-02-15T10:00:00Z\",\n  \"bookingEnd\": \"2024-02-15T12:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resourcebookings/CheckAvailability",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcebookings", "CheckAvailability"]
+            }
+          }
+        },
+        {
+          "name": "Crear reserva",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resourceId\": 1,\n  \"propertyId\": 1,\n  \"bookingDate\": \"2024-02-15T10:00:00Z\",\n  \"bookingEndDate\": \"2024-02-15T12:00:00Z\",\n  \"bookingDescription\": \"Reunión de condominio\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resourcebookings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcebookings"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar reserva",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"resourceId\": 1,\n  \"propertyId\": 1,\n  \"bookingDate\": \"2024-02-16T10:00:00Z\",\n  \"bookingEndDate\": \"2024-02-16T12:00:00Z\",\n  \"bookingDescription\": \"Reunión actualizada\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/resourcebookings/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcebookings", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar reserva",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resourcebookings/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resourcebookings", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚠️ Incidentes",
+      "item": [
+        {
+          "name": "Obtener todos los incidentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidents"]
+            }
+          }
+        },
+        {
+          "name": "Obtener mis incidentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidents/MyIncidents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidents", "MyIncidents"]
+            }
+          }
+        },
+        {
+          "name": "Obtener incidente por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidents/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidents", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear incidente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incidentTypeId\": 1,\n  \"propertyId\": 1,\n  \"incidentDate\": \"2024-01-15T10:00:00Z\",\n  \"incidentDescription\": \"Fuga de agua en baño\",\n  \"statusId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/incidents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidents"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar incidente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"incidentTypeId\": 1,\n  \"propertyId\": 1,\n  \"incidentDate\": \"2024-01-15T10:00:00Z\",\n  \"incidentDescription\": \"Fuga reparada\",\n  \"statusId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/incidents/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidents", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar incidente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidents/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidents", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏷️ Tipos de Incidentes",
+      "item": [
+        {
+          "name": "Obtener todos los tipos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidenttypes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidenttypes"]
+            }
+          }
+        },
+        {
+          "name": "Obtener tipo por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidenttypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidenttypes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear tipo de incidente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"Fuga de agua\",\n  \"description\": \"Incidentes por fugas de agua\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/incidenttypes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidenttypes"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar tipo de incidente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"type\": \"Fuga de agua\",\n  \"description\": \"Incidentes por fugas de agua actualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/incidenttypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidenttypes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar tipo de incidente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidenttypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidenttypes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Costos de Incidentes",
+      "item": [
+        {
+          "name": "Obtener todos los costos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidentcosts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidentcosts"]
+            }
+          }
+        },
+        {
+          "name": "Obtener costo por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidentcosts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidentcosts", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear costo de incidente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"incidentTypeId\": 1,\n  \"cost\": 250.00,\n  \"description\": \"Costo de reparación de fuga\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/incidentcosts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidentcosts"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar costo de incidente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"incidentTypeId\": 1,\n  \"cost\": 300.00,\n  \"description\": \"Costo actualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/incidentcosts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidentcosts", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar costo de incidente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/incidentcosts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "incidentcosts", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Gastos de Servicio",
+      "item": [
+        {
+          "name": "Obtener todos los gastos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gasto por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gastos por tipo de servicio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/service-type/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "service-type", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gastos por estado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/status/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "status", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear gasto de servicio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceTypeId\": 1,\n  \"description\": \"Servicio de limpieza\",\n  \"amount\": 200.00,\n  \"paymentLimitDate\": \"2024-02-28T23:59:59Z\",\n  \"statusId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar gasto de servicio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"serviceTypeId\": 1,\n  \"description\": \"Servicio actualizado\",\n  \"amount\": 250.00,\n  \"paymentLimitDate\": \"2024-02-28T23:59:59Z\",\n  \"statusId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpenses", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Tipos de Servicio",
+      "item": [
+        {
+          "name": "Obtener todos los tipos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes"]
+            }
+          }
+        },
+        {
+          "name": "Obtener tipo por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener tipo por nombre",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/name/Limpieza",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "name", "Limpieza"]
+            }
+          }
+        },
+        {
+          "name": "Crear tipo de servicio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceName\": \"Limpieza\",\n  \"description\": \"Servicio de limpieza general\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar tipo de servicio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"serviceName\": \"Limpieza\",\n  \"description\": \"Servicio actualizado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar tipo de servicio",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicetypes/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicetypes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Pagos de Servicio",
+      "item": [
+        {
+          "name": "Obtener todos los pagos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pago por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pago por número de recibo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/receive-number/REC002",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "receive-number", "REC002"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pagos por estado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments/status/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments", "status", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear pago de servicio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statusId\": 1,\n  \"amount\": 200.00,\n  \"receiveNumber\": \"REC002\",\n  \"paymentMethod\": \"Efectivo\",\n  \"paymentDate\": \"2024-01-20T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "servicepayments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔗 Relaciones Gasto-Pago de Servicio",
+      "item": [
+        {
+          "name": "Obtener todas las relaciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments"]
+            }
+          }
+        },
+        {
+          "name": "Obtener relación por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener pagos por gasto de servicio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/service-expense/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "service-expense", "1"]
+            }
+          }
+        },
+        {
+          "name": "Obtener gastos por pago",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments/payment/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments", "payment", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear relación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceExpenseId\": 1,\n  \"paymentId\": 1,\n  \"amount\": 200.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/serviceexpensepayments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "serviceexpensepayments"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
