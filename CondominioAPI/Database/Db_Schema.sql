@@ -515,7 +515,7 @@ VALUES
 
 
 -- Insertando reporte de recibo de pago de expensa
-INSERT INTO REPORTS (Report_Name, Display_Name, Title_Style , Display_Header, Display_Footer, Start_Date)
+INSERT INTO reports (Report_Name, Display_Name, Title_Style , Display_Header, Display_Footer, Start_Date)
 VALUES ('ReciboPagoDeExpensa', 'Recibo de Pago de Expensa'  , 1, 1, 1, @startdate);
 
 
