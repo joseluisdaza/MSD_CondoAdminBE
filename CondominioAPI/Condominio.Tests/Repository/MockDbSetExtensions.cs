@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Condominio.Tests.Repository
@@ -19,7 +20,6 @@ namespace Condominio.Tests.Repository
         public static Mock<DbSet<T>> CreateMockDbSet<T>(IEnumerable<T> data) where T : class
         {
             var queryableData = data.AsQueryable();
-            var asyncEnumerable = data.ToAsyncEnumerable();
 
             var mockDbSet = new Mock<DbSet<T>>();
 
@@ -32,7 +32,7 @@ namespace Condominio.Tests.Repository
             // Setup IAsyncEnumerable to support async enumeration
             mockDbSet.As<IAsyncEnumerable<T>>()
                 .Setup(m => m.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
-                .Returns(asyncEnumerable.GetAsyncEnumerator);
+                .Returns(() => new TestAsyncEnumerator<T>(data.GetEnumerator()));
 
             // Setup FindAsync - returns ValueTask<T> as required by EF Core
             mockDbSet.Setup(m => m.FindAsync(It.IsAny<object[]>()))
@@ -52,6 +52,29 @@ namespace Condominio.Tests.Repository
             mockDbSet.Setup(m => m.Remove(It.IsAny<T>())).Callback<T>(entity => { });
 
             return mockDbSet;
+        }
+
+        private class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
+        {
+            private readonly IEnumerator<T> _inner;
+
+            public TestAsyncEnumerator(IEnumerator<T> inner)
+            {
+                _inner = inner;
+            }
+
+            public T Current => _inner.Current;
+
+            public ValueTask<bool> MoveNextAsync()
+            {
+                return new ValueTask<bool>(_inner.MoveNext());
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                _inner.Dispose();
+                return new ValueTask();
+            }
         }
 
         /// <summary>
