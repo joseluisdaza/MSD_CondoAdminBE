@@ -13,7 +13,8 @@ WORKDIR /repo
 # Build arguments for Git configuration
 ARG GIT_REPO=https://github.com/joseluisdaza/MSD_CondoAdminBE.git
 #ARG GIT_BRANCH=main
-ARG GIT_BRANCH=feature/Backend_AWS_Deployment
+#ARG GIT_BRANCH=feature/Backend_AWS_Deployment
+ARG GIT_BRANCH=release/v1.0.3
 
 # Clone the repository
 RUN git clone --branch ${GIT_BRANCH} --depth 1 ${GIT_REPO} .
