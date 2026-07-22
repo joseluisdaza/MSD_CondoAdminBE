@@ -1,0 +1,18 @@
+# Artifacts from BenchmarkDotNet
+BenchmarkDotNet.Artifacts/
+bin/
+obj/
+
+# Build results
+*.dll
+*.exe
+*.pdb
+
+# IDE
+.vs/
+.vscode/
+*.sln.iml
+
+# Environment
+.env
+.env.local
