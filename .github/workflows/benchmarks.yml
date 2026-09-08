@@ -1,0 +1,113 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        dotnet-version: ['8.0.x']
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+    
+    - name: Restore dependencies
+      run: |
+        cd MSD_CondoAdminBE/CondominioAPI
+        dotnet restore
+    
+    - name: Build Benchmarks Project
+      run: |
+        cd MSD_CondoAdminBE/CondominioAPI
+        dotnet build Condominio.Benchmarks --configuration Release --no-restore
+    
+    - name: Run PasswordHasher Benchmarks
+      run: |
+        cd MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks
+        dotnet run --configuration Release -- --filter *PasswordHasher* --exporters json
+    
+    - name: Run LINQ Benchmarks
+      run: |
+        cd MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks
+        dotnet run --configuration Release -- --filter *Linq* --exporters json
+    
+    - name: Run DataStructure Benchmarks
+      run: |
+        cd MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks
+        dotnet run --configuration Release -- --filter *DataStructure* --exporters json
+    
+    - name: Run DTO Benchmarks
+      run: |
+        cd MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks
+        dotnet run --configuration Release -- --filter *Dto* --exporters json
+    
+    - name: Run JSON Serialization Benchmarks
+      run: |
+        cd MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks
+        dotnet run --configuration Release -- --filter *JsonSerialization* --exporters json
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results
+        path: MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks/bin/Release/net8.0/BenchmarkDotNet.Artifacts/
+        retention-days: 30
+    
+    - name: Comment PR with benchmark results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          const artifactsPath = './MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks/bin/Release/net8.0/BenchmarkDotNet.Artifacts/';
+          
+          let comment = '## 📊 Benchmark Results\n\n';
+          comment += '✅ Performance benchmarks have been executed successfully!\n\n';
+          comment += '### 📁 Results\n';
+          comment += 'Benchmark artifacts have been uploaded. ';
+          comment += 'Download them from the "Artifacts" section to view detailed reports.\n\n';
+          comment += '### 📈 Categories Tested\n';
+          comment += '- ✓ PasswordHasher (Cryptography)\n';
+          comment += '- ✓ LINQ Operations\n';
+          comment += '- ✓ Data Structures (List vs Dict vs HashSet)\n';
+          comment += '- ✓ DTOs\n';
+          comment += '- ✓ JSON Serialization\n\n';
+          comment += '### 📝 Next Steps\n';
+          comment += '1. Download benchmark results from artifacts\n';
+          comment += '2. Review results for any performance regressions\n';
+          comment += '3. Compare with baseline if optimization PR\n';
+          comment += '4. Comment on any concerns or optimizations\n';
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+    
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        tool: 'benchmarkdotnet'
+        output-file-path: 'MSD_CondoAdminBE/CondominioAPI/Condominio.Benchmarks/bin/Release/net8.0/BenchmarkDotNet.Artifacts/results.json'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+        alert-threshold: '150%'
+        comment-on-alert: true
+        fail-on-alert: false
